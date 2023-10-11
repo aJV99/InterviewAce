@@ -1,0 +1,14 @@
+{
+  "name": "interviewace",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:fe": "cd frontend && npm start",
+    "start:be": "cd backend && npm start",
+    "start": "npm run start:fe & npm run start:be"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
