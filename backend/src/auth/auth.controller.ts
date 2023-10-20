@@ -1,7 +1,9 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException, Res, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RefreshTokenDto } from '../dto/refresh-token.dto'; // Ensure you've defined this DTO
+import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { SignupDto } from 'src/dto/signup.dto';
+import { Request, Response } from 'express';
+import { JwtAuthGuard } from './jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -13,7 +15,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() loginUserDto: { email: string; password: string }) {
+  async login(@Body() loginUserDto: { email: string; password: string }, @Res() res: Response) {
     const user = await this.authService.validateUser(
       loginUserDto.email,
       loginUserDto.password,
@@ -21,18 +23,27 @@ export class AuthController {
     if (!user) {
       throw new BadRequestException('Invalid credentials.');
     }
-    return this.authService.login(user);
+    const result = await this.authService.login(user, res);
+    res.send(result);
   }
 
   @Post('refresh')
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
-    return this.authService.refreshToken(refreshTokenDto.refresh_token);
+  async refresh(@Req() req: Request, @Res() res: Response) {
+    const refreshToken = req.cookies.RefreshToken; // Assuming you named your cookie 'RefreshToken' in the AuthService
+    if (!refreshToken) {
+      throw new BadRequestException('Refresh token not provided.');
+    }
+    return this.authService.refreshToken(refreshToken, res);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Body() refreshTokenDto: RefreshTokenDto) {
-    const { refresh_token } = refreshTokenDto;
-    await this.authService.logout(refresh_token);
+  async logout(@Req() req: Request) {
+    const refreshToken = req.cookies.RefreshToken;
+    if (!refreshToken) {
+      throw new BadRequestException('Refresh token not provided.');
+    }
+    await this.authService.logout(refreshToken);
     return { message: 'Logged out successfully' };
   }
 }

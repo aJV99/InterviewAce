@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
-import { UsersModule } from './users/users.module';
+import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { JobsModule } from './jobs/jobs.module';
+import { InterviewsModule } from './interviews/interviews.module';
+import { QuestionsModule } from './questions/questions.module';
 
 @Module({
   imports: [
@@ -16,8 +19,11 @@ import { JwtModule } from '@nestjs/jwt';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '60m' },
     }),
-    UsersModule,
+    UserModule,
     AuthModule,
+    JobsModule,
+    InterviewsModule,
+    QuestionsModule,
     // If you have additional modules, you would add them here
   ],
 })
