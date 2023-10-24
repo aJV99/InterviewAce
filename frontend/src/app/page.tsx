@@ -1,9 +1,8 @@
-import HomePage from '@/pages/homepage';
+"use client";
+import Home from "@/pages/homePage";
 
 function MyApp() {
-  return (
-      <HomePage />
-  )
+  return <Home />;
 }
 
 export default MyApp;

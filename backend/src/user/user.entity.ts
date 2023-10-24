@@ -7,4 +7,6 @@ export class User {
   linkedInId?: string;
   createdAt: Date;
   updatedAt: Date;
+  refreshToken: string;
+  refreshTokenExpires: Date;
 }

@@ -19,9 +19,19 @@ export class QuestionsService {
     };
 
     const payload = {
-      messages: [{"role": "system", "content": "You are an interview response evaluator."},
-      {"role": "user", "content": "Question: Tell me about a time you faced a challenge at work and how you handled it."},
-      {"role": "user", "content": "Answer: Once at my previous job, I was given a project with a tight deadline. I quickly organized a team, delegated tasks, and ensured open communication. We worked extra hours and managed to complete the project on time, receiving appreciation from our superiors."},],
+      messages: [
+        { role: 'system', content: 'You are an interview response evaluator.' },
+        {
+          role: 'user',
+          content:
+            'Question: Tell me about a time you faced a challenge at work and how you handled it.',
+        },
+        {
+          role: 'user',
+          content:
+            'Answer: Once at my previous job, I was given a project with a tight deadline. I quickly organized a team, delegated tasks, and ensured open communication. We worked extra hours and managed to complete the project on time, receiving appreciation from our superiors.',
+        },
+      ],
       model: 'gpt-4',
     };
 
@@ -30,7 +40,9 @@ export class QuestionsService {
         .post(this.OPENAI_API_ENDPOINT, payload, { headers })
         .pipe(
           catchError((error: AxiosError) => {
-            this.logger.error(error.response?.data || 'Error contacting OpenAI API');
+            this.logger.error(
+              error.response?.data || 'Error contacting OpenAI API',
+            );
             throw new Error('Failed to get a response from OpenAI API');
           }),
         ),

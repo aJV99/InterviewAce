@@ -10,12 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { User } from './user.entity';
 import { RequestWithAuth } from 'src/dto/request.dto';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
 @UseGuards(JwtAuthGuard)
-@Controller('users')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -29,7 +29,10 @@ export class UserController {
   }
 
   @Put()
-  async update(@Req() req: RequestWithAuth, @Body() updateUserDto: Partial<User>) {
+  async update(
+    @Req() req: RequestWithAuth,
+    @Body() updateUserDto: Partial<User>,
+  ) {
     const user = await this.userService.update(req.user.id, updateUserDto);
     if (!user) {
       throw new InternalServerErrorException('Updating the User Failed');

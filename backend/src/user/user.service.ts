@@ -22,6 +22,10 @@ export class UserService {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
+  async findFirstRefreshToken(refreshToken: string): Promise<User | null> {
+    return this.prisma.user.findFirst({ where: { refreshToken } });
+  }
+
   async get(id: string): Promise<User> {
     return await this.prisma.user.findUnique({ where: { id } });
   }
