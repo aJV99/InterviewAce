@@ -14,7 +14,7 @@ import {
   CardHeader,
   SimpleGrid,
 } from "@chakra-ui/react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 const Cards: React.FC = () => {
   const router = useRouter();
@@ -23,18 +23,18 @@ const Cards: React.FC = () => {
     {
       title: "Customer dashboard",
       description: "View a summary of all your customers over the last month.",
-      route: "/path-for-card1"  // Replace with your desired route
+      route: "/path-for-card1", // Replace with your desired route
     },
     {
       title: "Customer dashboard",
       description: "View a summary of all your customers over the last month.",
-      route: "/path-for-card2"  // Replace with your desired route
+      route: "/path-for-card2", // Replace with your desired route
     },
     {
       title: "Customer dashboard",
       description: "View a summary of all your customers over the last month.",
-      route: "/path-for-card3"  // Replace with your desired route
-    }
+      route: "/path-for-card3", // Replace with your desired route
+    },
   ];
 
   return (

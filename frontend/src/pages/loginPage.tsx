@@ -35,7 +35,8 @@ const Login = () => {
   const router = useRouter();
 
   const handleLogin = async () => {
-    if (!email || !password) { // Check if email or password is empty
+    if (!email || !password) {
+      // Check if email or password is empty
       setError("Both email and password are required fields.");
       return;
     }
@@ -52,7 +53,12 @@ const Login = () => {
       router.push("/dashboard");
     } catch (error: any) {
       console.error(error);
-      if (error.response && error.response.data && error.response.data.statusCode && error.response.data.statusCode === 401) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.statusCode &&
+        error.response.data.statusCode === 401
+      ) {
         setError("Incorrect email or password.");
       } else {
         setError("An error occurred.");
@@ -114,11 +120,11 @@ const Login = () => {
               />
             </Stack>
             {error && (
-          <Alert status="error" borderRadius="md">
-            <AlertIcon />
-            {error}
-          </Alert>
-        )}
+              <Alert status="error" borderRadius="md">
+                <AlertIcon />
+                {error}
+              </Alert>
+            )}
             <HStack justify="space-between">
               <Checkbox defaultChecked>Remember me</Checkbox>
               <Button variant="text" size="sm">

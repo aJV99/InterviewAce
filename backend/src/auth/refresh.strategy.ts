@@ -11,15 +11,17 @@ import { JwtPayload } from './jwt-payload.interface';
 export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh') {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([(request) => {
-        return request.cookies?.Refresh;
-      }]),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request) => {
+          return request.cookies?.Refresh;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET,
-      passReqToCallback: true
+      passReqToCallback: true,
     });
   }
 
@@ -29,7 +31,7 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh') {
       throw new UnauthorizedException('Refresh token not found');
     }
 
-    // Optional: You can add more logic here to check if the refreshToken is still valid 
+    // Optional: You can add more logic here to check if the refreshToken is still valid
     // For instance, you could check if the user is still active, if the refreshToken was revoked, etc.
 
     const user = await this.userService.findOneByEmail(payload.email);

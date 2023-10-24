@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { JwtAuthGuard } from './jwt.guard';
@@ -14,7 +22,7 @@ interface CookieOptions {
 let cookieOptions: CookieOptions = {
   httpOnly: true,
   path: '/',
-  secure: true
+  secure: true,
 };
 
 if (process.env.NODE_ENV === 'development') {
@@ -57,13 +65,16 @@ export class AuthController {
     }
     const token = await this.authService.login(user);
     const refreshToken = await this.authService.getRefreshToken(user);
-    res.cookie('Refresh', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 }); 
+    res.cookie('Refresh', refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.send(token);
   }
 
   @Get('test')
   async test(@Req() req: any, @Res() res: any) {
-    res.send('Test')
+    res.send('Test');
   }
 
   @UseGuards(RefreshGuard)

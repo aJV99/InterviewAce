@@ -15,7 +15,7 @@ export class AuthService {
 
   async validateUser(loginDto: LoginDto): Promise<any> {
     const user = await this.userService.findOneByEmail(loginDto.email);
-    if (user && await bcrypt.compare(loginDto.password, user.password)) {
+    if (user && (await bcrypt.compare(loginDto.password, user.password))) {
       const { password, ...result } = user;
       return result;
     }
@@ -36,12 +36,14 @@ export class AuthService {
     return this.jwtService.sign(payload, { expiresIn: '7d' });
   }
 
-  async createAccessTokenFromRefreshToken(refreshToken: string): Promise<string> {
+  async createAccessTokenFromRefreshToken(
+    refreshToken: string,
+  ): Promise<string> {
     try {
-      // Verify the refresh token. 
+      // Verify the refresh token.
       // Note: Ideally you should have a different secret for refresh tokens for added security.
       const decoded: any = jwt.verify(refreshToken, process.env.JWT_SECRET);
-      
+
       if (!decoded.email) {
         throw new UnauthorizedException('Invalid token.');
       }
@@ -54,7 +56,6 @@ export class AuthService {
 
       const payload = { email: user.email, id: user.id };
       return this.jwtService.sign(payload);
-
     } catch (error) {
       console.error('Error creating access token from refresh token:', error);
       throw new UnauthorizedException('Could not create new access token.');
