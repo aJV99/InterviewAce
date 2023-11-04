@@ -1,5 +1,5 @@
-import axios from "axios";
-import store from "../redux/store";
+import axios, { AxiosError } from "axios";
+import store, { persistor } from "../redux/store";
 import { updateToken, clearToken } from "../redux/features/authSlice";
 
 const instance = axios.create({
@@ -51,10 +51,12 @@ instance.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
+  (error: AxiosError) => {
+    console.log("Entire Error:", error.message);
     if (error.response && error.response.status === 401) {
+      console.log("Hello");
       store.dispatch(clearToken());
-      localStorage.removeItem("accessToken");
+      persistor.purge();
     }
     console.error("Axios Error:", error);
     return Promise.reject(error);

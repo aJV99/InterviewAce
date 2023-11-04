@@ -8,10 +8,17 @@ import * as jwt from 'jsonwebtoken';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const authService = app.get(AuthService);
+  // Enhanced CORS configuration to ensure cookies can be received from a different origin (frontend).
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    allowedHeaders: 'Content-Type, User-Agent, Referrer, Origin, Authorization',
+    exposedHeaders: 'Authorization',
+  });
 
   app.useGlobalPipes(new ValidationPipe());
-  // app.use(helmet());
+  app.use(helmet());
   app.use(cookieParser());
 
   app.use(async (req, res, next) => {
@@ -58,15 +65,6 @@ async function bootstrap() {
     } else {
       next();
     }
-  });
-
-  // Enhanced CORS configuration to ensure cookies can be received from a different origin (frontend).
-  app.enableCors({
-    origin: 'http://localhost:3000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-    allowedHeaders: 'Content-Type, User-Agent, Referrer, Origin, Authorization',
-    exposedHeaders: 'Authorization',
   });
 
   await app.listen(8000);

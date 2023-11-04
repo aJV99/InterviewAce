@@ -10,7 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { JwtAuthGuard } from './jwt.guard';
-import { RefreshGuard } from './refresh.guard';
+// import { RefreshGuard } from './refresh.guard';
 
 interface CookieOptions {
   httpOnly: boolean;
@@ -77,10 +77,10 @@ export class AuthController {
     res.send('Test');
   }
 
-  @UseGuards(RefreshGuard)
-  @Post('refresh')
-  async refreshToken(@Req() req: any, @Res() res: any) {
-    const oldRefreshToken = req.cookies.Refresh;
-    // Extract user from oldRefreshToken and generate new tokens.
-  }
+  // @UseGuards(RefreshGuard)
+  // @Post('refresh')
+  // async refreshToken(@Req() req: any, @Res() res: any) {
+  //   const oldRefreshToken = req.cookies.Refresh;
+  //   // Extract user from oldRefreshToken and generate new tokens.
+  // }
 }

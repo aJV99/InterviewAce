@@ -13,10 +13,12 @@ import {
   CardFooter,
   CardHeader,
   SimpleGrid,
+  Stack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
+import { JobState } from "@/redux/features/jobSlice";
 
-const Cards: React.FC = () => {
+const Cards: React.FC<{ cards: JobState }> = ({ cards }) => {
   const router = useRouter();
 
   const cardData = [
@@ -42,17 +44,18 @@ const Cards: React.FC = () => {
       spacing={4}
       templateColumns="repeat(auto-fill, minmax(200px, 1fr))"
     >
-      {cardData.map((card, index) => (
+      {cards.jobs.map((card, index) => (
         <Card key={index} boxShadow="md" borderRadius="xl">
-          <CardHeader>
-            <Heading size="md">{card.title}</Heading>
-          </CardHeader>
           <CardBody>
-            <Text>{card.description}</Text>
+            <Stack spacing={2}>
+              <Heading size="md">{card.title}</Heading>
+              <Heading size="sm">{card.company}</Heading>
+              <Text>{card.location}</Text>
+            </Stack>
+            <Button mt={4} onClick={() => router.push(card.title)}>
+              Get Practicing
+            </Button>
           </CardBody>
-          <CardFooter>
-            <Button onClick={() => router.push(card.route)}>View here</Button>
-          </CardFooter>
         </Card>
       ))}
     </SimpleGrid>

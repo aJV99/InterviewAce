@@ -4,23 +4,35 @@ import { usePathname, useRouter } from "next/navigation";
 import { RootState } from "@/redux/store";
 
 const withAuth = (WrappedComponent: React.ComponentType) => {
-  return (props: any) => {
+  const WithAuthComponent: React.FC<any> = (props) => {
     const token = useSelector((state: RootState) => state.auth.accessToken);
     const router = useRouter();
     const pathname = usePathname();
 
     if (!token && pathname !== "/login") {
       router.push("/login");
-      return null; // Component will not be rendered until the page redirect completes
+      return null;
     }
 
     if (token && pathname === "/login") {
       router.push("/dashboard");
-      return null; // Component will not be rendered until the page redirect completes
+      return null;
     }
 
     return <WrappedComponent {...props} />;
   };
+
+  // Set a display name for debugging purposes
+  WithAuthComponent.displayName = `WithAuth(${getDisplayName(
+    WrappedComponent,
+  )})`;
+
+  return WithAuthComponent;
 };
+
+// Helper function to get the display name of a component
+function getDisplayName(WrappedComponent: React.ComponentType) {
+  return WrappedComponent.displayName || WrappedComponent.name || "Component";
+}
 
 export default withAuth;
