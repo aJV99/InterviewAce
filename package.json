@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "install:fe": "cd frontend && npm install",
+    "install:be": "cd backend && npm install",
+    "install": "npm run install:fe & npm run install:be",
     "start:fe": "cd frontend && npm run dev",
     "start:be": "cd backend && npm run start",
     "start": "npm run start:fe & npm run start:be"

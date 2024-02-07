@@ -24,6 +24,9 @@ InterviewAce leverages speech recognition and a fine-tuned GPT model to provide 
 To start using InterviewAce, follow these commands:
 
 ```bash
+# Install the necessary packages
+npm run install
+
 # Start the frontend
 npm run start:fe
 
