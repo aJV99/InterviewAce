@@ -23,9 +23,9 @@ const Header: React.FC = () => {
 
   return (
     <Flex
-      bg="white"
+      // bg="white"
       p={5}
-      boxShadow="md"
+      // boxShadow="md"
       borderRadius="xl"
       alignItems="center"
       justifyContent="space-between"
@@ -40,7 +40,7 @@ const Header: React.FC = () => {
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />
-          <JobModal />
+          <JobModal onClose={onClose} />
         </ModalContent>
       </Modal>
     </Flex>

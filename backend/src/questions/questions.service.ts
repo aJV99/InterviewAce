@@ -1,53 +1,46 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { catchError, firstValueFrom } from 'rxjs';
-import { AxiosError } from 'axios';
-import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+import { QuestionDto, UpdateQuestionDto } from './dto/questions.dto';
 
 @Injectable()
 export class QuestionsService {
-  private readonly logger = new Logger(QuestionsService.name);
-  private readonly OPENAI_API_ENDPOINT =
-    'https://api.openai.com/v1/chat/completions';
-  private readonly OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  constructor(private readonly prisma: PrismaService) {}
 
-  constructor(private readonly httpService: HttpService) {}
+  async createMany(interviewId: string, createQuestionDtos: string[]) {
+    return this.prisma.question.createMany({
+      data: createQuestionDtos.map((questionDto) => ({
+        content: questionDto,
+        interviewId,
+      })),
+    });
+  }
 
-  async getGptResponse(): Promise<JSON> {
-    const headers = {
-      Authorization: `Bearer ${this.OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    };
+  async create(createQuestionDto: QuestionDto) {
+    return this.prisma.question.create({
+      data: createQuestionDto,
+    });
+  }
 
-    const payload = {
-      messages: [
-        { role: 'system', content: 'You are an interview response evaluator.' },
-        {
-          role: 'user',
-          content:
-            'Question: Tell me about a time you faced a challenge at work and how you handled it.',
-        },
-        {
-          role: 'user',
-          content:
-            'Answer: Once at my previous job, I was given a project with a tight deadline. I quickly organized a team, delegated tasks, and ensured open communication. We worked extra hours and managed to complete the project on time, receiving appreciation from our superiors.',
-        },
-      ],
-      model: 'gpt-4',
-    };
+  async findAll() {
+    return this.prisma.question.findMany();
+  }
 
-    const { data } = await firstValueFrom(
-      this.httpService
-        .post(this.OPENAI_API_ENDPOINT, payload, { headers })
-        .pipe(
-          catchError((error: AxiosError) => {
-            this.logger.error(
-              error.response?.data || 'Error contacting OpenAI API',
-            );
-            throw new Error('Failed to get a response from OpenAI API');
-          }),
-        ),
-    );
+  async findOne(id: string) {
+    return this.prisma.question.findUnique({
+      where: { id },
+    });
+  }
 
-    return data.choices || 'No response';
+  async update(id: string, updateQuestionDto: UpdateQuestionDto) {
+    return this.prisma.question.update({
+      where: { id },
+      data: updateQuestionDto,
+    });
+  }
+
+  async remove(id: string) {
+    return this.prisma.question.delete({
+      where: { id },
+    });
   }
 }

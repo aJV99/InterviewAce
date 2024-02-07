@@ -37,6 +37,7 @@ import instance from "@/app/axios";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import store from "@/redux/store";
+import { resetJobs } from "@/redux/features/jobSlice";
 
 export default function NavBar() {
   const { isOpen, onToggle } = useDisclosure();
@@ -51,6 +52,7 @@ export default function NavBar() {
       await instance.post("/auth/logout");
       // Clear the token from Redux state
       dispatch(clearToken());
+      dispatch(resetJobs()); // Reset jobs state
       router.push("/login");
     } catch (error) {
       console.error("Error logging out:", error);

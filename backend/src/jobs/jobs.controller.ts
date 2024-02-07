@@ -10,8 +10,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { JobsService } from './jobs.service';
-import { CreateJobDto } from './dto/create-job.dto';
-import { UpdateJobDto } from './dto/update-job.dto';
+import { JobDto, UpdateJobDto } from './dto/job.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { RequestWithAuth } from 'src/dto/request.dto';
 
@@ -21,7 +20,7 @@ export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
   @Post()
-  create(@Body() createJobDto: CreateJobDto, @Req() req: RequestWithAuth) {
+  create(@Body() createJobDto: JobDto, @Req() req: RequestWithAuth) {
     return this.jobsService.create(createJobDto, req.user.id);
   }
 

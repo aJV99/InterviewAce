@@ -3,8 +3,11 @@ import { useSelector } from "react-redux";
 import { usePathname, useRouter } from "next/navigation";
 import { RootState } from "@/redux/store";
 
-const withAuth = (WrappedComponent: React.ComponentType) => {
-  const WithAuthComponent: React.FC<any> = (props) => {
+const withAuth = <P extends object>(
+  WrappedComponent: React.ComponentType<P>,
+) => {
+  // Declare `WithAuthComponent` and use `P` to type the props correctly
+  const WithAuthComponent: React.FC<P> = (props) => {
     const token = useSelector((state: RootState) => state.auth.accessToken);
     const router = useRouter();
     const pathname = usePathname();
@@ -31,7 +34,9 @@ const withAuth = (WrappedComponent: React.ComponentType) => {
 };
 
 // Helper function to get the display name of a component
-function getDisplayName(WrappedComponent: React.ComponentType) {
+function getDisplayName<P extends object>(
+  WrappedComponent: React.ComponentType<P>,
+) {
   return WrappedComponent.displayName || WrappedComponent.name || "Component";
 }
 

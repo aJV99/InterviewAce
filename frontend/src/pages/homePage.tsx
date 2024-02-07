@@ -78,6 +78,8 @@ export default function Home() {
             direction={{ base: "column", sm: "row" }}
           >
             <Button
+              as={NextLink}
+              href="/signup"
               rounded={"full"}
               size={"lg"}
               fontWeight={"normal"}

@@ -37,10 +37,23 @@ model Job {
   updatedAt   DateTime    @updatedAt
 }
 
+enum InterviewType {
+  GENERAL
+  BEHAVIORAL
+  TECHNICAL
+  BUSINESS
+  SALARY_NEGOTIATION
+  CUSTOM
+}
+
 model Interview {
   id           String     @id @default(uuid())
   jobId        String
   job          Job        @relation(fields: [jobId], references: [id])
+  title        String
+  type         InterviewType @default(GENERAL)
+  customType   String?
+  context      String?
   overallScore Int?
   questions    Question[]
   createdAt    DateTime   @default(now())
@@ -52,10 +65,10 @@ model Question {
   interviewId  String
   interview    Interview @relation(fields: [interviewId], references: [id])
   content      String
-  userResponse String
+  userResponse String?
   // audioPath    String?    The path or URL to the audio file
   // audioData    Bytes?     Binary data for the audio recording
-  feedback     String
+  feedback     String?
   score        Int?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

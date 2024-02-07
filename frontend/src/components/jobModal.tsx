@@ -15,11 +15,57 @@ import {
   Link,
   Textarea,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { useDispatch } from "react-redux";
+import { createJob, editJob } from "@/redux/api";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { AppDispatch } from "@/redux/store";
+import { Job } from "@/redux/dto/job.dto";
 
-export default function JobModal() {
-  const [showPassword, setShowPassword] = useState(false);
+interface JobModalProps {
+  onClose: () => void;
+  isEditing?: boolean;
+  existingJob?: Job;
+}
+
+export default function JobModal({ onClose, isEditing = false, existingJob }: JobModalProps) {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const [jobTitle, setJobTitle] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const [jobLocation, setJobLocation] = useState("");
+
+  // Set initial values for editing
+  useEffect(() => {
+    if (isEditing && existingJob) {
+      setJobTitle(existingJob.title);
+      setCompanyName(existingJob.company);
+      setJobDescription(existingJob.description);
+      setJobLocation(existingJob.location ?? "");
+    }
+  }, [isEditing, existingJob]);
+
+  const handleSubmit = async () => {
+    const jobData = {
+      title: jobTitle,
+      company: companyName,
+      description: jobDescription,
+      location: jobLocation,
+    };
+
+    try {
+      if (isEditing && existingJob) {
+        await dispatch(editJob({ id: existingJob.id, updateJobDto: jobData })).unwrap();
+      } else {
+        await dispatch(createJob(jobData)).unwrap();
+      }
+      onClose();
+    } catch (error) {
+      console.error("Failed to process the job: ", error);
+    }
+  };
 
   return (
     <Stack>
@@ -41,19 +87,30 @@ export default function JobModal() {
             <Input
               type="text"
               placeholder="e.g.: Technology Consultant, Accountant"
+              value={jobTitle}
+              onChange={(e) => setJobTitle(e.target.value)}
             />
           </FormControl>
           <FormControl id="company" isRequired>
             <FormLabel>
               What&apos;s the name of the company you are applying to?
             </FormLabel>
-            <Input type="text" placeholder="e.g.: IBM, Goldman Sachs" />
+            <Input
+              type="text"
+              placeholder="e.g.: IBM, Goldman Sachs"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+            />
           </FormControl>
           <FormControl id="description" isRequired>
             <FormLabel>
               What&apos;s the job description for the role you are applying to?
             </FormLabel>
-            <Textarea placeholder="e.g.: In this role, I'm required to..." />
+            <Textarea
+              placeholder="e.g.: In this role, I'm required to..."
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+            />
           </FormControl>
           <FormControl id="location" isRequired>
             <FormLabel>
@@ -62,9 +119,11 @@ export default function JobModal() {
             <Input
               type="text"
               placeholder="e.g.: London, UK / Mombasa, Kenya / Remote"
+              value={jobLocation}
+              onChange={(e) => setJobLocation(e.target.value)}
             />
           </FormControl>
-          <Button colorScheme="blue" mt={2} mx={"30%"}>
+          <Button colorScheme="blue" mt={2} mx={"30%"} onClick={handleSubmit}>
             Save
           </Button>
         </Stack>

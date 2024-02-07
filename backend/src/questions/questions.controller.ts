@@ -1,20 +1,48 @@
-import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
+// src/questions/questions.controller.ts
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { QuestionsService } from './questions.service';
+import { QuestionDto, UpdateQuestionDto } from './dto/questions.dto';
 
 @Controller('questions')
 export class QuestionsController {
-  constructor(private readonly QuestionsService: QuestionsService) {}
+  constructor(private readonly questionsService: QuestionsService) {}
 
-  @Get('response')
-  async getGptResponse(): Promise<any> {
-    try {
-      const response = await this.QuestionsService.getGptResponse();
-      return { response };
-    } catch (error) {
-      throw new HttpException(
-        'Failed to get a response from GPT-3.5 API',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+  @Post(':interviewId')
+  create(
+    @Param('interviewId') interviewId: string,
+    @Body() createQuestionDtos: QuestionDto,
+  ) {
+    return this.questionsService.create(createQuestionDtos);
+  }
+
+  @Get()
+  findAll() {
+    return this.questionsService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.questionsService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateQuestionDto: UpdateQuestionDto,
+  ) {
+    return this.questionsService.update(id, updateQuestionDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.questionsService.remove(id);
   }
 }

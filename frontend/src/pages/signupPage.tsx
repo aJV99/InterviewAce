@@ -16,49 +16,51 @@ import {
   Image,
   Alert,
   AlertIcon,
+  InputGroup,
+  InputRightElement,
 } from "@chakra-ui/react";
 // import { OAuthButtonGroup } from './OAuthButtonGroup'
 import { PasswordField } from "@/components/passwordField";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { login } from "@/redux/api";
+import { login, signup } from "@/redux/api";
 import { loginSuccess } from "@/redux/features/authSlice";
 import withAuth from "@/redux/features/authHoc";
 import { AxiosError } from "axios";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
-const Login = () => {
+const SignUpPage = () => {
+  // Added state for firstName and lastName
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   const dispatch = useDispatch();
   const router = useRouter();
 
   const handleLogin = async () => {
     if (!email || !password) {
-      // Check if email or password is empty
       setError("Both email and password are required fields.");
       return;
     }
 
     try {
+      // Updated to use state values for firstName and lastName
+      await signup(firstName, lastName, email, password);
       const data = await login(email, password);
-      dispatch(
-        loginSuccess({
-          firstName: data.firstName,
-          lastName: data.lastName,
-          accessToken: data.accessToken,
-        }),
-      );
+      dispatch(loginSuccess({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        accessToken: data.accessToken,
+      }));
       router.push("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.statusCode &&
-        error.response.data.statusCode === 401
-      ) {
+      if (error instanceof AxiosError && error.response?.data.statusCode === 401) {
         setError("Incorrect email or password.");
       } else {
         setError("An error occurred.");
@@ -86,10 +88,10 @@ const Login = () => {
               fontWeight={600}
               fontSize={{ base: "lg", sm: "xl", md: "2xl", lg: "3xl" }}
             >
-              Log in to your account
+              Sign up for your account
             </Heading>
             <Text color="fg.muted">
-              Don&apos;t have an account? <Link color={"blue.400"} href="/signup">Sign up</Link>
+              Already a user? <Link color={"blue.400"} href="/login">Login</Link>
             </Text>
           </Stack>
         </Stack>
@@ -102,37 +104,37 @@ const Login = () => {
         >
           <Stack spacing="6">
             <Stack spacing="5">
-              <FormControl isRequired>
-                <FormLabel htmlFor="email">Email</FormLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  isRequired={true}
-                />
+            <HStack>
+            <Box>
+              <FormControl id="firstName" isRequired>
+                <FormLabel>First Name</FormLabel>
+                <Input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
               </FormControl>
-              <PasswordField
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                isRequired={true}
-              />
-            </Stack>
-            {error && (
-              <Alert status="error" borderRadius="md">
-                <AlertIcon />
-                {error}
-              </Alert>
-            )}
-            <HStack justify="space-between">
-              <Checkbox defaultChecked>Remember me</Checkbox>
-              <Button variant="text" size="sm">
-                Forgot password?
-              </Button>
-            </HStack>
-            <Stack spacing="6">
-              <Button onClick={handleLogin}>Sign in</Button>
+            </Box>
+            <Box>
+              <FormControl id="lastName" isRequired>
+                <FormLabel>Last Name</FormLabel>
+                <Input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+              </FormControl>
+            </Box>
+          </HStack>
+          <FormControl id="email" isRequired>
+            <FormLabel>Email address</FormLabel>
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </FormControl>
+          <FormControl id="password" isRequired>
+            <FormLabel>Password</FormLabel>
+            <InputGroup>
+              <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} />
+              <InputRightElement h={"full"}>
+                <Button variant={"ghost"} onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
+          </FormControl>
+          <Stack spacing="6">
+            <Button onClick={handleLogin}>Sign up</Button>
               <HStack>
                 <Divider />
                 <Text textStyle="sm" whiteSpace="nowrap" color="fg.muted">
@@ -142,6 +144,7 @@ const Login = () => {
               </HStack>
               {/* <OAuthButtonGroup /> */}
             </Stack>
+            </Stack>
           </Stack>
         </Box>
       </Stack>
@@ -149,4 +152,4 @@ const Login = () => {
   );
 };
 
-export default withAuth(Login);
+export default SignUpPage;

@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JobsModule } from './jobs/jobs.module';
 import { InterviewsModule } from './interviews/interviews.module';
 import { QuestionsModule } from './questions/questions.module';
+import { AceAIModule } from './aceAI/aceAI.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { QuestionsModule } from './questions/questions.module';
     JobsModule,
     InterviewsModule,
     QuestionsModule,
+    AceAIModule,
     // If you have additional modules, you would add them here
   ],
 })

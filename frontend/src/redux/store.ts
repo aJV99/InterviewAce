@@ -7,7 +7,7 @@ import storage from "./storage";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"], // only auth will be persisted, add other reducer names if needed
+  whitelist: ["auth", "jobs"], // only auth will be persisted, add other reducer names if needed
 };
 
 const rootReducer = combineReducers({
