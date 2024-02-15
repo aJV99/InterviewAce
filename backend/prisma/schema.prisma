@@ -11,15 +11,15 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
+  id         String       @id @default(uuid())
   firstName  String
   lastName   String
-  email      String   @unique
+  email      String       @unique
   password   String
-  linkedInId String?  @unique
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  Job        Job[]
+  linkedInId String?      @unique
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  Job        Job[]        @onDelete(Cascade)
   refreshToken String? 
   refreshTokenExpires DateTime?
 }
@@ -32,7 +32,7 @@ model Job {
   company     String
   description String
   location    String?
-  interviews  Interview[]
+  interviews  Interview[] @onDelete(Cascade)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
@@ -55,7 +55,7 @@ model Interview {
   customType   String?
   context      String?
   overallScore Int?
-  questions    Question[]
+  questions    Question[] @onDelete(Cascade)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }

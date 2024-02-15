@@ -18,10 +18,11 @@ import {
 import { useEffect, useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useDispatch } from "react-redux";
-import { createJob, editJob } from "@/redux/api";
+// import { createJob, editJob } from "@/redux/api";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { AppDispatch } from "@/redux/store";
 import { Job } from "@/redux/dto/job.dto";
+import { editJob, createJob } from "@/redux/features/jobSlice";
 
 interface JobModalProps {
   onClose: () => void;

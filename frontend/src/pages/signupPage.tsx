@@ -88,10 +88,10 @@ const SignUpPage = () => {
               fontWeight={600}
               fontSize={{ base: "lg", sm: "xl", md: "2xl", lg: "3xl" }}
             >
-              Sign up for your account
+              Sign up for an account
             </Heading>
             <Text color="fg.muted">
-              Already a user? <Link color={"blue.400"} href="/login">Login</Link>
+              Already have an account? <Link color={"blue.400"} href="/login">Login</Link>
             </Text>
           </Stack>
         </Stack>

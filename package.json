@@ -1,5 +1,6 @@
 {
   "name": "interviewace",
+  "author": "Abbas Alibhai",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -12,6 +13,5 @@
     "start": "npm run start:fe & npm run start:be"
   },
   "keywords": [],
-  "author": "",
   "license": "ISC"
 }

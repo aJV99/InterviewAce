@@ -3,12 +3,12 @@ import ContentContainer, { Content } from "@/components/contentContainer";
 import WithAuth from "../../../../redux/features/authHoc";
 import Header from "@/components/header";
 import JobCards from "@/components/jobCards";
-import { fetchJobDetails, fetchJobs } from "@/redux/api";
-import { useEffect, useState } from "react";
+// import { fetchJobDetails, fetchJobs } from "@/redux/api";
+import { Suspense, useEffect, useState } from "react";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import Bubble from "@/components/bubble";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import JobModal from "@/components/jobModal";
 import {
   Flex,
@@ -23,14 +23,20 @@ import {
   Box,
   IconButton,
   Text,
+  VStack,
 } from "@chakra-ui/react";
-import { EditIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import InterviewCards from "@/components/interviewCards";
 import InterviewModal from "@/components/interviewModal";
+import Loading from "@/app/loading";
+import { fetchJobs, fetchJobDetails, deleteJob } from "@/redux/features/jobSlice";
+import ConfirmDeleteModal from "@/components/confirmDeleteModal";
 
 const JobPage = ({ params }: { params: { id: string } }) => {
+  const router = useRouter();
   const { isOpen: isJobModalOpen, onOpen: onOpenJobModal, onClose: onCloseJobModal } = useDisclosure();
   const { isOpen: isInterviewModalOpen, onOpen: onOpenInterviewModal, onClose: onCloseInterviewModal } = useDisclosure();
+  const { isOpen: isDeleteModalOpen, onOpen: onOpenDeleteModal, onClose: onCloseDeleteModal } = useDisclosure();
   const dispatch = useDispatch<AppDispatch>();
   const jobsState = useSelector((state: RootState) => state.jobs);
 
@@ -47,7 +53,7 @@ const JobPage = ({ params }: { params: { id: string } }) => {
     if (!job || !job.interviews) {
       dispatch(fetchJobDetails(params.id));
     }
-  }, [dispatch, jobsState, params.id]);
+  }, [jobsState, params.id]);
 
   // Find the job in the state (this will be re-evaluated when the state changes)
   const job = jobsState.jobs.find(job => job.id === params.id);
@@ -116,27 +122,43 @@ const JobPage = ({ params }: { params: { id: string } }) => {
           </Flex>
 
           {/* Right side: Edit Button */}
-          <Flex alignItems="center" justifyContent="center" px={3}>
+          <VStack alignItems="center" justifyContent="center" px={4} spacing={5}>
             <IconButton
               aria-label="Edit job"
               icon={<EditIcon />}
               onClick={onOpenJobModal}
               size="lg"
+              colorScheme="blue"
+              variant="outline"
             />
-          </Flex>
+            <IconButton
+              aria-label="Delete job"
+              icon={<DeleteIcon />}
+              onClick={onOpenDeleteModal}
+              size="lg"
+              colorScheme="red"
+              variant="outline"
+            />
+          </VStack>
         </Flex>
-
-        {/* </Bubble> */}
-        {/* {job?.interviews && job.interviews.map((interview, index) => (
-            <div key={index}>
-              <h2>{interview.title}</h2>
-              <h2>{interview.type}</h2>
-              <h2>{interview.customType}</h2>
-              <h2>{interview.context}</h2>
-              <h2>{interview.overallScore}</h2>
-            </div>
-          ))} */}
-        <InterviewCards cards={job?.interviews} />
+        <ConfirmDeleteModal
+          isOpen={isDeleteModalOpen}
+          onClose={onCloseDeleteModal}
+          onDelete={() => {
+            if (job?.id) { // Check if job?.id is not undefined
+              dispatch(deleteJob(job.id));
+              router.push('/dashboard');
+            } else {
+              console.error('Job ID is undefined');
+              // Optionally, handle the undefined ID case (e.g., showing an error message)
+            }
+          }}
+          itemType={'job'}
+        />
+        <Suspense fallback={<Loading />}>
+          <InterviewCards cards={job?.interviews} />
+        </Suspense>
+        
       </Bubble>
     </Content>
   );

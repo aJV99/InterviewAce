@@ -5,12 +5,12 @@ import ContentContainer, { Content } from "@/components/contentContainer";
 import WithAuth from "../../../redux/features/authHoc";
 import Header from "@/components/header";
 import JobCards from "@/components/jobCards";
-import { fetchJobs } from "@/redux/api";
+// import { fetchJobs } from "@/redux/api";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import { setJobs } from "@/redux/features/jobSlice";
+import { fetchJobs, setJobs } from "@/redux/features/jobSlice";
 import { Box } from "@chakra-ui/react";
 import Bubble from "@/components/bubble";
 import DynamicBreadcrumb from "@/components/breadcrumb";
@@ -30,7 +30,7 @@ const DashboardPage = () => {
           // Error handling remains the same
         });
     }
-  // }, [dispatch, jobs.fetched]);
+  // }, []);
 
   return (
     <Content>

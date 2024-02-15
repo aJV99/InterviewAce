@@ -19,11 +19,12 @@ import {
 import { useEffect, useState } from "react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useDispatch } from "react-redux";
-import { addInterview, createJob, editJob, updateInterview } from "@/redux/api";
+// import { addInterview, createJob, editJob, updateInterview } from "@/redux/api";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { AppDispatch } from "@/redux/store";
 import { Interview, InterviewType } from "@/redux/dto/interview.dto";
 import { toCapitalCase } from "@/app/utils";
+import { updateInterview, addInterview } from "@/redux/features/jobSlice";
 
 interface InterviewModalProps {
   onClose: () => void;
