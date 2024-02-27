@@ -1,25 +1,16 @@
 import {
-  Flex,
   Box,
   FormControl,
   FormLabel,
   Input,
-  InputGroup,
-  HStack,
-  InputRightElement,
   Stack,
   Button,
   Heading,
-  Text,
   useColorModeValue,
-  Link,
   Textarea,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useDispatch } from "react-redux";
-// import { createJob, editJob } from "@/redux/api";
-import { unwrapResult } from "@reduxjs/toolkit";
 import { AppDispatch } from "@/redux/store";
 import { Job } from "@/redux/dto/job.dto";
 import { editJob, createJob } from "@/redux/features/jobSlice";
@@ -57,12 +48,12 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
     };
 
     try {
+      onClose();
       if (isEditing && existingJob) {
         await dispatch(editJob({ id: existingJob.id, updateJobDto: jobData })).unwrap();
       } else {
         await dispatch(createJob(jobData)).unwrap();
       }
-      onClose();
     } catch (error) {
       console.error("Failed to process the job: ", error);
     }
@@ -70,21 +61,13 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
 
   return (
     <Stack>
-      <Box
-        // w={'50vw'}
-        rounded={"lg"}
-        bg={useColorModeValue("white", "gray.700")}
-        boxShadow={"lg"}
-        p={10}
-      >
+      <Box rounded={"lg"} bg={useColorModeValue("white", "gray.700")} boxShadow={"lg"} p={10}>
         <Stack spacing={4}>
           <Heading fontSize={"4xl"} textAlign={"center"}>
             Add a new job
           </Heading>
           <FormControl id="title" isRequired>
-            <FormLabel>
-              What&apos;s the job title of the role you are applying to?
-            </FormLabel>
+            <FormLabel>What&apos;s the job title of the role you are applying to?</FormLabel>
             <Input
               type="text"
               placeholder="e.g.: Technology Consultant, Accountant"
@@ -93,9 +76,7 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
             />
           </FormControl>
           <FormControl id="company" isRequired>
-            <FormLabel>
-              What&apos;s the name of the company you are applying to?
-            </FormLabel>
+            <FormLabel>What&apos;s the name of the company you are applying to?</FormLabel>
             <Input
               type="text"
               placeholder="e.g.: IBM, Goldman Sachs"
@@ -104,9 +85,7 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
             />
           </FormControl>
           <FormControl id="description" isRequired>
-            <FormLabel>
-              What&apos;s the job description for the role you are applying to?
-            </FormLabel>
+            <FormLabel>What&apos;s the job description for the role you are applying to?</FormLabel>
             <Textarea
               placeholder="e.g.: In this role, I'm required to..."
               value={jobDescription}
@@ -114,9 +93,7 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
             />
           </FormControl>
           <FormControl id="location" isRequired>
-            <FormLabel>
-              What&apos;s the location of the company you are applying to?
-            </FormLabel>
+            <FormLabel>What&apos;s the location of the company you are applying to?</FormLabel>
             <Input
               type="text"
               placeholder="e.g.: London, UK / Mombasa, Kenya / Remote"
@@ -125,7 +102,7 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
             />
           </FormControl>
           <Button colorScheme="blue" mt={2} mx={"30%"} onClick={handleSubmit}>
-            Save
+            {isEditing ? "Update Job Info" : "Add New Job"}
           </Button>
         </Stack>
       </Box>

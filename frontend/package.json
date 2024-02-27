@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "npx prettier . --write && next lint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "npx prettier . --write"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
@@ -16,22 +18,30 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@reduxjs/toolkit": "^1.9.7",
+    "@types/dom-speech-recognition": "^0.0.4",
     "axios": "^1.6.0",
-    "framer-motion": "^10.16.4",
     "next": "^13.5.6",
     "react": "^18",
     "react-dom": "^18",
-    "react-icons": "^4.11.0",
+    "react-icons": "^4.12.0",
     "react-redux": "^8.1.3",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "use-sound": "^4.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "13.5.4",
-    "prettier": "3.0.3",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^13.5.4",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.0.3",
     "typescript": "^5"
   }
 }

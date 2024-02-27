@@ -1,5 +1,4 @@
-// "use client";
-
+import AnimatedButton from "@/components/AnimatedButton";
 import {
   Container,
   Stack,
@@ -7,24 +6,16 @@ import {
   Box,
   Heading,
   Text,
-  Button,
   Image,
   Icon,
   IconButton,
   IconProps,
   useColorModeValue,
 } from "@chakra-ui/react";
-import NextLink from "next/link";
 
 export default function Home() {
   return (
-    <Container
-      maxW={"7xl"}
-      height="100vh"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-    >
+    <Container maxW={"7xl"} height="100vh" display="flex" flexDirection="column" justifyContent="center">
       {" "}
       {/* Adjusted Container */}
       <Stack
@@ -34,32 +25,10 @@ export default function Home() {
         direction={{ base: "column", md: "row" }}
       >
         <Stack flex={1} spacing={{ base: 5, md: 10 }}>
-          <Image
-            src="Logo.png"
-            alt="InterviewAce Logo"
-            w={"95%"}
-            align={"left"}
-          />
-          <Heading
-            lineHeight={1.1}
-            fontWeight={600}
-            fontSize={{ base: "2xl", sm: "3xl", lg: "5xl" }}
-          >
-            <Text
-              as={"span"}
-              position={"relative"}
-              // _after={{
-              //   content: "''",
-              //   width: '44%',
-              //   height: '15%',
-              //   position: 'absolute',
-              //   bottom: 5,
-              //   right: 1,
-              //   bg: '#2199ea',
-              //   zIndex: -1,
-              // }}
-            >
-              Don&apos;t just prepare,
+          <Image src="/Logo.png" alt="InterviewAce Logo" w={"95%"} align={"left"} />
+          <Heading lineHeight={1.1} fontWeight={600} fontSize={{ base: "2xl", sm: "3xl", lg: "5xl" }}>
+            <Text as={"span"} position={"relative"}>
+              {`Don't just prepare`},
             </Text>
             <br />
             <Text as={"span"} color={"#2199ea"}>
@@ -67,19 +36,13 @@ export default function Home() {
             </Text>
           </Heading>
           <Text color={"gray.500"}>
-            InterviewAce is a revolutionary interview prep platform that offers
-            tailored feedback on your responses, simulates real-life interview
-            scenarios, and provides a comprehensive history of your mock
-            sessions and progress. Boost your interview confidence and stand out
-            with every session!
+            InterviewAce is a revolutionary interview prep platform that offers tailored feedback on your
+            responses, simulates real-life interview scenarios, and provides a comprehensive history of your mock
+            sessions and progress. Boost your interview confidence and stand out with every session!
           </Text>
-          <Stack
-            spacing={{ base: 4, sm: 6 }}
-            direction={{ base: "column", sm: "row" }}
-          >
-            <Button
-              as={NextLink}
-              href="/signup"
+          <Stack spacing={{ base: 4, sm: 6 }} direction={{ base: "column", sm: "row" }}>
+            <AnimatedButton
+              destination={"/signup"}
               rounded={"full"}
               size={"lg"}
               fontWeight={"normal"}
@@ -89,26 +52,13 @@ export default function Home() {
               _hover={{ bg: "#50aeee" }}
             >
               Get started
-            </Button>
-            <Button
-              as={NextLink}
-              href="/login"
-              rounded={"full"}
-              size={"lg"}
-              fontWeight={"normal"}
-              px={6}
-            >
+            </AnimatedButton>
+            <AnimatedButton destination={"/login"} rounded={"full"} size={"lg"} fontWeight={"normal"} px={6}>
               Sign In
-            </Button>
+            </AnimatedButton>
           </Stack>
         </Stack>
-        <Flex
-          flex={1}
-          justify={"center"}
-          align={"center"}
-          position={"relative"}
-          w={"full"}
-        >
+        <Flex flex={1} justify={"center"} align={"center"} position={"relative"} w={"full"}>
           <Blob
             w={"150%"}
             h={"150%"}
@@ -137,14 +87,7 @@ export default function Home() {
               top={"50%"}
               transform={"translateX(-50%) translateY(-50%)"}
             />
-            <Image
-              alt={"Hero Image"}
-              fit={"cover"}
-              align={"center"}
-              w={"100%"}
-              h={"100%"}
-              src={"hero.jpg"}
-            />
+            <Image alt={"Hero Image"} fit={"cover"} align={"center"} w={"100%"} h={"100%"} src={"hero.jpg"} />
           </Box>
         </Flex>
       </Stack>
@@ -154,13 +97,7 @@ export default function Home() {
 
 const Blob = (props: IconProps) => {
   return (
-    <Icon
-      width={"100%"}
-      viewBox="0 0 578 440"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
+    <Icon width={"100%"} viewBox="0 0 578 440" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path
         fillRule="evenodd"
         clipRule="evenodd"

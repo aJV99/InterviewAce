@@ -10,6 +10,12 @@ import { JobsService } from 'src/jobs/jobs.service';
 @Module({
   imports: [HttpModule],
   controllers: [InterviewsController],
-  providers: [InterviewsService, PrismaService, AceAIService, QuestionsService, JobsService],
+  providers: [
+    InterviewsService,
+    PrismaService,
+    AceAIService,
+    QuestionsService,
+    JobsService,
+  ],
 })
 export class InterviewsModule {}

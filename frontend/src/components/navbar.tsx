@@ -16,22 +16,9 @@ import {
   useBreakpointValue,
   useDisclosure,
   Image,
-  Portal,
 } from "@chakra-ui/react";
-import {
-  HamburgerIcon,
-  CloseIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-} from "@chakra-ui/icons";
-import {
-  Avatar,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuDivider,
-} from "@chakra-ui/react";
+import { HamburgerIcon, CloseIcon, ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { Avatar, Menu, MenuButton, MenuList, MenuItem, MenuDivider } from "@chakra-ui/react";
 import { clearToken } from "@/redux/features/authSlice";
 import instance from "@/app/axios";
 import { useDispatch } from "react-redux";
@@ -73,37 +60,21 @@ export default function NavBar() {
         borderColor={useColorModeValue("gray.200", "gray.900")}
         align={"center"}
       >
-        <Flex
-          flex={{ base: 1, md: "auto" }}
-          ml={{ base: -2 }}
-          display={{ base: "flex", md: "none" }}
-        >
+        <Flex flex={{ base: 1, md: "auto" }} ml={{ base: -2 }} display={{ base: "flex", md: "none" }}>
           <IconButton
             onClick={onToggle}
-            icon={
-              isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
-            }
+            icon={isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />}
             variant={"ghost"}
             aria-label={"Toggle Navigation"}
           />
         </Flex>
-        <Flex
-          flex={{ base: 1 }}
-          justify={{ base: "flex-start", md: "start" }}
-          alignItems="center"
-        >
+        <Flex flex={{ base: 1 }} justify={{ base: "flex-start", md: "start" }} alignItems="center">
           <Text
             textAlign={useBreakpointValue({ base: "center", md: "left" })}
             fontFamily={"heading"}
             color={useColorModeValue("gray.800", "white")}
           >
-            <Image
-              src="Logo.png"
-              alt="InterviewAce Logo"
-              w={200}
-              minWidth={"200px"}
-              align={"left"}
-            />
+            <Image src="/Logo.png" alt="InterviewAce Logo" w={200} minWidth={"200px"} align={"left"} />
           </Text>
 
           <Flex display={{ base: "none", md: "flex" }} ml={10}>
@@ -116,13 +87,7 @@ export default function NavBar() {
             Hi, {state.auth.firstName}!
           </Box>
           <Menu>
-            <MenuButton
-              as={Button}
-              rounded={"full"}
-              variant={"link"}
-              cursor={"pointer"}
-              minW={0}
-            >
+            <MenuButton as={Button} rounded={"full"} variant={"link"} cursor={"pointer"} minW={0}>
               <Avatar
                 size={"sm"}
                 src={
@@ -210,11 +175,7 @@ const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
     >
       <Stack direction={"row"} align={"center"}>
         <Box>
-          <Text
-            transition={"all .3s ease"}
-            _groupHover={{ color: "pink.400" }}
-            fontWeight={500}
-          >
+          <Text transition={"all .3s ease"} _groupHover={{ color: "pink.400" }} fontWeight={500}>
             {label}
           </Text>
           <Text fontSize={"sm"}>{subLabel}</Text>
@@ -237,11 +198,7 @@ const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
 
 const MobileNav = () => {
   return (
-    <Stack
-      bg={useColorModeValue("white", "gray.800")}
-      p={4}
-      display={{ md: "none" }}
-    >
+    <Stack bg={useColorModeValue("white", "gray.800")} p={4} display={{ md: "none" }}>
       {NAV_ITEMS.map((navItem) => (
         <MobileNavItem key={navItem.label} {...navItem} />
       ))}
@@ -264,10 +221,7 @@ const MobileNavItem = ({ label, children, href }: NavItem) => {
           textDecoration: "none",
         }}
       >
-        <Text
-          fontWeight={600}
-          color={useColorModeValue("gray.600", "gray.200")}
-        >
+        <Text fontWeight={600} color={useColorModeValue("gray.600", "gray.200")}>
           {label}
         </Text>
         {children && (

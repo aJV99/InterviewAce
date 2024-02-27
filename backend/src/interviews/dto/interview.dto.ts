@@ -1,15 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { InterviewType } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsString, IsUUID, isEnum } from 'class-validator';
-
-// export enum InterviewType {
-//   GENERAL = 'GENERAL',
-//   BEHAVIORAL = 'BEHAVIORAL',
-//   TECHNICAL = 'TECHNICAL',
-//   BUSINESS = 'BUSINESS',
-//   SALARY_NEGOTIATION = 'SALARY_NEGOTIATION',
-//   CUSTOM = 'CUSTOM',
-// }
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class InterviewDto {
   @IsNotEmpty()
@@ -19,6 +10,10 @@ export class InterviewDto {
   @IsNotEmpty()
   @IsString()
   title: string;
+
+  @IsNotEmpty()
+  @IsString()
+  InterviewType: InterviewType;
 
   @IsString()
   customType: string;

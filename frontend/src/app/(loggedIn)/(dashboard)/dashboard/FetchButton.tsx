@@ -5,20 +5,11 @@ import instance from "@/app/axios";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store"; // Replace with path to your store
 
-function getCookie(name: string): string | null | undefined {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return (parts.pop() as string).split(";").shift();
-  return null;
-}
-
 const FetchButton: React.FC = () => {
   const [data, setData] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
-  const name = useSelector(
-    (state: RootState) => state.auth.firstName + " " + state.auth.lastName,
-  );
+  const name = useSelector((state: RootState) => state.auth.firstName + " " + state.auth.lastName);
 
   const fetchData = async () => {
     if (!accessToken) {

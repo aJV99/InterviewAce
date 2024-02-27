@@ -1,10 +1,12 @@
+import { Question } from "./question.dto";
+
 export enum InterviewType {
-  GENERAL = 'GENERAL',
-  BEHAVIORAL = 'BEHAVIORAL',
-  TECHNICAL = 'TECHNICAL',
-  BUSINESS = 'BUSINESS',
-  SALARY_NEGOTIATION = 'SALARY_NEGOTIATION',
-  CUSTOM = 'CUSTOM',
+  GENERAL = "GENERAL",
+  BEHAVIORAL = "BEHAVIORAL",
+  TECHNICAL = "TECHNICAL",
+  BUSINESS = "BUSINESS",
+  SALARY_NEGOTIATION = "SALARY_NEGOTIATION",
+  CUSTOM = "CUSTOM",
 }
 
 export interface Interview {
@@ -15,6 +17,7 @@ export interface Interview {
   customType: string | null;
   context: string | null;
   overallScore: number | null;
+  questions: Question[];
   createdAt: Date;
   updatedAt: Date;
 }

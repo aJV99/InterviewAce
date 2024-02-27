@@ -35,11 +35,7 @@ export class JobsController {
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateJobDto: UpdateJobDto,
-    @Req() req: RequestWithAuth,
-  ) {
+  update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
     return this.jobsService.update(id, updateJobDto);
   }
 

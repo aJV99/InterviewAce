@@ -20,7 +20,10 @@ export class InterviewsController {
   constructor(private readonly interviewsService: InterviewsService) {}
 
   @Post()
-  create(@Body() createInterviewDto: InterviewDto, @Req() req: RequestWithAuth) {
+  create(
+    @Body() createInterviewDto: InterviewDto,
+    @Req() req: RequestWithAuth,
+  ) {
     return this.interviewsService.create(createInterviewDto, req.user.id);
   }
 

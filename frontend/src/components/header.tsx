@@ -1,14 +1,8 @@
 import * as React from "react";
 import {
-  Box,
   Heading,
-  Text,
   Button,
   Flex,
-  Container,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -22,14 +16,7 @@ const Header: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Flex
-      // bg="white"
-      p={5}
-      // boxShadow="md"
-      borderRadius="xl"
-      alignItems="center"
-      justifyContent="space-between"
-    >
+    <Flex p={5} borderRadius="xl" alignItems="center" justifyContent="space-between">
       <Heading size="3xl">Your Jobs</Heading>
       <Button colorScheme="teal" onClick={onOpen}>
         Add a Job

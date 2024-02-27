@@ -57,7 +57,12 @@ export class AceAIService {
     // return data.choices[0].message || 'No response';
   }
 
-  async generateQuestions(jobTitle: string, companyName: string, jobDescription: string, jobLocation: string): Promise<any> {
+  async generateQuestions(
+    jobTitle: string,
+    companyName: string,
+    jobDescription: string,
+    jobLocation: string,
+  ): Promise<any> {
     const headers = {
       Authorization: `Bearer ${this.OPENAI_API_KEY}`,
       'Content-Type': 'application/json',
@@ -65,8 +70,15 @@ export class AceAIService {
 
     const payload = {
       messages: [
-        { role: 'system', content: 'You are a professional career coach. Generate an array of interview questions based on the job details provided which would be done in a behavioral interview. Only respond with the array ["question #1", "question #2",...]' },
-        { role: 'user', content: `Job Title: ${jobTitle}\nCompany: ${companyName}\nJob Description: ${jobDescription}\nLocation: ${jobLocation}` },
+        {
+          role: 'system',
+          content:
+            'You are a professional career coach. Generate an array of interview questions based on the job details provided which would be done in a behavioral interview. Only respond with the array ["question #1", "question #2",...]',
+        },
+        {
+          role: 'user',
+          content: `Job Title: ${jobTitle}\nCompany: ${companyName}\nJob Description: ${jobDescription}\nLocation: ${jobLocation}`,
+        },
       ],
       model: 'gpt-4-1106-preview',
       response_format: { type: 'text' },

@@ -1,4 +1,3 @@
-// "use client";
 import {
   Box,
   Button,
@@ -17,22 +16,20 @@ import {
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
-// import { OAuthButtonGroup } from './OAuthButtonGroup'
 import { PasswordField } from "@/components/passwordField";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { login } from "@/redux/api";
-import { loginSuccess } from "@/redux/features/authSlice";
+import { login, loginSuccess } from "@/redux/features/authSlice";
 import withAuth from "@/redux/features/authHoc";
-import { AxiosError } from "axios";
+import AnimatedLink from "@/components/AnimatedLink";
+import useAnimatedRouter from "@/components/useAnimatedRouter";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
-  const router = useRouter();
+  const router = useAnimatedRouter();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -50,7 +47,7 @@ const Login = () => {
           accessToken: data.accessToken,
         }),
       );
-      router.push("/dashboard");
+      router.animatedRoute("/dashboard");
     } catch (error: any) {
       console.error(error);
       if (
@@ -67,29 +64,19 @@ const Login = () => {
   };
 
   return (
-    <Container
-      maxW="lg"
-      py={{ base: "12", md: "24" }}
-      px={{ base: "0", sm: "8" }}
-    >
+    <Container maxW="lg" py={{ base: "12", md: "24" }} px={{ base: "0", sm: "8" }}>
       <Stack spacing="8">
         <Stack spacing="6">
-          <Image
-            src="Logo.png"
-            alt="InterviewAce Logo"
-            w={350}
-            minWidth={"200px"}
-            alignSelf={"center"}
-          />
+          <Image src="/Logo.png" alt="InterviewAce Logo" w={350} minWidth={"200px"} alignSelf={"center"} />
           <Stack spacing={{ base: "2", md: "3" }} textAlign="center">
-            <Heading
-              fontWeight={600}
-              fontSize={{ base: "lg", sm: "xl", md: "2xl", lg: "3xl" }}
-            >
+            <Heading fontWeight={600} fontSize={{ base: "lg", sm: "xl", md: "2xl", lg: "3xl" }}>
               Log in to your account
             </Heading>
             <Text color="fg.muted">
-              Don&apos;t have an account? <Link color={"blue.400"} href="/signup">Sign up</Link>
+              Don&apos;t have an account?{" "}
+              <Link color={"blue.400"} as={AnimatedLink} href={"/signup"}>
+                Sign up
+              </Link>
             </Text>
           </Stack>
         </Stack>
@@ -113,11 +100,7 @@ const Login = () => {
                   isRequired={true}
                 />
               </FormControl>
-              <PasswordField
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                isRequired={true}
-              />
+              <PasswordField value={password} onChange={(e) => setPassword(e.target.value)} isRequired={true} />
             </Stack>
             {error && (
               <Alert status="error" borderRadius="md">
@@ -140,7 +123,6 @@ const Login = () => {
                 </Text>
                 <Divider />
               </HStack>
-              {/* <OAuthButtonGroup /> */}
             </Stack>
           </Stack>
         </Box>

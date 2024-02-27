@@ -20,6 +20,13 @@ export class JobsService {
       where: {
         userId,
       },
+      include: {
+        interviews: {
+          include: {
+            questions: true,
+          },
+        },
+      },
     });
   }
 
@@ -30,8 +37,12 @@ export class JobsService {
         userId,
       },
       include: {
-        interviews: true,
-      }
+        interviews: {
+          include: {
+            questions: true,
+          },
+        },
+      },
     });
   }
 

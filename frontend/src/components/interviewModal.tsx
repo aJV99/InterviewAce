@@ -1,26 +1,17 @@
 import {
-  Flex,
   Box,
   FormControl,
   FormLabel,
   Input,
-  InputGroup,
-  HStack,
-  InputRightElement,
   Stack,
   Button,
   Heading,
-  Text,
   useColorModeValue,
-  Link,
   Textarea,
   Select,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useDispatch } from "react-redux";
-// import { addInterview, createJob, editJob, updateInterview } from "@/redux/api";
-import { unwrapResult } from "@reduxjs/toolkit";
 import { AppDispatch } from "@/redux/store";
 import { Interview, InterviewType } from "@/redux/dto/interview.dto";
 import { toCapitalCase } from "@/app/utils";
@@ -66,12 +57,17 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
     };
 
     try {
+      onClose();
       if (isEditing && existingInterview) {
-        await dispatch(updateInterview({ id: existingInterview.id, updateInterviewDto: interviewData })).unwrap();
+        await dispatch(
+          updateInterview({
+            id: existingInterview.id,
+            updateInterviewDto: interviewData,
+          }),
+        ).unwrap();
       } else {
         await dispatch(addInterview(interviewData)).unwrap();
       }
-      onClose();
     } catch (error) {
       console.error("Failed to process the interview: ", error);
     }
@@ -79,13 +75,7 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
 
   return (
     <Stack>
-      <Box
-        // w={'50vw'}
-        rounded={"lg"}
-        bg={useColorModeValue("white", "gray.700")}
-        boxShadow={"lg"}
-        p={10}
-      >
+      <Box rounded={"lg"} bg={useColorModeValue("white", "gray.700")} boxShadow={"lg"} p={10}>
         <Stack spacing={4}>
           <Heading fontSize={"4xl"} textAlign={"center"}>
             {isEditing ? "Edit Interview" : "Add a New Interview"}
@@ -93,6 +83,7 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
           <FormControl id="title" isRequired>
             <FormLabel>Interview Title</FormLabel>
             <Input
+              placeholder="e.g.: Final Round, Supervisor Salary Call"
               type="text"
               value={interviewTitle}
               onChange={(e) => setInterviewTitle(e.target.value)}
@@ -100,10 +91,7 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
           </FormControl>
           <FormControl id="type" isRequired>
             <FormLabel>Interview Type</FormLabel>
-            <Select
-              value={interviewType}
-              onChange={(e) => setInterviewType(e.target.value as InterviewType)}
-            >
+            <Select value={interviewType} onChange={(e) => setInterviewType(e.target.value as InterviewType)}>
               {/* Map over InterviewType enum to create options */}
               {Object.values(InterviewType).map((type) => (
                 <option key={type} value={type}>
@@ -116,6 +104,7 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
             <FormControl id="customType" isRequired>
               <FormLabel>Custom Interview Type</FormLabel>
               <Input
+                placeholder="e.g.: Case Study Assessment, Knowledge Review"
                 type="text"
                 value={interviewCustomType}
                 onChange={(e) => setInterviewCustomType(e.target.value)}
@@ -124,19 +113,19 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
           )}
           <FormControl id="context">
             <FormLabel>Interview Context</FormLabel>
-            <Input
-              type="text"
+            <Textarea
+              placeholder="e.g.: In this interview, I'll be expected to..."
               value={interviewContext}
               onChange={(e) => setInterviewContext(e.target.value)}
             />
           </FormControl>
           <Button colorScheme="blue" mt={2} onClick={handleSubmit}>
-            Save
+            {isEditing ? "Update Interview" : "Add New Interview"}
           </Button>
         </Stack>
       </Box>
     </Stack>
   );
-}
+};
 
 export default InterviewModal;

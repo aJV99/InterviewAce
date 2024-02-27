@@ -1,5 +1,5 @@
 // ConfirmDeleteModal.tsx
-import React from 'react';
+import React from "react";
 import {
   Modal,
   ModalOverlay,
@@ -10,7 +10,7 @@ import {
   ModalCloseButton,
   Button,
   Text,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -34,10 +34,13 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ isOpen, onClose
           <Button colorScheme="gray" mr={3} onClick={onClose}>
             Cancel
           </Button>
-          <Button colorScheme="red" onClick={() => {
-            onDelete();
-            onClose(); // Optionally close the modal after deletion
-          }}>
+          <Button
+            colorScheme="red"
+            onClick={() => {
+              onDelete();
+              onClose(); // Optionally close the modal after deletion
+            }}
+          >
             Delete
           </Button>
         </ModalFooter>

@@ -6,8 +6,6 @@ const theme = extendTheme({
     heading: "'IBM Plex Sans', sans-serif",
     // body: "'Roboto Flex', sans-serif",
     // body: "'Palanquin', sans-serif",
-
-
   },
   components: {
     Heading: {

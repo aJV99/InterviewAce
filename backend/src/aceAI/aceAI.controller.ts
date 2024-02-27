@@ -8,7 +8,12 @@ export class AceAIController {
   @Get('response')
   async getGptResponse(): Promise<any> {
     try {
-      const response = await this.AceAIService.generateQuestions("Technology Consultant", "IBM iX","Make websites, mobile apps or do devops.","London, United Kingdom");
+      const response = await this.AceAIService.generateQuestions(
+        'Technology Consultant',
+        'IBM iX',
+        'Make websites, mobile apps or do devops.',
+        'London, United Kingdom',
+      );
       return response;
     } catch (error) {
       throw new HttpException(
