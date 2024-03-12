@@ -1,25 +1,29 @@
-"use client";
-import React from "react";
-import useAnimatedRouter from "./useAnimatedRouter";
-import { Button, ButtonProps } from "@chakra-ui/react";
+import React from 'react';
+import { Button, ButtonProps } from '@chakra-ui/react';
+import useAnimatedRouter from './useAnimatedRouter';
 
-// Extend ButtonProps to include only the additional props you need
-interface AnimatedButtonProps extends Omit<ButtonProps, "onClick"> {
+interface AnimatedButtonProps extends Omit<ButtonProps, 'onClick'> {
   destination: string;
 }
 
-const AnimatedButton: React.FC<AnimatedButtonProps> = ({ destination, children, ...rest }) => {
-  const router = useAnimatedRouter(); // Using the custom hook
+// Use React.forwardRef to forward refs to the underlying Button component
+const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
+  ({ destination, children, ...rest }, ref) => {
+    const router = useAnimatedRouter(); // Using the custom hook
 
-  const handleClick = () => {
-    router.animatedRoute(destination); // Navigate using the custom animated route method
-  };
+    const handleClick = () => {
+      router.animatedRoute(destination); // Navigate using the custom animated route method
+    };
 
-  return (
-    <Button onClick={handleClick} {...rest}>
-      {children}
-    </Button>
-  );
-};
+    // Pass the ref along with other props to the Button component
+    return (
+      <Button ref={ref} onClick={handleClick} {...rest}>
+        {children}
+      </Button>
+    );
+  },
+);
+
+AnimatedButton.displayName = 'AnimatedButton';
 
 export default AnimatedButton;

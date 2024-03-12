@@ -15,18 +15,17 @@ import {
   Image,
   Alert,
   AlertIcon,
-} from "@chakra-ui/react";
-import { PasswordField } from "@/components/passwordField";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { login, loginSuccess } from "@/redux/features/authSlice";
-import withAuth from "@/redux/features/authHoc";
-import AnimatedLink from "@/components/AnimatedLink";
-import useAnimatedRouter from "@/components/useAnimatedRouter";
+} from '@chakra-ui/react';
+import { PasswordField } from '@/components/PasswordField';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { login, loginSuccess } from '@/redux/features/authSlice';
+import AnimatedLink from '@/components/AnimatedLink';
+import useAnimatedRouter from '@/components/useAnimatedRouter';
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
   const router = useAnimatedRouter();
@@ -34,7 +33,7 @@ const Login = () => {
   const handleLogin = async () => {
     if (!email || !password) {
       // Check if email or password is empty
-      setError("Both email and password are required fields.");
+      setError('Both email and password are required fields.');
       return;
     }
 
@@ -47,7 +46,7 @@ const Login = () => {
           accessToken: data.accessToken,
         }),
       );
-      router.animatedRoute("/dashboard");
+      router.animatedRoute('/dashboard');
     } catch (error: any) {
       console.error(error);
       if (
@@ -56,36 +55,36 @@ const Login = () => {
         error.response.data.statusCode &&
         error.response.data.statusCode === 401
       ) {
-        setError("Incorrect email or password.");
+        setError('Incorrect email or password.');
       } else {
-        setError("An error occurred.");
+        setError('An error occurred.');
       }
     }
   };
 
   return (
-    <Container maxW="lg" py={{ base: "12", md: "24" }} px={{ base: "0", sm: "8" }}>
+    <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }}>
       <Stack spacing="8">
         <Stack spacing="6">
-          <Image src="/Logo.png" alt="InterviewAce Logo" w={350} minWidth={"200px"} alignSelf={"center"} />
-          <Stack spacing={{ base: "2", md: "3" }} textAlign="center">
-            <Heading fontWeight={600} fontSize={{ base: "lg", sm: "xl", md: "2xl", lg: "3xl" }}>
+          <Image src="/Logo.png" alt="InterviewAce Logo" w={350} minWidth={'200px'} alignSelf={'center'} />
+          <Stack spacing={{ base: '2', md: '3' }} textAlign="center">
+            <Heading fontWeight={600} fontSize={{ base: 'lg', sm: 'xl', md: '2xl', lg: '3xl' }}>
               Log in to your account
             </Heading>
             <Text color="fg.muted">
-              Don&apos;t have an account?{" "}
-              <Link color={"blue.400"} as={AnimatedLink} href={"/signup"}>
+              Don&apos;t have an account?
+              <Link color={'blue.400'} as={AnimatedLink} href={'/signup'}>
                 Sign up
               </Link>
             </Text>
           </Stack>
         </Stack>
         <Box
-          py={{ base: "0", sm: "8" }}
-          px={{ base: "4", sm: "10" }}
-          bg={{ base: "transparent", sm: "bg.surface" }}
-          boxShadow={{ base: "none", sm: "md" }}
-          borderRadius={{ base: "none", sm: "xl" }}
+          py={{ base: '0', sm: '8' }}
+          px={{ base: '4', sm: '10' }}
+          bg={{ base: 'transparent', sm: 'bg.surface' }}
+          boxShadow={{ base: 'none', sm: 'md' }}
+          borderRadius={{ base: 'none', sm: 'xl' }}
         >
           <Stack spacing="6">
             <Stack spacing="5">
@@ -131,4 +130,4 @@ const Login = () => {
   );
 };
 
-export default withAuth(Login);
+export default Login;

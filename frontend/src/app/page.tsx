@@ -1,5 +1,5 @@
-"use client";
-import Home from "@/pages/homePage";
+'use client';
+import Home from '@/pages/HomePage';
 
 function MyApp() {
   return <Home />;

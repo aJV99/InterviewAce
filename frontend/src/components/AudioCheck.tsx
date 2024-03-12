@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Button } from "@chakra-ui/react";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@chakra-ui/react';
 
 // Define the component with TypeScript
 const AudioCheck: React.FC = () => {
   // Explicitly set the type of mediaRecorder's state to null or MediaRecorder
   const [isMicAccessible, setIsMicAccessible] = useState<boolean>(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string>("");
+  const [audioUrl, setAudioUrl] = useState<string>('');
 
   useEffect(() => {
     // Function to check and request microphone access
@@ -27,13 +27,13 @@ const AudioCheck: React.FC = () => {
         };
 
         recorder.onstop = () => {
-          const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
+          const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
           chunks = [];
           const audioURL = window.URL.createObjectURL(blob);
           setAudioUrl(audioURL);
         };
       } catch (error) {
-        console.error("Microphone access was denied", error);
+        console.error('Microphone access was denied', error);
         setIsMicAccessible(false);
       }
     };
@@ -44,7 +44,7 @@ const AudioCheck: React.FC = () => {
   const startRecording = () => {
     mediaRecorder?.start();
     // Reset previous recording URL
-    setAudioUrl("");
+    setAudioUrl('');
   };
 
   const stopRecording = () => {
@@ -55,7 +55,7 @@ const AudioCheck: React.FC = () => {
   const playRecording = () => {
     if (audioUrl) {
       const audio = new Audio(audioUrl);
-      audio.play().catch((error) => console.error("Playback failed", error));
+      audio.play().catch((error) => console.error('Playback failed', error));
     }
   };
 

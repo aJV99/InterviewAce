@@ -1,18 +1,24 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import authReducer from "./features/authSlice";
-import jobReducer from "./features/jobSlice";
-import { persistStore, persistReducer } from "redux-persist";
-import storage from "./storage";
+import storage from './storage';
+import { persistStore, persistReducer } from 'redux-persist';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import authReducer from './features/authSlice';
+import jobReducer from './features/jobSlice';
+
+// import interviewReducer from './features/interviewSlice';
+// import questionReducer from './features/questionSlice';
 
 const persistConfig = {
-  key: "root",
+  key: 'root',
   storage,
-  whitelist: ["auth", "jobs"], // only auth will be persisted, add other reducer names if needed
+  // whitelist: ['auth', 'jobs', 'interviews', 'questions'], // only auth will be persisted, add other reducer names if needed
+  whitelist: ['auth', 'jobs'],
 };
 
 const rootReducer = combineReducers({
   auth: authReducer,
   jobs: jobReducer,
+  // interviews: interviewReducer,
+  // questions: questionReducer,
   // ... add other slices here
 });
 
@@ -24,7 +30,7 @@ const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         // Ignore these action types
-        ignoredActions: ["persist/PERSIST"],
+        ignoredActions: ['persist/PERSIST'],
       },
     }),
 });

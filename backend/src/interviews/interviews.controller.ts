@@ -1,52 +1,52 @@
-import {
-  UseGuards,
-  Controller,
-  Post,
-  Body,
-  Req,
-  Get,
-  Param,
-  Put,
-  Delete,
-} from '@nestjs/common';
+import { UseGuards, Controller, Post, Body, Req, Get, Param, Put, Delete } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 import { RequestWithAuth } from 'src/dto/request.dto';
 import { InterviewsService } from './interviews.service';
 import { InterviewDto, UpdateInterviewDto } from './dto/interview.dto';
+import { JobsService } from 'src/jobs/jobs.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('interviews')
 export class InterviewsController {
-  constructor(private readonly interviewsService: InterviewsService) {}
+  constructor(
+    private readonly interviewsService: InterviewsService,
+    private readonly jobsService: JobsService,
+  ) {}
 
-  @Post()
-  create(
+  @Post(':jobId')
+  async create(
+    @Param('jobId') jobId: string,
     @Body() createInterviewDto: InterviewDto,
     @Req() req: RequestWithAuth,
   ) {
-    return this.interviewsService.create(createInterviewDto, req.user.id);
+    await this.jobsService.checkJobOwnership(jobId, req.user.id);
+    return await this.interviewsService.create(jobId, createInterviewDto);
   }
 
-  @Get(':jobId')
-  findAll(@Param('jobId') jobId: string) {
-    return this.interviewsService.findAll(jobId);
-  }
+  // @Get(':jobId')
+  // async findAll(@Param('jobId') jobId: string) {
+  //   return await this.interviewsService.findAll(jobId);
+  // }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.interviewsService.findOne(id);
+  async findOne(@Param('id') id: string, @Req() req: RequestWithAuth) {
+    await this.interviewsService.checkInterviewOwnership(id, req.user.id);
+    return await this.interviewsService.findOne(id);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateInterviewDto: UpdateInterviewDto,
+    @Req() req: RequestWithAuth,
   ) {
-    return this.interviewsService.update(id, updateInterviewDto);
+    await this.interviewsService.checkInterviewOwnership(id, req.user.id);
+    return await this.interviewsService.update(id, updateInterviewDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.interviewsService.remove(id);
+  async remove(@Param('id') id: string, @Req() req: RequestWithAuth) {
+    await this.interviewsService.checkInterviewOwnership(id, req.user.id);
+    return await this.interviewsService.remove(id);
   }
 }

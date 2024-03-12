@@ -3,18 +3,10 @@ export interface Question {
   interviewId: string;
   content: string;
   userResponse: string | null;
-  feedback: string | null;
+  strengths: JSON | null;
+  improvements: JSON | null;
   score: number | null;
+  exemplarAnswer: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
-
-// export interface CreateInterviewDto {
-//   jobId: string;
-//   title: string;
-//   type: InterviewType;
-//   customType?: string;
-//   context?: string;
-// }
-
-// export interface UpdateInterviewDto extends Partial<CreateInterviewDto> {}

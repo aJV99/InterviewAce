@@ -1,15 +1,6 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  InternalServerErrorException,
-  Put,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, InternalServerErrorException, Put, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './user.entity';
+import { User } from './dto/user.entity';
 import { RequestWithAuth } from 'src/dto/request.dto';
 import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
@@ -28,10 +19,7 @@ export class UserController {
   }
 
   @Put()
-  async update(
-    @Req() req: RequestWithAuth,
-    @Body() updateUserDto: Partial<User>,
-  ) {
+  async update(@Req() req: RequestWithAuth, @Body() updateUserDto: Partial<User>) {
     const user = await this.userService.update(req.user.id, updateUserDto);
     if (!user) {
       throw new InternalServerErrorException('Updating the User Failed');

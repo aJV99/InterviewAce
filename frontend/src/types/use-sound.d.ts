@@ -1,4 +1,4 @@
-declare module "use-sound" {
+declare module 'use-sound' {
   export default function useSound(
     path: string,
     options?: any,

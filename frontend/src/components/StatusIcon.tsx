@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { Box, Flex, keyframes, Tooltip } from "@chakra-ui/react";
-import React from "react";
+import { Box, Flex, keyframes, Tooltip } from '@chakra-ui/react';
+import React from 'react';
 
 export default function StatusIndicator() {
-  const activeColor = "red.500";
+  const activeColor = 'red.500';
   const ringScaleMin = 0.33;
   const ringScaleMax = 0.66;
 
@@ -50,13 +50,13 @@ export default function StatusIndicator() {
           borderRadius="50%"
           _before={{
             content: "''",
-            display: "block",
-            width: "300%",
-            height: "300%",
-            boxSizing: "border-box",
-            marginLeft: "-100%",
-            marginTop: "-100%",
-            borderRadius: "50%",
+            display: 'block',
+            width: '300%',
+            height: '300%',
+            boxSizing: 'border-box',
+            marginLeft: '-100%',
+            marginTop: '-100%',
+            borderRadius: '50%',
             bgColor: activeColor,
             animation: `2.25s ${pulseRing} cubic-bezier(0.455, 0.03, 0.515, 0.955) -0.4s infinite`,
           }}

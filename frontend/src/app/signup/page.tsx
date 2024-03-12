@@ -1,5 +1,5 @@
-"use client";
-import SignUpPage from "@/pages/signupPage";
+'use client';
+import SignUpPage from '@/pages/SignupPage';
 
 const SignUp = () => {
   return (

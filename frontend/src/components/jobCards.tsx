@@ -1,7 +1,7 @@
-import * as React from "react";
-import { Box, Heading, Text, Button, SimpleGrid, VStack } from "@chakra-ui/react";
-import { JobState } from "@/redux/features/jobSlice";
-import AnimatedButton from "./AnimatedButton";
+import * as React from 'react';
+import { Box, Heading, Text, Button, SimpleGrid, VStack } from '@chakra-ui/react';
+import { JobState } from '@/redux/features/jobSlice';
+import AnimatedButton from './AnimatedButton';
 
 const JobCards: React.FC<{ cards: JobState }> = ({ cards }) => {
   return (
@@ -21,10 +21,10 @@ const JobCards: React.FC<{ cards: JobState }> = ({ cards }) => {
             display="flex"
             flexDirection="column"
             height="100%"
-            backgroundColor={"#fff"}
+            backgroundColor={'#fff'}
           >
             <VStack spacing={2} align="stretch" flexGrow={1}>
-              <Heading size="md" noOfLines={2} minHeight={"0em"}>
+              <Heading size="md" noOfLines={2} minHeight={'0em'}>
                 {card.title}
               </Heading>
               <Heading size="sm" noOfLines={2}>
@@ -34,7 +34,7 @@ const JobCards: React.FC<{ cards: JobState }> = ({ cards }) => {
             </VStack>
             <br />
 
-            <Button as={AnimatedButton} colorScheme="blue" destination={"/job/" + card.id}>
+            <Button as={AnimatedButton} colorScheme="blue" destination={'/job/' + card.id}>
               Get Practicing
             </Button>
           </Box>

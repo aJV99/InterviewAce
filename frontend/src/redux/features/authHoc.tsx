@@ -1,7 +1,8 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { usePathname, useRouter } from "next/navigation";
-import { RootState } from "@/redux/store";
+'use client';
+import React from 'react';
+import { RootState } from '@/redux/store';
+import { useSelector } from 'react-redux';
+import { usePathname, useRouter } from 'next/navigation';
 
 const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) => {
   // Declare `WithAuthComponent` and use `P` to type the props correctly
@@ -10,13 +11,13 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
     const router = useRouter();
     const pathname = usePathname();
 
-    if (!token && pathname !== "/login") {
-      router.push("/login");
+    if (!token && pathname !== '/login') {
+      router.push('/login');
       return null;
     }
 
-    if (token && pathname === "/login") {
-      router.push("/dashboard");
+    if (token && pathname === '/login') {
+      router.push('/dashboard');
       return null;
     }
 
@@ -31,7 +32,7 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
 
 // Helper function to get the display name of a component
 function getDisplayName<P extends object>(WrappedComponent: React.ComponentType<P>) {
-  return WrappedComponent.displayName || WrappedComponent.name || "Component";
+  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
 export default withAuth;

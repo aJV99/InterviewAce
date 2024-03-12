@@ -1,5 +1,5 @@
-"use client";
-import { extendTheme } from "@chakra-ui/react";
+'use client';
+import { extendTheme } from '@chakra-ui/react';
 
 const theme = extendTheme({
   fonts: {
@@ -10,7 +10,7 @@ const theme = extendTheme({
   components: {
     Heading: {
       baseStyle: {
-        fontWeight: "600",
+        fontWeight: '600',
       },
     },
   },

@@ -1,5 +1,5 @@
 // ConfirmDeleteModal.tsx
-import React from "react";
+import React from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -10,7 +10,7 @@ import {
   ModalCloseButton,
   Button,
   Text,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;

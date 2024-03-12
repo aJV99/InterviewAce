@@ -22,13 +22,7 @@ import { UserService } from '../user/user.service';
       },
     }),
   ],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    RefreshStrategy,
-    PrismaService,
-    UserService,
-  ],
+  providers: [AuthService, JwtStrategy, RefreshStrategy, PrismaService, UserService],
   controllers: [AuthController],
   exports: [AuthService],
 })

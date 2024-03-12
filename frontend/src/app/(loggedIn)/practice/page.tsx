@@ -1,110 +1,65 @@
-"use client";
-import React, { useState, useRef, useEffect } from "react";
+'use client';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
+  CircularProgress,
+  CircularProgressLabel,
   Container,
   Flex,
+  Grid,
+  GridItem,
   Heading,
-  Icon,
+  IconButton,
   Modal,
   ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
   Spacer,
+  Table,
+  Tbody,
+  Td,
   Text,
+  Th,
+  Thead,
+  Tr,
   useDisclosure,
-} from "@chakra-ui/react";
-import { fetchJobs } from "@/redux/features/jobSlice";
-import { AppDispatch, RootState } from "@/redux/store";
-import { useDispatch, useSelector } from "react-redux";
-import { ChevronLeftIcon } from "@chakra-ui/icons";
-import { findPunctuationMarks, toCapitalCase } from "@/app/utils";
-import { FaMicrophone } from "react-icons/fa";
-import StatusIndicator from "@/components/StatusIcon";
-import Timer from "@/components/Timer";
-import useSound from "use-sound";
+} from '@chakra-ui/react';
+import { answerQuestion, fetchJobs } from '@/redux/features/jobSlice';
+import { AppDispatch, RootState } from '@/redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { ChevronLeftIcon } from '@chakra-ui/icons';
+import { toCapitalCase } from '@/app/utils';
+import { FaUpRightAndDownLeftFromCenter } from 'react-icons/fa6';
+import StatusIndicator from '@/components/StatusIcon';
+import Timer from '@/components/Timer';
+import useSound from 'use-sound';
+import useSpeaker from '@/components/useSpeaker';
+import useMicrophone from '@/components/useMicrophone';
+import SetupModal from '@/components/SetupModal';
+import RecordingAnimation from '@/components/RecordingAnimation';
+import interviewTips from './InterviewTips';
+import TipsCarousel from '@/components/TipsCarousel';
+import useAnimatedRouter from '@/components/useAnimatedRouter';
 
 const PracticePage: React.FC = () => {
-  const [interviewStarted, setInterviewStarted] = useState<boolean>(false);
-  const [transcriptionTestPassed, setTranscriptionTestPassed] = useState<boolean>(false);
-  const [transcript, setTranscript] = useState<string>("");
-  const [isListening, setIsListening] = useState<boolean>(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [spokenText, setSpokenText] = useState("");
+  const [interviewStatus, setInterviewStatus] = useState<string>('Not Started');
+  const [testsPassed, setTestsPassed] = useState<boolean>(true);
   const [questionIndex, setQuestionIndex] = useState(0);
   const { isOpen: isCountdownOpen, onOpen: onOpenCountdown, onClose: onCloseCountdown } = useDisclosure();
-  const {
-    isOpen: isTranscriptionTestOpen,
-    onOpen: onOpenTranscriptionTest,
-    onClose: onCloseTranscriptionTest,
-  } = useDisclosure();
-  const [countdownText, setCountdownText] = useState<string>("3");
-  const [playTickSound] = useSound("/sounds/tick.mp3");
-  const [playAnswerSound] = useSound("/sounds/answer.mp3");
-
-  const testPhrase = "This is a microphone test.";
-
-  // Use a ref to keep a stable reference to the recognition object across re-renders
-  const recognitionRef = React.useRef<SpeechRecognition | null>(null);
-
-  const startListening = () => {
-    const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      alert(
-        "Your browser does not support the Web Speech API. Please use the latest versions of any of the following browsers: Google Chrome, Microsoft Edge, Mozilla Firefox",
-      );
-      return;
-    }
-
-    // Initialize recognition object and assign it to the ref
-    recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.continuous = true; // Keep listening even if the user pauses
-    recognitionRef.current.lang = "en-GB";
-    recognitionRef.current.interimResults = false;
-    recognitionRef.current.maxAlternatives = 1;
-
-    recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-      const transcriptResult = Array.from(event.results)
-        .map((result) => result[0].transcript)
-        .join(" ");
-      setTranscript(transcriptResult);
-      console.log(transcriptResult);
-      if (!transcriptionTestPassed && transcriptResult == testPhrase) {
-        console.log("TEST WOOHOO");
-        setTranscriptionTestPassed(true);
-        if (recognitionRef.current) {
-          recognitionRef.current.stop();
-          recognitionRef.current = null; // Reset the ref after stopping
-          setIsListening(false);
-          setTranscript("");
-        }
-      }
-    };
-
-    recognitionRef.current.onerror = (event: any) => {
-      console.error("Speech recognition error", event.error);
-    };
-
-    recognitionRef.current.start();
-  };
-
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      recognitionRef.current = null; // Reset the ref after stopping
-      setIsListening(false);
-      setTranscript("");
-      nextQuestion(questionIndex);
-    }
-  };
-
+  const { isOpen: isTranscriptionTestOpen, onOpen: onOpenTranscriptionTest } = useDisclosure();
+  const { isOpen: isExpandOpen, onOpen: onOpenExpand, onClose: onCloseExpand } = useDisclosure();
+  const [expandText, setExpandText] = useState<string[]>(['', '']);
+  const [countdownText, setCountdownText] = useState<string>('3');
+  const [playTickSound] = useSound('/sounds/tick.mp3');
+  const [playAnswerSound] = useSound('/sounds/answer.mp3');
   const dispatch = useDispatch<AppDispatch>();
   const currentInterview = useSelector((state: RootState) => state.jobs.currentInterview);
   const jobsState = useSelector((state: RootState) => state.jobs);
+  const router = useAnimatedRouter();
 
   useEffect(() => {
     // Check if the jobs are fetched or fetch if necessary
@@ -123,71 +78,11 @@ const PracticePage: React.FC = () => {
   }
 
   const questions = interview.questions;
-  const speechSynthesisUtterance = useRef<SpeechSynthesisUtterance | null>(null);
-  const voices = speechSynthesis.getVoices();
-  const selectedVoice = voices.find((voice) => voice.lang.startsWith("en-GB"));
-
-  const handleSpeak = (text: string) => {
-    const punctuationMap = findPunctuationMarks(text);
-    console.log(punctuationMap);
-
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      return;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    speechSynthesisUtterance.current = utterance;
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    } else {
-      console.log("Preferred language voice not found, using default.");
-    }
-
-    // Set properties for the speech synthesis
-    utterance.rate = 1; // Adjust as needed
-    utterance.pitch = 1; // Adjust as needed
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      startRecording();
-    };
-
-    utterance.onboundary = (event) => {
-      if (event.name === "word") {
-        let word = text.slice(event.charIndex, event.charIndex + event.charLength);
-        if (punctuationMap.length != 0 && event.charIndex + event.charLength == punctuationMap[0].index) {
-          word += punctuationMap[0].character;
-          punctuationMap.shift();
-        }
-        setSpokenText((prev) => `${prev} ${word}`);
-      }
-    };
-
-    window.speechSynthesis.speak(utterance);
-  };
-
-  const nextQuestion = (index: number) => {
-    if (questionIndex < questions.length) {
-      setQuestionIndex(questionIndex + 1);
-      setSpokenText("");
-      handleSpeak(questions[index].content);
-      console.log("Complete");
-    } else {
-      console.log("done");
-    }
-  };
-
   const startRecording = () => {
     startListening(); // Start listening after the countdown
     onOpenCountdown(); // Open the modal
     playTickSound();
-    const countdownValues = ["2", "1", "Answer!"];
+    const countdownValues = ['2', '1', 'Answer!'];
     let index = 0;
 
     const countdownInterval = setInterval(() => {
@@ -202,116 +97,313 @@ const PracticePage: React.FC = () => {
       } else {
         clearInterval(countdownInterval);
         onCloseCountdown(); // Close the modal
-        setCountdownText("3"); // Reset countdown text
+        setCountdownText('3'); // Reset countdown text
         setIsListening(true);
       }
     }, 1000);
   };
 
+  const leave = () => {
+    if (jobsState.loadingInterview === interview.id) {
+      router.push(`/job/${job.id}`);
+    } else {
+      router.push(`/interview/${job.id}/${interview.id}`);
+    }
+  };
+
+  const handleResult = () => {
+    dispatch(
+      answerQuestion({
+        questionId: questions[questionIndex - 1].id,
+        response: transcript,
+        interviewId: interview.id,
+      }),
+    );
+    nextQuestion(questionIndex);
+  };
+
+  const setTestsPassedTrue = () => setTestsPassed(true);
+
+  const {
+    status,
+    setStatus,
+    transcript,
+    setTranscript,
+    isListening,
+    setIsListening,
+    startListening,
+    stopListening,
+  } = useMicrophone(handleResult, testsPassed, 'This is a microphone test.', setTestsPassedTrue);
+
+  const handleSpeakerResult = () => {
+    if (testsPassed) {
+      setQuestionIndex((prevIndex) => {
+        const updatedIndex = prevIndex + 1;
+
+        // if (updatedIndex === questions.length + 1) {
+
+        // } else {
+        //   startRecording(); // This call can be conditional based on further logic
+        // }
+        if (updatedIndex !== questions.length + 1) {
+          startRecording(); // This call can be conditional based on further logic
+        }
+        return updatedIndex; // This updates the state
+      });
+    } else {
+      setStatus('CHECK!');
+    }
+  };
+
+  const { isSpeaking, spokenText, setSpokenText, handleSpeak } = useSpeaker(handleSpeakerResult);
+
+  const nextQuestion = useCallback(
+    (index: number) => {
+      setSpokenText('');
+      console.log('nextQuestion ' + index);
+      // Assuming questions is an array of question objects available in the component's scope
+      if (index < questions.length) {
+        handleSpeak(questions[index].content);
+      } else {
+        setInterviewStatus('Complete');
+        handleSpeak("Thank you for attending this interview. We'll be contacting you soon about your feedback!");
+      }
+    },
+    [questions, handleSpeak, setSpokenText],
+  );
+
   const startInterview = () => {
-    setTranscript("");
-    setInterviewStarted(true);
+    setTranscript('');
+    setInterviewStatus('Started');
     nextQuestion(questionIndex);
   };
 
   const startListeningForTest = () => {
+    if (!testsPassed) {
+      setTranscript('');
+      setStatus('');
+    }
     startRecording();
   };
 
+  const number = () => {
+    const num = Math.round((questionIndex / questions.length) * 100);
+    if (num > 100) {
+      return 100;
+    } else {
+      return num;
+    }
+  };
+
   return (
-    <Flex minHeight="100vh" bg="blue.800" color="white" p={10} direction="column">
-      {!transcriptionTestPassed && (
-        <Modal isOpen={isTranscriptionTestOpen} onClose={() => {}} isCentered size="xl">
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Microphone Test</ModalHeader>
-            <ModalBody>
-              <Text>Please say the following phrase to test your microphone:</Text>
-              <Text fontWeight="bold">{`"` + testPhrase + `"`}</Text>
-              <Text fontWeight="bold">What you said: {`"` + transcript + `"`}</Text>
-
-              {/* You can add a button or automatically start listening */}
-            </ModalBody>
-            <ModalFooter>
-              <Text fontSize="sm" color="red.500">
-                This modal will automatically close when the test has passed
-              </Text>
-              <Spacer />
-              <Button colorScheme="blue" mr={3} onClick={startListeningForTest}>
-                {isListening ? "Retry Test" : "Start Test"}
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      )}
-      {/* Header with three sections */}
-      <Flex width="full" justifyContent="space-between" alignItems="center" mb={8}>
-        {/* Left-aligned section */}
-        <Box textAlign="left" width="25vw">
-          <Button size="sm" leftIcon={<ChevronLeftIcon />} colorScheme="teal">
-            Quit
-          </Button>
-        </Box>
-
-        {/* Center-aligned section */}
-        <Box textAlign="center" width="50vw">
-          <Heading as="h1" size="lg" mb={2}>
-            {interview.title}
-          </Heading>
-          <Text fontSize="md">
-            {job.title} - {interview.customType ? `${interview.customType}` : toCapitalCase(interview.type)}{" "}
-            Interview - {job.company}
-          </Text>
-        </Box>
-
-        {/* Right-aligned section */}
-        <Box textAlign="right" width="25vw">
-          <Text fontSize="md">Right-aligned content</Text>
-        </Box>
-      </Flex>
-
-      {/* Audio Check Component */}
-      {/* <AudioCheck /> */}
-
-      <Container maxW="container.lg" py={16}>
-        <Heading fontSize="5xl" my={11} textAlign="center">
-          {spokenText}
-        </Heading>
-      </Container>
-      <Box textAlign="center">
-        {!interviewStarted && (
-          <Button colorScheme="teal" onClick={() => startInterview()} disabled={isSpeaking} size="lg">
-            {isSpeaking ? "Stop Speaking" : "Start Mock Interview"}
-          </Button>
-        )}
-        {isListening && (
-          <>
-            <Heading mb="10">{transcript}</Heading>
-            <Text mb="5" fontWeight="bold">
-              Listening...
-            </Text>
-            <Flex mb="5" justifyContent="center" alignItems="center" gap="0.5">
-              <Icon as={FaMicrophone} color="red.500" w={6} h={6} />
-              <StatusIndicator />
-              <Timer />
-            </Flex>
-            <Button mb="5" onClick={stopListening} disabled={!isListening}>
-              Submit Answer
+    <Box bg="blue.800">
+      <Flex minHeight="100vh" direction="column" bg="blue.800" color="white" p={10}>
+        {/* Top section - Quit button and Microphone status */}
+        <Flex justifyContent="space-between" alignItems="center" mb={8}>
+          <Box textAlign="left" width="25vw">
+            <Button onClick={leave} size="sm" leftIcon={<ChevronLeftIcon />} colorScheme="teal">
+              Quit
             </Button>
+          </Box>
+          <Box textAlign="center" width="50vw">
+            <Heading as="h1" size="lg">
+              {interview.title}
+            </Heading>
+            <Text fontSize="md">
+              {job.title} - {interview.customType ? 
+              `${interview.customType}` : toCapitalCase(interview.type)} Interview - {job.company}
+            </Text>
+          </Box>
+          <Box textAlign="right" alignItems="right" width="25vw">
+            <CircularProgress value={number()} size="4rem" color="green.400">
+              <CircularProgressLabel>{number()}%</CircularProgressLabel>
+            </CircularProgress>
+          </Box>
+        </Flex>
+        <Box>
+          {interviewStatus === 'Not Started' && testsPassed && (
+            <>
+              <Flex alignItems="center" justifyContent="center" mt="10" mb="20">
+                <Button colorScheme="teal" onClick={() => startInterview()} disabled={isSpeaking} size="lg">
+                  Start Mock Interview
+                </Button>
+              </Flex>
+              <Grid templateColumns="repeat(2, 1fr)" gap={20}>
+                <GridItem maxW="100%" h="10">
+                  <Heading lineHeight="tall" fontSize="3xl" mb="3">
+                    Top Tips and Tricks from Ace
+                  </Heading>
+                  <TipsCarousel items={interviewTips} />
+                </GridItem>
+                <GridItem h="10">
+                  <Table>
+                    <Thead>
+                      <Tr>
+                        <Th width="48" color="white"></Th>
+                        <Th color="white"></Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      <Tr>
+                        <Td fontWeight="semibold">Job Title</Td>
+                        <Td>{job.title}</Td>
+                      </Tr>
+                      <Tr>
+                        <Td fontWeight="semibold">Job Company</Td>
+                        <Td>{job.company}</Td>
+                      </Tr>
+                      <Tr>
+                        <Td fontWeight="semibold">Job Description</Td>
+                        <Td>
+                          <Flex alignItems="center">
+                            <Text noOfLines={2}>{job.description}</Text>
+                            <Spacer />
+                            <IconButton
+                              size="sm"
+                              icon={<FaUpRightAndDownLeftFromCenter />}
+                              aria-label={''}
+                              onClick={() => {
+                                setExpandText(['Job Description', `${job.description}`]);
+                                onOpenExpand();
+                              }}
+                            />
+                          </Flex>
+                        </Td>
+                      </Tr>
+                      <Tr>
+                        <Td fontWeight="semibold">Job Title</Td>
+                        <Td>{job.location}</Td>
+                      </Tr>
+                      <Tr>
+                        <Td fontWeight="semibold">Interview Title</Td>
+                        <Td>{interview.title}</Td>
+                      </Tr>
+                      <Tr>
+                        <Td fontWeight="semibold">Interview Type</Td>
+                        <Td>{interview.type}</Td>
+                      </Tr>
+                      <Tr>
+                        <Td fontWeight="semibold">Interview Context</Td>
+                        <Td>
+                          <Flex alignItems="center">
+                            <Text noOfLines={2}>{interview.context}</Text>
+                            <Spacer />
+                            <IconButton
+                              size="sm"
+                              icon={<FaUpRightAndDownLeftFromCenter />}
+                              aria-label={''}
+                              onClick={() => {
+                                setExpandText(['Interview Context', `${interview.context}`]);
+                                onOpenExpand();
+                              }}
+                            />
+                          </Flex>
+                        </Td>
+                      </Tr>
+                    </Tbody>
+                  </Table>
+                </GridItem>
+              </Grid>
+            </>
+          )}
+        </Box>
+        {testsPassed && interviewStatus != 'Not Started' && (
+          <Container
+            maxW="container.lg"
+            position="absolute"
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)" // Center the box
+            width="full" // Take up the full width of its parent
+            textAlign="center" // Center text within the box
+            mb="28"
+          >
+            <Heading fontSize="5xl" textAlign="center">
+              {spokenText}
+            </Heading>
+          </Container>
+        )}
+
+        {/* Bottom section for isListening elements */}
+        {testsPassed && isListening && (
+          <>
+            <Spacer />
+
+            <Flex direction="column" alignItems="center" mb={4}>
+              <>
+                <Flex justifyContent="center" alignItems="center">
+                  <RecordingAnimation />
+                </Flex>
+                <Flex justifyContent="center" alignItems="center" gap="2" mt={4}>
+                  <StatusIndicator />
+                  <Text fontWeight="bold" fontSize="lg">
+                    Recording...
+                  </Text>
+                  <Timer />
+                </Flex>
+                <Button size="lg" onClick={stopListening} disabled={!isListening} mt={4}>
+                  Submit Answer
+                </Button>
+              </>
+            </Flex>
           </>
         )}
-      </Box>
-      <Modal isOpen={isCountdownOpen} onClose={() => {}} isCentered size="xl">
-        <ModalOverlay />
-        <ModalContent background="transparent" boxShadow="none">
-          <ModalBody display="flex" alignItems="center" justifyContent="center">
-            <Heading fontSize="6xl" color="white">
-              {countdownText}
-            </Heading>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </Flex>
+
+        {testsPassed && interviewStatus === 'Complete' && (
+          <>
+            <Spacer />
+
+            <Flex direction="column" alignItems="center" mb={4}>
+              <>
+                <Button size="lg" onClick={leave} disabled={!isListening} mt={4}>
+                  Return to Interview Page
+                </Button>
+              </>
+            </Flex>
+          </>
+        )}
+
+        {/* Countdown Modal */}
+        <Modal isOpen={isCountdownOpen} onClose={() => {}} isCentered size="xl">
+          <ModalOverlay />
+          <ModalContent background="transparent" boxShadow="none">
+            <ModalBody display="flex" alignItems="center" justifyContent="center">
+              <Heading fontSize="6xl" color="white">
+                {countdownText}
+              </Heading>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+
+        {!testsPassed && (
+          <Modal isOpen={isTranscriptionTestOpen} onClose={() => {}} isCentered size="xl">
+            <SetupModal
+              transcript={transcript}
+              status={status}
+              isListening={isListening}
+              onNext={() => {
+                setStatus('');
+                setSpokenText('');
+              }}
+              onSpeak={() => {
+                handleSpeak('This is a speaker test.');
+              }}
+              onListen={startListeningForTest}
+            />
+          </Modal>
+        )}
+
+        <Modal onClose={onCloseExpand} isOpen={isExpandOpen} size={'3xl'} scrollBehavior={'inside'}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>{expandText[0]}</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>{expandText[1]}</ModalBody>
+            <ModalFooter></ModalFooter>
+          </ModalContent>
+        </Modal>
+      </Flex>
+    </Box>
   );
 };
 

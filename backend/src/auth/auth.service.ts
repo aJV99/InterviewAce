@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { LoginDto } from './login.dto';
-import { JwtPayload } from './jwt-payload.interface';
+import { LoginDto } from './dto/login.dto';
+import { JwtPayload } from './dto/jwt-payload.interface';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 
@@ -37,9 +37,7 @@ export class AuthService {
     return this.jwtService.sign(payload, { expiresIn: '7d' });
   }
 
-  async createAccessTokenFromRefreshToken(
-    refreshToken: string,
-  ): Promise<string> {
+  async createAccessTokenFromRefreshToken(refreshToken: string): Promise<string> {
     try {
       // Verify the refresh token.
       // Note: Ideally you should have a different secret for refresh tokens for added security.

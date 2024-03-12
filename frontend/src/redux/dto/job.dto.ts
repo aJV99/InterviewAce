@@ -1,4 +1,4 @@
-import { Interview } from "./interview.dto";
+import { Interview } from './interview.dto';
 
 export interface Job {
   id: string;

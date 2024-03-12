@@ -1,10 +1,10 @@
-"use client";
-import React from "react";
-import useAnimatedRouter from "./useAnimatedRouter";
-import Link from "next/link";
-import { LinkProps } from "next/dist/client/link";
+'use client';
+import React from 'react';
+import useAnimatedRouter from './useAnimatedRouter';
+import Link from 'next/link';
+import { LinkProps } from 'next/dist/client/link';
 
-interface AnimatedLinkProps extends React.PropsWithChildren, Omit<LinkProps, "onClick"> {
+interface AnimatedLinkProps extends React.PropsWithChildren, Omit<LinkProps, 'onClick'> {
   // You can extend or modify LinkProps as needed here
   className: string;
 }

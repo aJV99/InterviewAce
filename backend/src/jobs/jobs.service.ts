@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JobDto, UpdateJobDto } from './dto/job.dto';
 import { PrismaService } from 'src/prisma.service';
 
@@ -6,62 +6,84 @@ import { PrismaService } from 'src/prisma.service';
 export class JobsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async checkJobOwnership(jobId: string, userId: string): Promise<void> {
+    const job = await this.prisma.job.findUnique({ where: { id: jobId } });
+    if (!job) {
+      throw new NotFoundException(`Job not found with given ID`);
+    }
+    if (job.userId !== userId) {
+      throw new UnauthorizedException('You do not own this job');
+    }
+  }
+
   async create(createJobDto: JobDto, userId: string) {
-    return this.prisma.job.create({
+    return await this.prisma.job.create({
       data: {
         ...createJobDto,
         userId,
       },
+      include: {
+        interviews: {
+          include: {
+            questions: true
+          }
+        }
+      }
     });
   }
 
   async findAll(userId: string) {
-    return this.prisma.job.findMany({
+    return await this.prisma.job.findMany({
       where: {
         userId,
       },
       include: {
         interviews: {
           include: {
-            questions: true,
-          },
-        },
-      },
+            questions: true
+          }
+        }
+      }
     });
   }
 
-  async findOne(id: string, userId: string) {
-    return this.prisma.job.findFirst({
+  async findOne(id: string) {
+    return await this.prisma.job.findFirst({
       where: {
-        id: id.toString(),
-        userId,
+        id: id,
       },
       include: {
         interviews: {
           include: {
-            questions: true,
-          },
-        },
-      },
+            questions: true
+          }
+        }
+      }
     });
   }
 
   async update(id: string, updateJobDto: UpdateJobDto) {
-    return this.prisma.job.update({
+    return await this.prisma.job.update({
       where: {
-        id: id.toString(),
+        id: id,
       },
       data: {
         ...updateJobDto,
       },
+      include: {
+        interviews: {
+          include: {
+            questions: true
+          }
+        }
+      }
     });
   }
 
-  async remove(id: string, userId: string) {
+  async remove(id: string) {
     return this.prisma.job.delete({
       where: {
-        id: id.toString(),
-        userId,
+        id: id,
       },
     });
   }

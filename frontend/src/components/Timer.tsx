@@ -1,5 +1,5 @@
-import { Box } from "@chakra-ui/react";
-import React, { useState, useEffect } from "react";
+import { Box } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
 
 const Timer = () => {
   const [time, setTime] = useState(0); // Track time in seconds
@@ -17,13 +17,9 @@ const Timer = () => {
   const seconds = time % 60;
 
   // Format time to ensure two digits for minutes and seconds
-  const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-  return (
-    <Box ml="3">
-      <p>{formattedTime}</p>
-    </Box>
-  );
+  return <Box ml="3">{formattedTime}</Box>;
 };
 
 export default Timer;

@@ -1,5 +1,5 @@
-"use client";
-import { useRouter } from "next/navigation";
+'use client';
+import { useRouter } from 'next/navigation';
 
 // Define a type for the extended router to include the animatedRoute function
 type ExtendedRouter = ReturnType<typeof useRouter> & {

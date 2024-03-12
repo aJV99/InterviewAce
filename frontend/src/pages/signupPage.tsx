@@ -16,21 +16,21 @@ import {
   InputRightElement,
   Alert,
   AlertIcon,
-} from "@chakra-ui/react";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { login, loginSuccess, signup } from "@/redux/features/authSlice";
-import { AxiosError } from "axios";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
-import AnimatedLink from "@/components/AnimatedLink";
-import useAnimatedRouter from "@/components/useAnimatedRouter";
+} from '@chakra-ui/react';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { login, loginSuccess, signup } from '@/redux/features/authSlice';
+import { AxiosError } from 'axios';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import AnimatedLink from '@/components/AnimatedLink';
+import useAnimatedRouter from '@/components/useAnimatedRouter';
 
 const SignUpPage = () => {
   // Added state for firstName and lastName
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +39,7 @@ const SignUpPage = () => {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError("Both email and password are required fields.");
+      setError('Both email and password are required fields.');
       return;
     }
 
@@ -54,40 +54,40 @@ const SignUpPage = () => {
           accessToken: data.accessToken,
         }),
       );
-      router.animatedRoute("/dashboard");
+      router.animatedRoute('/dashboard');
     } catch (error) {
       console.error(error);
       if (error instanceof AxiosError && error.response?.data.statusCode === 401) {
-        setError("Incorrect email or password.");
+        setError('Incorrect email or password.');
       } else {
-        setError("An error occurred.");
+        setError('An error occurred.');
       }
     }
   };
 
   return (
-    <Container maxW="lg" py={{ base: "12", md: "24" }} px={{ base: "0", sm: "8" }}>
+    <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }}>
       <Stack spacing="8">
         <Stack spacing="6">
-          <Image src="/Logo.png" alt="InterviewAce Logo" w={350} minWidth={"200px"} alignSelf={"center"} />
-          <Stack spacing={{ base: "2", md: "3" }} textAlign="center">
-            <Heading fontWeight={600} fontSize={{ base: "lg", sm: "xl", md: "2xl", lg: "3xl" }}>
+          <Image src="/Logo.png" alt="InterviewAce Logo" w={350} minWidth={'200px'} alignSelf={'center'} />
+          <Stack spacing={{ base: '2', md: '3' }} textAlign="center">
+            <Heading fontWeight={600} fontSize={{ base: 'lg', sm: 'xl', md: '2xl', lg: '3xl' }}>
               Sign up for an account
             </Heading>
             <Text color="fg.muted">
-              Already have an account?{" "}
-              <Link color={"blue.400"} as={AnimatedLink} href={"/login"}>
+              Already have an account?
+              <Link color={'blue.400'} as={AnimatedLink} href={'/login'}>
                 Login
               </Link>
             </Text>
           </Stack>
         </Stack>
         <Box
-          py={{ base: "0", sm: "8" }}
-          px={{ base: "4", sm: "10" }}
-          bg={{ base: "transparent", sm: "bg.surface" }}
-          boxShadow={{ base: "none", sm: "md" }}
-          borderRadius={{ base: "none", sm: "xl" }}
+          py={{ base: '0', sm: '8' }}
+          px={{ base: '4', sm: '10' }}
+          bg={{ base: 'transparent', sm: 'bg.surface' }}
+          boxShadow={{ base: 'none', sm: 'md' }}
+          borderRadius={{ base: 'none', sm: 'xl' }}
         >
           <Stack spacing="6">
             <Stack spacing="5">
@@ -113,12 +113,12 @@ const SignUpPage = () => {
                 <FormLabel>Password</FormLabel>
                 <InputGroup>
                   <Input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
-                  <InputRightElement h={"full"}>
-                    <Button variant={"ghost"} onClick={() => setShowPassword(!showPassword)}>
+                  <InputRightElement h={'full'}>
+                    <Button variant={'ghost'} onClick={() => setShowPassword(!showPassword)}>
                       {showPassword ? <ViewIcon /> : <ViewOffIcon />}
                     </Button>
                   </InputRightElement>

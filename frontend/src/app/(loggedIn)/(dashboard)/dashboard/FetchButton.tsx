@@ -1,19 +1,19 @@
-"use client";
-import { Button, Box, Text } from "@chakra-ui/react";
-import { useState } from "react";
-import instance from "@/app/axios";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store"; // Replace with path to your store
+'use client';
+import { Button, Box, Text } from '@chakra-ui/react';
+import { useState } from 'react';
+import instance from '@/app/axios';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store'; // Replace with path to your store
 
 const FetchButton: React.FC = () => {
   const [data, setData] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
-  const name = useSelector((state: RootState) => state.auth.firstName + " " + state.auth.lastName);
+  const name = useSelector((state: RootState) => state.auth.firstName + ' ' + state.auth.lastName);
 
   const fetchData = async () => {
     if (!accessToken) {
-      setData("No access token found for" + name);
+      setData('No access token found for' + name);
       return;
     }
 
@@ -23,10 +23,10 @@ const FetchButton: React.FC = () => {
     // axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
 
     try {
-      const response = await instance.get("/user");
+      const response = await instance.get('/user');
       setData(response.data);
     } catch (error) {
-      setData("Error fetching data");
+      setData('Error fetching data');
     } finally {
       setLoading(false);
     }
@@ -34,7 +34,7 @@ const FetchButton: React.FC = () => {
 
   return (
     <Box>
-      <h1>{name + " " + accessToken}</h1>
+      <h1>{name + ' ' + accessToken}</h1>
       <Button onClick={fetchData} isLoading={loading} colorScheme="blue">
         Fetch Data
       </Button>

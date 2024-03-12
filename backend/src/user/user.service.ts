@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import * as bcrypt from 'bcrypt';
-import { User } from './user.entity';
+import { User } from './dto/user.entity';
 import { SignupDto } from '../dto/signup.dto';
 
 @Injectable()
@@ -22,9 +22,9 @@ export class UserService {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
-  async findFirstRefreshToken(refreshToken: string): Promise<User | null> {
-    return this.prisma.user.findFirst({ where: { refreshToken } });
-  }
+  // async findFirstRefreshToken(refreshToken: string): Promise<User | null> {
+  //   return this.prisma.user.findFirst({ where: { refreshToken } });
+  // }
 
   async get(id: string): Promise<User> {
     return await this.prisma.user.findUnique({ where: { id } });

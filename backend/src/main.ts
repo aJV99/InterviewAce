@@ -27,10 +27,7 @@ async function bootstrap() {
     if (req.headers.authorization && req.headers.authorization.split(' ')[1]) {
       try {
         // Verify access token
-        jwt.verify(
-          req.headers.authorization.split(' ')[1],
-          process.env.JWT_SECRET,
-        );
+        jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
         console.log('JWT Verified');
         next();
       } catch (error) {
@@ -43,8 +40,7 @@ async function bootstrap() {
           }
           console.log('JWT Expired, Refresh Verified');
           try {
-            const newAccessToken =
-              await authService.createAccessTokenFromRefreshToken(refreshToken);
+            const newAccessToken = await authService.createAccessTokenFromRefreshToken(refreshToken);
             if (newAccessToken) {
               // Here you set the Authorization header only if a new token was actually generated.
               res.setHeader('Authorization', `New Bearer ${newAccessToken}`);
@@ -52,11 +48,7 @@ async function bootstrap() {
             }
             next();
           } catch (err) {
-            return next(
-              new UnauthorizedException(
-                'Token expired and refresh token is invalid.',
-              ),
-            );
+            return next(new UnauthorizedException('Token expired and refresh token is invalid.'));
           }
         } else {
           next(new UnauthorizedException('Invalid token.'));

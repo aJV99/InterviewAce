@@ -1,6 +1,6 @@
-"use client";
-import withAuth from "@/redux/features/authHoc";
-import Login from "@/pages/loginPage";
+'use client';
+import withAuth from '@/redux/features/authHoc';
+import Login from '@/pages/LoginPage';
 
 const LoginPage = () => {
   return (

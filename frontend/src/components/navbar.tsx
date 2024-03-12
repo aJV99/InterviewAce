@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Box,
@@ -16,15 +16,17 @@ import {
   useBreakpointValue,
   useDisclosure,
   Image,
-} from "@chakra-ui/react";
-import { HamburgerIcon, CloseIcon, ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { Avatar, Menu, MenuButton, MenuList, MenuItem, MenuDivider } from "@chakra-ui/react";
-import { clearToken } from "@/redux/features/authSlice";
-import instance from "@/app/axios";
-import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
-import store from "@/redux/store";
-import { resetJobs } from "@/redux/features/jobSlice";
+} from '@chakra-ui/react';
+import { HamburgerIcon, CloseIcon, ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { Avatar, Menu, MenuButton, MenuList, MenuItem, MenuDivider } from '@chakra-ui/react';
+import { clearToken } from '@/redux/features/authSlice';
+import instance from '@/app/axios';
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
+import store from '@/redux/store';
+import { resetJobs } from '@/redux/features/jobSlice';
+// import { resetInterview } from '@/redux/features/interviewSlice';
+// import { resetQuestions } from '@/redux/features/questionSlice';
 
 export default function NavBar() {
   const { isOpen, onToggle } = useDisclosure();
@@ -36,13 +38,19 @@ export default function NavBar() {
   const handleLogout = async () => {
     try {
       // Send request to logout the user on the server-side
-      await instance.post("/auth/logout");
+      await instance.post('/auth/logout');
       // Clear the token from Redux state
-      dispatch(clearToken());
       dispatch(resetJobs()); // Reset jobs state
-      router.push("/login");
+      // dispatch(resetInterview()); // Reset jobs state
+      // dispatch(resetQuestions()); // Reset jobs state
+
+      dispatch(clearToken());
+      // router.push("/login");
+      setTimeout(() => {
+        router.push('/login');
+      }, 0);
     } catch (error) {
-      console.error("Error logging out:", error);
+      console.error('Error logging out:', error);
       // Handle the error as required, e.g., show a notification to the user
     }
   };
@@ -50,48 +58,48 @@ export default function NavBar() {
   return (
     <Box top={0} left={0} right={0} zIndex={0}>
       <Flex
-        bg={useColorModeValue("white", "gray.800")}
-        color={useColorModeValue("gray.600", "white")}
-        minH={"60px"}
+        bg={useColorModeValue('white', 'gray.800')}
+        color={useColorModeValue('gray.600', 'white')}
+        minH={'60px'}
         py={{ base: 2 }}
         px={{ base: 4 }}
         borderBottom={1}
-        borderStyle={"solid"}
-        borderColor={useColorModeValue("gray.200", "gray.900")}
-        align={"center"}
+        borderStyle={'solid'}
+        borderColor={useColorModeValue('gray.200', 'gray.900')}
+        align={'center'}
       >
-        <Flex flex={{ base: 1, md: "auto" }} ml={{ base: -2 }} display={{ base: "flex", md: "none" }}>
+        <Flex flex={{ base: 1, md: 'auto' }} ml={{ base: -2 }} display={{ base: 'flex', md: 'none' }}>
           <IconButton
             onClick={onToggle}
             icon={isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />}
-            variant={"ghost"}
-            aria-label={"Toggle Navigation"}
+            variant={'ghost'}
+            aria-label={'Toggle Navigation'}
           />
         </Flex>
-        <Flex flex={{ base: 1 }} justify={{ base: "flex-start", md: "start" }} alignItems="center">
+        <Flex flex={{ base: 1 }} justify={{ base: 'flex-start', md: 'start' }} alignItems="center">
           <Text
-            textAlign={useBreakpointValue({ base: "center", md: "left" })}
-            fontFamily={"heading"}
-            color={useColorModeValue("gray.800", "white")}
+            textAlign={useBreakpointValue({ base: 'center', md: 'left' })}
+            fontFamily={'heading'}
+            color={useColorModeValue('gray.800', 'white')}
           >
-            <Image src="/Logo.png" alt="InterviewAce Logo" w={200} minWidth={"200px"} align={"left"} />
+            <Image src="/Logo.png" alt="InterviewAce Logo" w={200} minWidth={'200px'} align={'left'} />
           </Text>
 
-          <Flex display={{ base: "none", md: "flex" }} ml={10}>
+          <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
             <DesktopNav />
           </Flex>
         </Flex>
 
-        <Flex alignItems={"center"}>
-          <Box as="a" p={2} paddingRight={4} fontSize={"sm"} fontWeight={500}>
+        <Flex alignItems={'center'}>
+          <Box as="a" p={2} paddingRight={4} fontSize={'sm'} fontWeight={500}>
             Hi, {state.auth.firstName}!
           </Box>
           <Menu>
-            <MenuButton as={Button} rounded={"full"} variant={"link"} cursor={"pointer"} minW={0}>
+            <MenuButton as={Button} rounded={'full'} variant={'link'} cursor={'pointer'} minW={0}>
               <Avatar
-                size={"sm"}
+                size={'sm'}
                 src={
-                  "https://images.unsplash.com/photo-1493666438817-866a91353ca9?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9"
+                  'https://images.unsplash.com/photo-1493666438817-866a91353ca9?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
                 }
               />
             </MenuButton>
@@ -113,25 +121,25 @@ export default function NavBar() {
 }
 
 const DesktopNav = () => {
-  const linkColor = useColorModeValue("gray.600", "gray.200");
-  const linkHoverColor = useColorModeValue("gray.800", "white");
-  const popoverContentBgColor = useColorModeValue("white", "gray.800");
+  const linkColor = useColorModeValue('gray.600', 'gray.200');
+  const linkHoverColor = useColorModeValue('gray.800', 'white');
+  const popoverContentBgColor = useColorModeValue('white', 'gray.800');
 
   return (
-    <Stack direction={"row"} spacing={4}>
+    <Stack direction={'row'} spacing={4}>
       {NAV_ITEMS.map((navItem) => (
         <Box key={navItem.label}>
-          <Popover trigger={"hover"} placement={"bottom-start"}>
+          <Popover trigger={'hover'} placement={'bottom-start'}>
             <PopoverTrigger>
               <Box
                 as="a"
                 p={2}
-                href={navItem.href ?? "#"}
-                fontSize={"sm"}
+                href={navItem.href ?? '#'}
+                fontSize={'sm'}
                 fontWeight={500}
                 color={linkColor}
                 _hover={{
-                  textDecoration: "none",
+                  textDecoration: 'none',
                   color: linkHoverColor,
                 }}
               >
@@ -142,11 +150,11 @@ const DesktopNav = () => {
             {navItem.children && (
               <PopoverContent
                 border={0}
-                boxShadow={"xl"}
+                boxShadow={'xl'}
                 bg={popoverContentBgColor}
                 p={4}
-                rounded={"xl"}
-                minW={"sm"}
+                rounded={'xl'}
+                minW={'sm'}
               >
                 <Stack>
                   {navItem.children.map((child) => (
@@ -167,29 +175,29 @@ const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
     <Box
       as="a"
       href={href}
-      role={"group"}
-      display={"block"}
+      role={'group'}
+      display={'block'}
       p={2}
-      rounded={"md"}
-      _hover={{ bg: useColorModeValue("pink.50", "gray.900") }}
+      rounded={'md'}
+      _hover={{ bg: useColorModeValue('pink.50', 'gray.900') }}
     >
-      <Stack direction={"row"} align={"center"}>
+      <Stack direction={'row'} align={'center'}>
         <Box>
-          <Text transition={"all .3s ease"} _groupHover={{ color: "pink.400" }} fontWeight={500}>
+          <Text transition={'all .3s ease'} _groupHover={{ color: 'pink.400' }} fontWeight={500}>
             {label}
           </Text>
-          <Text fontSize={"sm"}>{subLabel}</Text>
+          <Text fontSize={'sm'}>{subLabel}</Text>
         </Box>
         <Flex
-          transition={"all .3s ease"}
-          transform={"translateX(-10px)"}
+          transition={'all .3s ease'}
+          transform={'translateX(-10px)'}
           opacity={0}
-          _groupHover={{ opacity: "100%", transform: "translateX(0)" }}
-          justify={"flex-end"}
-          align={"center"}
+          _groupHover={{ opacity: '100%', transform: 'translateX(0)' }}
+          justify={'flex-end'}
+          align={'center'}
           flex={1}
         >
-          <Icon color={"pink.400"} w={5} h={5} as={ChevronRightIcon} />
+          <Icon color={'pink.400'} w={5} h={5} as={ChevronRightIcon} />
         </Flex>
       </Stack>
     </Box>
@@ -198,7 +206,7 @@ const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
 
 const MobileNav = () => {
   return (
-    <Stack bg={useColorModeValue("white", "gray.800")} p={4} display={{ md: "none" }}>
+    <Stack bg={useColorModeValue('white', 'gray.800')} p={4} display={{ md: 'none' }}>
       {NAV_ITEMS.map((navItem) => (
         <MobileNavItem key={navItem.label} {...navItem} />
       ))}
@@ -214,35 +222,35 @@ const MobileNavItem = ({ label, children, href }: NavItem) => {
       <Box
         py={2}
         as="a"
-        href={href ?? "#"}
+        href={href ?? '#'}
         justifyContent="space-between"
         alignItems="center"
         _hover={{
-          textDecoration: "none",
+          textDecoration: 'none',
         }}
       >
-        <Text fontWeight={600} color={useColorModeValue("gray.600", "gray.200")}>
+        <Text fontWeight={600} color={useColorModeValue('gray.600', 'gray.200')}>
           {label}
         </Text>
         {children && (
           <Icon
             as={ChevronDownIcon}
-            transition={"all .25s ease-in-out"}
-            transform={isOpen ? "rotate(180deg)" : ""}
+            transition={'all .25s ease-in-out'}
+            transform={isOpen ? 'rotate(180deg)' : ''}
             w={6}
             h={6}
           />
         )}
       </Box>
 
-      <Collapse in={isOpen} animateOpacity style={{ marginTop: "0!important" }}>
+      <Collapse in={isOpen} animateOpacity style={{ marginTop: '0!important' }}>
         <Stack
           mt={2}
           pl={4}
           borderLeft={1}
-          borderStyle={"solid"}
-          borderColor={useColorModeValue("gray.200", "gray.700")}
-          align={"start"}
+          borderStyle={'solid'}
+          borderColor={useColorModeValue('gray.200', 'gray.700')}
+          align={'start'}
         >
           {children &&
             children.map((child) => (
@@ -265,41 +273,41 @@ interface NavItem {
 
 const NAV_ITEMS: Array<NavItem> = [
   {
-    label: "About Us",
+    label: 'About Us',
     children: [
       {
-        label: "Explore Design Work",
-        subLabel: "Trending Design to inspire you",
-        href: "#",
+        label: 'Explore Design Work',
+        subLabel: 'Trending Design to inspire you',
+        href: '#',
       },
       {
-        label: "New & Noteworthy",
-        subLabel: "Up-and-coming Designers",
-        href: "#",
+        label: 'New & Noteworthy',
+        subLabel: 'Up-and-coming Designers',
+        href: '#',
       },
     ],
   },
   {
-    label: "Resource Repository",
+    label: 'Resource Repository',
     children: [
       {
-        label: "Job Board",
-        subLabel: "Find your dream design job",
-        href: "#",
+        label: 'Job Board',
+        subLabel: 'Find your dream design job',
+        href: '#',
       },
       {
-        label: "Freelance Projects",
-        subLabel: "An exclusive list for contract work",
-        href: "#",
+        label: 'Freelance Projects',
+        subLabel: 'An exclusive list for contract work',
+        href: '#',
       },
     ],
   },
   {
-    label: "Learn Design",
-    href: "#",
+    label: 'Learn Design',
+    href: '#',
   },
   {
-    label: "Hire Designers",
-    href: "#",
+    label: 'Hire Designers',
+    href: '#',
   },
 ];

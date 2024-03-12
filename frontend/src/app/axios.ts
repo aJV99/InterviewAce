@@ -1,6 +1,6 @@
-import axios, { AxiosError } from "axios";
-import store, { persistor } from "../redux/store";
-import { updateToken, clearToken } from "../redux/features/authSlice";
+import axios, { AxiosError } from 'axios';
+import store, { persistor } from '../redux/store';
+import { updateToken, clearToken } from '../redux/features/authSlice';
 
 const instance = axios.create({
   baseURL: process.env.BACKEND_BASE_URL,
@@ -19,7 +19,7 @@ instance.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error("The error:" + error);
+    console.error('The error:' + error);
     return Promise.reject(error);
   },
 );
@@ -42,23 +42,23 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
-    console.log("Interceptor Triggered:", response);
-    console.log("Header", response.headers);
-    if (response.headers["authorization"]) {
-      console.log("Hello" + response.headers["authorization"]);
-      const newJwt = response.headers["authorization"].split(" ")[2];
+    console.log('Interceptor Triggered:', response);
+    console.log('Header', response.headers);
+    if (response.headers['authorization']) {
+      console.log('Hello' + response.headers['authorization']);
+      const newJwt = response.headers['authorization'].split(' ')[2];
       store.dispatch(updateToken(newJwt));
     }
     return response;
   },
   (error: AxiosError) => {
-    console.log("Entire Error:", error.message);
+    console.log('Entire Error:', error.message);
     if (error.response && error.response.status === 401) {
-      console.log("Hello");
+      console.log('Hello');
       store.dispatch(clearToken());
       persistor.purge();
     }
-    console.error("Axios Error:", error);
+    console.error('Axios Error:', error);
     return Promise.reject(error);
   },
 );

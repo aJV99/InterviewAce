@@ -1,48 +1,69 @@
-// src/questions/questions.controller.ts
 import {
   Controller,
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
+  Put,
+  Req,
+  Inject,
+  forwardRef,
+  UseGuards,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
-import { QuestionDto, UpdateQuestionDto } from './dto/questions.dto';
+import { InterviewsService } from 'src/interviews/interviews.service';
+import { RequestWithAuth } from 'src/dto/request.dto';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('questions')
 export class QuestionsController {
-  constructor(private readonly questionsService: QuestionsService) {}
+  constructor(
+    @Inject(forwardRef(() => InterviewsService))
+    private readonly interviewsService: InterviewsService,
+    private readonly questionsService: QuestionsService,
+  ) {}
 
   @Post(':interviewId')
-  create(
+  async create(
     @Param('interviewId') interviewId: string,
-    @Body() createQuestionDtos: QuestionDto,
+    @Body('content') content: string,
+    @Req() req: RequestWithAuth,
   ) {
-    return this.questionsService.create(createQuestionDtos);
+    await this.interviewsService.checkInterviewOwnership(interviewId, req.user.id);
+    return await this.questionsService.create(interviewId, content);
   }
 
-  @Get()
-  findAll() {
-    return this.questionsService.findAll();
+  @Get(':interviewId')
+  async findAll(@Param('interviewId') interviewId: string, @Req() req: RequestWithAuth) {
+    await this.interviewsService.checkInterviewOwnership(interviewId, req.user.id);
+    return await this.questionsService.findAll(interviewId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.questionsService.findOne(id);
+  // @Get(':id')
+  // async findOne(@Param('id') id: string, @Req() req: RequestWithAuth) {
+  //   await this.questionsService.checkQuestionOwnership(id, req.user.id);
+  //   return await this.questionsService.findOne(id);
+  // }
+
+  @Put(':id')
+  async update(@Param('id') id: string, @Body('content') content: string, @Req() req: RequestWithAuth) {
+    await this.questionsService.checkQuestionOwnership(id, req.user.id);
+    return await this.questionsService.update(id, content);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateQuestionDto: UpdateQuestionDto,
-  ) {
-    return this.questionsService.update(id, updateQuestionDto);
+  @Put('answer/:id')
+  async answer(@Param('id') id: string, @Body('response') response: string, @Req() req: RequestWithAuth) {
+    await this.questionsService.checkQuestionOwnership(id, req.user.id);
+    const resp = await this.questionsService.answer(id, response);
+    await this.interviewsService.updateScore(resp.score, resp.interviewId);
+    return resp;
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.questionsService.remove(id);
+  async remove(@Param('id') id: string, @Req() req: RequestWithAuth) {
+    await this.questionsService.checkQuestionOwnership(id, req.user.id);
+    return await this.questionsService.remove(id);
   }
 }

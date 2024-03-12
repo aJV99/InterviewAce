@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   Heading,
   Button,
@@ -8,15 +8,15 @@ import {
   ModalContent,
   ModalCloseButton,
   useDisclosure,
-} from "@chakra-ui/react";
-import JobModal from "./jobModal";
+} from '@chakra-ui/react';
+import JobModal from './JobModal';
 
 const Header: React.FC = () => {
   // Hooks to manage modal state
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Flex p={5} borderRadius="xl" alignItems="center" justifyContent="space-between">
+    <Flex py={5} borderRadius="xl" alignItems="center" justifyContent="space-between">
       <Heading size="3xl">Your Jobs</Heading>
       <Button colorScheme="teal" onClick={onOpen}>
         Add a Job

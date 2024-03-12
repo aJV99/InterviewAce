@@ -1,60 +1,66 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { InterviewDto, UpdateInterviewDto } from './dto/interview.dto';
 import { PrismaService } from 'src/prisma.service';
 import { QuestionsService } from 'src/questions/questions.service';
 import { AceAIService } from 'src/aceAI/aceAI.service';
 import { JobsService } from 'src/jobs/jobs.service';
-import { Observable, Subject } from 'rxjs';
+import { Interview } from '@prisma/client';
 
 @Injectable()
 export class InterviewsService {
-  private interviewUpdates = new Subject<any>();
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly aceAIService: AceAIService,
+    @Inject(forwardRef(() => QuestionsService))
     private readonly questionsService: QuestionsService,
     private readonly jobsService: JobsService,
   ) {}
 
-  getInterviewUpdates(): Observable<any> {
-    return this.interviewUpdates.asObservable();
+  async checkInterviewOwnership(interviewId: string, userId: string): Promise<void> {
+    const interview = await this.prisma.interview.findUnique({
+      where: { id: interviewId },
+      include: { job: true }, // Include the job to check the owner
+    });
+
+    if (!interview) {
+      throw new NotFoundException(`Interview not found with given ID`);
+    }
+    if (interview.job.userId !== userId) {
+      throw new UnauthorizedException('You do not own this interview');
+    }
   }
 
-  async create(createInterviewDto: InterviewDto, userId: string) {
+  async create(jobId: string, createInterviewDto: InterviewDto) {
     const interview = await this.prisma.interview.create({
       data: {
+        jobId,
         ...createInterviewDto,
-      },
-      include: {
-        job: true,
-        questions: true,
       },
     });
 
-    const { title, company, description, location } =
-      await this.jobsService.findOne(createInterviewDto.jobId, userId);
+    const { title, company, description, location } = await this.jobsService.findOne(jobId);
+
+    let interviewType;
+    if (interview.customType) {
+      interviewType = interview.customType;
+    }
+    else {
+      interviewType = interview.type
+    }
 
     // Generate questions using AI service
-    // const generatedContent = await this.aceAIService.generateQuestions(title, company, description, location);
-    const generatedContent = [
-      "How you doin'",
-      'Haaaave you met Ted?',
-      `${title}`,
-      `${company}`,
-      `${description}`,
-      `${location}`,
-    ];
-    console.log('generatedContent' + generatedContent);
-    console.log('interview.id' + interview.id);
+    const generatedContent = await this.aceAIService.generateQuestions(title, company, description, location, interview.title, interviewType, interview.context);
+    // const generatedContent = `[
+    //   "How you doin",
+    //   "Haaaave you met Ted?"
+    // ]`;
 
-    // const questions = generatedContent.map(content => ({ content }));
+    // const formattedContent = generatedContent.map(content => ({ content }));
+    const formattedContent = JSON.parse(generatedContent);
+
 
     // Use QuestionService to create questions for this interview
-    const questions = await this.questionsService.createMany(
-      interview.id,
-      generatedContent,
-    );
+    const questions = await this.questionsService.createMany(interview.id, formattedContent);
 
     return {
       ...interview,
@@ -63,42 +69,63 @@ export class InterviewsService {
   }
 
   async findAll(jobId: string) {
-    return this.prisma.interview.findMany({
+    return await this.prisma.interview.findMany({
       where: {
         jobId,
       },
       include: {
-        questions: true, // assuming you want to include questions in the response
-      },
+        questions: true
+      }
     });
   }
 
   async findOne(id: string) {
-    return this.prisma.interview.findUnique({
+    return await this.prisma.interview.findUnique({
       where: {
         id,
       },
       include: {
-        questions: true,
-      },
+        questions: true
+      }
     });
   }
 
   async update(id: string, updateInterviewDto: UpdateInterviewDto) {
-    return this.prisma.interview.update({
+    return await this.prisma.interview.update({
       where: {
         id,
       },
       data: {
         ...updateInterviewDto,
       },
+      include: {
+        questions: true
+      }
     });
   }
 
   async remove(id: string) {
-    return this.prisma.interview.delete({
+    return await this.prisma.interview.delete({
       where: {
         id,
+      },
+    });
+  }
+
+  async updateScore(score: number, interviewId: string) {
+    const interview = await this.findOne(interviewId);
+    const currentQuestion = interview.currentQuestion + 1;
+    let newScore = interview.overallScore + score;
+    if (currentQuestion === interview.questions.length) {
+      newScore = newScore / interview.questions.length
+    }
+    return await this.prisma.interview.update({
+      where: {
+        id: interviewId,
+      },
+      data: {
+        overallScore: newScore,
+        currentQuestion: currentQuestion,
       },
     });
   }

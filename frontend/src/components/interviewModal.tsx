@@ -9,13 +9,13 @@ import {
   useColorModeValue,
   Textarea,
   Select,
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
-import { Interview, InterviewType } from "@/redux/dto/interview.dto";
-import { toCapitalCase } from "@/app/utils";
-import { updateInterview, addInterview } from "@/redux/features/jobSlice";
+} from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/redux/store';
+import { CreateInterviewDto, Interview, InterviewType } from '@/redux/dto/interview.dto';
+import { toCapitalCase } from '@/app/utils';
+import { updateInterview, addInterview } from '@/redux/features/jobSlice';
 
 interface InterviewModalProps {
   onClose: () => void;
@@ -32,24 +32,23 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const [interviewTitle, setInterviewTitle] = useState("");
+  const [interviewTitle, setInterviewTitle] = useState('');
   const [interviewType, setInterviewType] = useState(InterviewType.GENERAL);
-  const [interviewCustomType, setInterviewCustomType] = useState("");
-  const [interviewContext, setInterviewContext] = useState("");
+  const [interviewCustomType, setInterviewCustomType] = useState('');
+  const [interviewContext, setInterviewContext] = useState('');
 
   // Set initial values for editing
   useEffect(() => {
     if (isEditing && existingInterview) {
       setInterviewTitle(existingInterview.title);
       setInterviewType(existingInterview.type);
-      setInterviewCustomType(existingInterview.customType ?? "");
-      setInterviewContext(existingInterview.context ?? "");
+      setInterviewCustomType(existingInterview.customType ?? '');
+      setInterviewContext(existingInterview.context ?? '');
     }
   }, [isEditing, existingInterview]);
 
   const handleSubmit = async () => {
-    const interviewData = {
-      jobId: jobId, // Adding jobId to the interview data
+    const interviewData: CreateInterviewDto = {
       title: interviewTitle,
       type: interviewType,
       customType: interviewCustomType,
@@ -66,19 +65,19 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
           }),
         ).unwrap();
       } else {
-        await dispatch(addInterview(interviewData)).unwrap();
+        await dispatch(addInterview({ jobId, createInterviewDto: interviewData })).unwrap();
       }
     } catch (error) {
-      console.error("Failed to process the interview: ", error);
+      console.error('Failed to process the interview: ', error);
     }
   };
 
   return (
     <Stack>
-      <Box rounded={"lg"} bg={useColorModeValue("white", "gray.700")} boxShadow={"lg"} p={10}>
+      <Box rounded={'lg'} bg={useColorModeValue('white', 'gray.700')} boxShadow={'lg'} p={10}>
         <Stack spacing={4}>
-          <Heading fontSize={"4xl"} textAlign={"center"}>
-            {isEditing ? "Edit Interview" : "Add a New Interview"}
+          <Heading fontSize={'4xl'} textAlign={'center'}>
+            {isEditing ? 'Edit Interview' : 'Add a New Interview'}
           </Heading>
           <FormControl id="title" isRequired>
             <FormLabel>Interview Title</FormLabel>
@@ -120,7 +119,7 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
             />
           </FormControl>
           <Button colorScheme="blue" mt={2} onClick={handleSubmit}>
-            {isEditing ? "Update Interview" : "Add New Interview"}
+            {isEditing ? 'Update Interview' : 'Add New Interview'}
           </Button>
         </Stack>
       </Box>

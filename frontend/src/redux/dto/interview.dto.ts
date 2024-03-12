@@ -1,12 +1,12 @@
-import { Question } from "./question.dto";
+import { Question } from './question.dto';
 
 export enum InterviewType {
-  GENERAL = "GENERAL",
-  BEHAVIORAL = "BEHAVIORAL",
-  TECHNICAL = "TECHNICAL",
-  BUSINESS = "BUSINESS",
-  SALARY_NEGOTIATION = "SALARY_NEGOTIATION",
-  CUSTOM = "CUSTOM",
+  GENERAL = 'GENERAL',
+  BEHAVIORAL = 'BEHAVIORAL',
+  TECHNICAL = 'TECHNICAL',
+  BUSINESS = 'BUSINESS',
+  LEADERSHIP = 'LEADERSHIP',
+  CUSTOM = 'CUSTOM',
 }
 
 export interface Interview {
@@ -16,14 +16,14 @@ export interface Interview {
   type: InterviewType;
   customType: string | null;
   context: string | null;
-  overallScore: number | null;
   questions: Question[];
+  currentQuestion: number;
+  overallScore: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface CreateInterviewDto {
-  jobId: string;
   title: string;
   type: InterviewType;
   customType?: string;
@@ -31,3 +31,8 @@ export interface CreateInterviewDto {
 }
 
 export interface UpdateInterviewDto extends Partial<CreateInterviewDto> {}
+
+export interface StartInterviewDto {
+  jobId: string;
+  interviewId: string;
+}
