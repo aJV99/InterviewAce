@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Box, Spacer } from '@chakra-ui/react';
-import { Footer } from './Footer';
+import { Footer } from '@/components/Footer';
 
 interface ContentContainerProps {
   children: React.ReactNode;

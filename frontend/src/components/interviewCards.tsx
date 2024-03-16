@@ -27,16 +27,16 @@ import {
   Spacer,
 } from '@chakra-ui/react';
 import { Interview } from '@/redux/dto/interview.dto';
-import AnimatedButton from './AnimatedButton';
+import AnimatedButton from '@/components/AnimatedButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
 import { useRef, useState } from 'react';
 import { deleteInterview, retakeInterview, updateInterview } from '@/redux/features/jobSlice';
 import { EditIcon, DeleteIcon, CopyIcon } from '@chakra-ui/icons';
 import { FaEllipsisVertical } from 'react-icons/fa6';
-import ConfirmDeleteModal from './ConfirmDeleteModal';
-import RetakeInterviewModal from './RetakeInterviewModal';
-import { useCustomToast } from './Toast';
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
+import RetakeInterviewModal from '@/components/RetakeInterviewModal';
+import { useCustomToast } from '@/components/Toast';
 
 const InterviewCards: React.FC<{ cards: Interview[] | undefined }> = ({ cards }) => {
   const jobLoading = useSelector((state: RootState) => state.jobs.loadingInterview);

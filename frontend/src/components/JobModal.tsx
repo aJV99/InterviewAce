@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { Job } from '@/redux/dto/job.dto';
 import { editJob, createJob } from '@/redux/features/jobSlice';
-import { useCustomToast } from './Toast';
+import { useCustomToast } from '@/components/Toast';
 
 interface JobModalProps {
   onClose: () => void;

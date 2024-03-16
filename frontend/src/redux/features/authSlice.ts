@@ -1,6 +1,6 @@
 import axiosInstance from '@/app/axios'; // path to your axios.ts file
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User, UserDto } from '../dto/user.dto';
+import { User, UserDto } from '@/redux/dto/user.dto';
 import axios from 'axios';
 
 export const login = async (email: string, password: string) => {

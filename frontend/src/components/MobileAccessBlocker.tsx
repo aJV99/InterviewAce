@@ -2,7 +2,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Box, Center, Heading, Text, Image, Button } from '@chakra-ui/react';
-import useAnimatedRouter from './useAnimatedRouter';
+import useAnimatedRouter from '@/components/useAnimatedRouter';
 
 const MobileAccessBlocker = ({ children }: { children: React.ReactNode }) => {
   const [isMobile, setIsMobile] = useState(false);

@@ -18,15 +18,15 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import { FiUser, FiLock, FiEdit2, FiMail, FiLink, FiSave } from 'react-icons/fi';
-import CustomAvatar from './CustomAvatar';
-import Bubble from './Bubble';
+import CustomAvatar from '@/components/CustomAvatar';
+import Bubble from '@/components/Bubble';
 import { useEffect, useState } from 'react';
 import { AppDispatch, RootState } from '@/redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import ConfirmDeleteModal from './ConfirmDeleteModal';
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import { deleteUser, getUser, updatePassword, updateUser } from '@/redux/features/authSlice';
 import { deleteData } from '@/redux/features/jobSlice';
-import { useCustomToast } from './Toast';
+import { useCustomToast } from '@/components/Toast';
 import { ErrorDto } from '@/app/error';
 
 const AccountProfile: React.FC = () => {

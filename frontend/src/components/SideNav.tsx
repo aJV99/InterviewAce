@@ -14,17 +14,17 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { FiHome, FiTrendingUp, FiFileText, FiSettings } from 'react-icons/fi';
-import AnimatedLink from './AnimatedLink';
-import CustomAvatar from './CustomAvatar';
+import AnimatedLink from '@/components/AnimatedLink';
+import CustomAvatar from '@/components/CustomAvatar';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
 import instance from '@/app/axios';
 import { clearToken } from '@/redux/features/authSlice';
 import { resetJobs } from '@/redux/features/jobSlice';
-import useAnimatedRouter from './useAnimatedRouter';
+import useAnimatedRouter from '@/components/useAnimatedRouter';
 import { FaInfo } from 'react-icons/fa6';
-import { useCustomToast } from './Toast';
+import { useCustomToast } from '@/components/Toast';
 
 // Define the link items for the side navigation
 interface LinkItemProps {

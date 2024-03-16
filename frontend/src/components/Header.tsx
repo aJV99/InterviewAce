@@ -9,7 +9,7 @@ import {
   ModalCloseButton,
   useDisclosure,
 } from '@chakra-ui/react';
-import JobModal from './JobModal';
+import JobModal from '@/components/JobModal';
 
 const Header: React.FC = () => {
   // Hooks to manage modal state

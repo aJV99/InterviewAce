@@ -1,4 +1,4 @@
-import { Question } from './question.dto';
+import { Question } from '@/redux/dto/question.dto';
 
 export enum InterviewType {
   GENERAL = 'GENERAL',

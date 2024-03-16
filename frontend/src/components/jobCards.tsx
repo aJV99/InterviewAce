@@ -27,14 +27,14 @@ import {
   Spacer,
 } from '@chakra-ui/react';
 import { JobState, deleteJob, editJob } from '@/redux/features/jobSlice';
-import AnimatedButton from './AnimatedButton';
+import AnimatedButton from '@/components/AnimatedButton';
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import ConfirmDeleteModal from './ConfirmDeleteModal';
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/redux/store';
 import { useRef, useState } from 'react';
-import { useCustomToast } from './Toast';
+import { useCustomToast } from '@/components/Toast';
 
 const JobCards: React.FC<{ cards: JobState }> = ({ cards }) => {
   const dispatch = useDispatch<AppDispatch>();

@@ -90,8 +90,8 @@ instance.interceptors.response.use(
       const newJwt = response.headers['authorization'].split(' ')[2];
 
       // Dynamically import to avoid circular dependencies
-      const { updateToken } = await import('../redux/features/authSlice');
-      const { default: store } = await import('../redux/store');
+      const { updateToken } = await import('@/redux/features/authSlice');
+      const { default: store } = await import('@/redux/store');
       store.dispatch(updateToken(newJwt));
     }
     return response;
@@ -105,8 +105,8 @@ instance.interceptors.response.use(
       error.config.url === '/auth/login'
     ) {
       // Dynamically import to avoid circular dependencies
-      const { clearToken } = await import('../redux/features/authSlice');
-      const { default: store, persistor } = await import('../redux/store');
+      const { clearToken } = await import('@/redux/features/authSlice');
+      const { default: store, persistor } = await import('@/redux/store');
       store.dispatch(clearToken());
       persistor.purge();
     }

@@ -2,7 +2,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import './globals.css';
 import type { Metadata } from 'next';
 import theme from './theme';
-import Providers from '../redux/providers';
+import Providers from '@/redux/providers';
 
 export const metadata: Metadata = {
   title: 'InterviewAce',

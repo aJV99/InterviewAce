@@ -16,7 +16,7 @@ import { AppDispatch } from '@/redux/store';
 import { CreateInterviewDto, Interview, InterviewType } from '@/redux/dto/interview.dto';
 import { toCapitalCase } from '@/app/utils';
 import { updateInterview, addInterview } from '@/redux/features/jobSlice';
-import { useCustomToast } from './Toast';
+import { useCustomToast } from '@/components/Toast';
 
 interface InterviewModalProps {
   onClose: () => void;

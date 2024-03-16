@@ -1,4 +1,4 @@
-import { Interview } from './interview.dto';
+import { Interview } from '@/redux/dto/interview.dto';
 
 type ExcludeInterviews<T> = Omit<T, 'interviews'>;
 

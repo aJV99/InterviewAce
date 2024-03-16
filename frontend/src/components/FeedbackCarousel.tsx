@@ -16,10 +16,10 @@ import {
   Tr,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import Bubble from './Bubble';
+import Bubble from '@/components/Bubble';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
 import { Question } from '@/redux/dto/question.dto';
-import ScoreIndicator from './ScoreIndicator';
+import ScoreIndicator from '@/components/ScoreIndicator';
 import { getColorByScore } from '@/app/utils';
 
 interface FeedbackCarouselProps {

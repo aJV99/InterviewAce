@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ButtonProps } from '@chakra-ui/react';
-import useAnimatedRouter from './useAnimatedRouter';
+import useAnimatedRouter from '@/components/useAnimatedRouter';
 
 interface AnimatedButtonProps extends Omit<ButtonProps, 'onClick'> {
   destination: string;

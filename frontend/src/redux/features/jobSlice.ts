@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axiosInstance from '@/app/axios'; // path to your axios.ts file
-import { CreateJobDto, Job, JobResponse, UpdateJobDto } from '../dto/job.dto';
-import { CreateInterviewDto, Interview, StartInterviewDto, UpdateInterviewDto } from '../dto/interview.dto';
-import { Question } from '../dto/question.dto';
+import { CreateJobDto, Job, JobResponse, UpdateJobDto } from '@/redux/dto/job.dto';
+import { CreateInterviewDto, Interview, StartInterviewDto, UpdateInterviewDto } from '@/redux/dto/interview.dto';
+import { Question } from '@/redux/dto/question.dto';
 import axios from 'axios';
 
 export const fetchJobs = createAsyncThunk<JobResponse[], undefined>(

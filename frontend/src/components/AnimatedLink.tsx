@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import useAnimatedRouter from './useAnimatedRouter';
+import useAnimatedRouter from '@/components/useAnimatedRouter';
 import Link from 'next/link';
 import { LinkProps } from 'next/dist/client/link';
 

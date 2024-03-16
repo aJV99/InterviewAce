@@ -17,7 +17,7 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react';
-import Bubble from './Bubble';
+import Bubble from '@/components/Bubble';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
 
 interface TipsCarouselProps {
