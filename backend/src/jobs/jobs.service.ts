@@ -25,10 +25,14 @@ export class JobsService {
       include: {
         interviews: {
           include: {
-            questions: true
-          }
-        }
-      }
+            questions: {
+              orderBy: {
+                index: 'asc',
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -40,10 +44,14 @@ export class JobsService {
       include: {
         interviews: {
           include: {
-            questions: true
-          }
-        }
-      }
+            questions: {
+              orderBy: {
+                index: 'asc',
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -55,10 +63,14 @@ export class JobsService {
       include: {
         interviews: {
           include: {
-            questions: true
-          }
-        }
-      }
+            questions: {
+              orderBy: {
+                index: 'asc',
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -73,10 +85,14 @@ export class JobsService {
       include: {
         interviews: {
           include: {
-            questions: true
-          }
-        }
-      }
+            questions: {
+              orderBy: {
+                index: 'asc',
+              },
+            },
+          },
+        },
+      },
     });
   }
 

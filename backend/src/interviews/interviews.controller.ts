@@ -20,7 +20,17 @@ export class InterviewsController {
     @Req() req: RequestWithAuth,
   ) {
     await this.jobsService.checkJobOwnership(jobId, req.user.id);
-    return await this.interviewsService.create(jobId, createInterviewDto);
+    return await this.interviewsService.createNew(jobId, createInterviewDto);
+  }
+
+  @Post('retake/:interviewId')
+  async retake(
+    @Param('interviewId') interviewId: string,
+    @Body('sameQuestions') sameQuestions: boolean,
+    @Req() req: RequestWithAuth,
+  ) {
+    await this.interviewsService.checkInterviewOwnership(interviewId, req.user.id);
+    return await this.interviewsService.retakeInterview(interviewId, sameQuestions);
   }
 
   // @Get(':jobId')

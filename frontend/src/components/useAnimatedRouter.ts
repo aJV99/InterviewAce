@@ -11,6 +11,7 @@ export default function useAnimatedRouter(): ExtendedRouter {
 
   // Implement the animatedRoute function
   const animatedRoute = (url: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const extendedDocument = document as any; // Assume startViewTransition is part of this "any" type
     if (extendedDocument?.startViewTransition) {
       extendedDocument.startViewTransition(() => {

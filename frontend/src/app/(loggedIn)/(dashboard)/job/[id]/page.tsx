@@ -25,6 +25,7 @@ import InterviewModal from '@/components/InterviewModal';
 import { fetchJobs, deleteJob } from '@/redux/features/jobSlice';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import useAnimatedRouter from '@/components/useAnimatedRouter';
+import { useCustomToast } from '@/components/Toast';
 
 const JobPage = ({ params }: { params: { id: string } }) => {
   const router = useAnimatedRouter();
@@ -37,16 +38,21 @@ const JobPage = ({ params }: { params: { id: string } }) => {
   const { isOpen: isDeleteModalOpen, onOpen: onOpenDeleteModal, onClose: onCloseDeleteModal } = useDisclosure();
   const dispatch = useDispatch<AppDispatch>();
   const jobsState = useSelector((state: RootState) => state.jobs);
+  const { showSuccess, showError } = useCustomToast();
 
   useEffect(() => {
     // Check if the jobs are fetched or fetch if necessary
     if (!jobsState.fetched) {
-      dispatch(fetchJobs());
+      try {
+        dispatch(fetchJobs()).unwrap();
+      } catch (error) {
+        showError('Server Error. Please try again later');
+      }
     }
-  }, [dispatch, jobsState]);
+  }, [dispatch, jobsState, showError]);
 
   // Find the job in the state (this will be re-evaluated when the state changes)
-  const job = jobsState.jobs.find((job) => job.id === params.id);
+  const job = jobsState.jobs[params.id];
 
   if (!job) {
     throw Error;
@@ -144,8 +150,13 @@ const JobPage = ({ params }: { params: { id: string } }) => {
         onDelete={async () => {
           if (job?.id) {
             // Check if job?.id is not undefined
-            router.push('/dashboard');
-            await dispatch(deleteJob(job.id));
+            try {
+              router.push('/dashboard');
+              await dispatch(deleteJob(job.id)).unwrap();
+              showSuccess('Job Deleted Successfully');
+            } catch (error) {
+              showError('Job Deletion Failed. Please try again later');
+            }
           } else {
             console.error('Job ID is undefined');
             // Optionally, handle the undefined ID case (e.g., showing an error message)
@@ -153,7 +164,7 @@ const JobPage = ({ params }: { params: { id: string } }) => {
         }}
         itemType={'job'}
       />
-      <InterviewCards cards={job?.interviews} />
+      <InterviewCards cards={Object.values(job.interviews)} />
     </Content>
   );
 };

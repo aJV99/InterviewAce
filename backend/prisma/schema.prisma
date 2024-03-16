@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -63,6 +64,7 @@ model Question {
   id               String         @id @default(uuid())
   interviewId      String
   interview        Interview      @relation(fields: [interviewId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  index            Int
   content          String
   userResponse     String?
   strengths        Json?      

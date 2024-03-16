@@ -28,6 +28,7 @@ export interface CreateInterviewDto {
   type: InterviewType;
   customType?: string;
   context?: string;
+  currentQuestion?: number;
 }
 
 export interface UpdateInterviewDto extends Partial<CreateInterviewDto> {}

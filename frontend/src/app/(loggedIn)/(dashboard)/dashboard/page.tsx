@@ -8,15 +8,25 @@ import JobCards from '@/components/JobCards';
 import { fetchJobs } from '@/redux/features/jobSlice';
 import Bubble from '@/components/Bubble';
 import { Box, Flex, Heading, Image } from '@chakra-ui/react';
+import { useEffect } from 'react';
+import { useCustomToast } from '@/components/Toast';
 
 const DashboardPage = () => {
+  const { showError } = useCustomToast();
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
   const jobs = useSelector((state: RootState) => state.jobs); // Make sure this points to the jobs array within the JobState.
 
-  if (!jobs.fetched) {
-    dispatch(fetchJobs());
-  }
+  useEffect(() => {
+    // Check if the jobs are fetched or fetch if necessary
+    if (!jobs.fetched) {
+      try {
+        dispatch(fetchJobs()).unwrap();
+      } catch (error) {
+        showError('Server Error. Please try again later');
+      }
+    }
+  });
 
   return (
     <Content>

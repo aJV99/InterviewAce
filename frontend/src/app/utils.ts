@@ -71,34 +71,35 @@ function interpolateColor(color1: string, color2: string, ratio: number) {
 
   // Calculate the interpolated color
   const interpolatedRgb = {
-    r: Math.round(color1Rgb.r + ratio * (color2Rgb.r - color1Rgb.r)),
-    g: Math.round(color1Rgb.g + ratio * (color2Rgb.g - color1Rgb.g)),
-    b: Math.round(color1Rgb.b + ratio * (color2Rgb.b - color1Rgb.b)),
+    red: Math.round(color1Rgb.red + ratio * (color2Rgb.red - color1Rgb.red)),
+    green: Math.round(color1Rgb.green + ratio * (color2Rgb.green - color1Rgb.green)),
+    blue: Math.round(color1Rgb.blue + ratio * (color2Rgb.blue - color1Rgb.blue)),
   };
 
   // Convert back to hex
-  return rgbToHex(interpolatedRgb.r, interpolatedRgb.g, interpolatedRgb.b);
+  return rgbToHex(interpolatedRgb.red, interpolatedRgb.green, interpolatedRgb.blue);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function hexToRgb(hex: string | any[]) {
-  let r = 0,
-    g = 0,
-    b = 0;
+  let red = 0;
+  let green = 0;
+  let blue = 0;
   // 3 digits
   if (hex.length == 4) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
+    red = parseInt(hex[1] + hex[1], 16);
+    green = parseInt(hex[2] + hex[2], 16);
+    blue = parseInt(hex[3] + hex[3], 16);
   }
   // 6 digits
   else if (hex.length == 7) {
-    r = parseInt(hex[1] + hex[2], 16);
-    g = parseInt(hex[3] + hex[4], 16);
-    b = parseInt(hex[5] + hex[6], 16);
+    red = parseInt(hex[1] + hex[2], 16);
+    green = parseInt(hex[3] + hex[4], 16);
+    blue = parseInt(hex[5] + hex[6], 16);
   }
-  return { r, g, b };
+  return { red: red, green: green, blue: blue };
 }
 
-function rgbToHex(r: number, g: number, b: number) {
-  return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+function rgbToHex(red: number, green: number, blue: number) {
+  return '#' + ((1 << 24) + (red << 16) + (green << 8) + blue).toString(16).slice(1).toUpperCase();
 }

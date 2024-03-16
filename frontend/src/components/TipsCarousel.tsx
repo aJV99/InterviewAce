@@ -68,6 +68,7 @@ const TipsCarousel: React.FC<TipsCarouselProps> = ({ items }) => {
               <>
                 <Text mt="2">
                   {item.description}
+                  {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                   <Link onClick={onOpen} textDecoration="underline">
                     here
                   </Link>

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import * as bcrypt from 'bcrypt';
-import { User } from './dto/user.entity';
 import { SignupDto } from '../dto/signup.dto';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -22,18 +22,39 @@ export class UserService {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
-  // async findFirstRefreshToken(refreshToken: string): Promise<User | null> {
-  //   return this.prisma.user.findFirst({ where: { refreshToken } });
-  // }
-
   async get(id: string): Promise<User> {
     return await this.prisma.user.findUnique({ where: { id } });
   }
 
   async update(id: string, data: Partial<User>): Promise<User | null> {
-    return await this.prisma.user.update({
+    if (data.password) {
+      const { password, ...rest } = data;
+      const hashedPassword = await bcrypt.hash(password, 10);
+      return await this.prisma.user.update({
+        where: { id },
+        data: {
+          password: hashedPassword,
+          ...rest,
+        },
+      });
+    } else {
+      return await this.prisma.user.update({
+        where: { id },
+        data,
+      });
+    }
+  }
+
+  async deleteData(id: string): Promise<User | null> {
+    // First, delete all jobs associated with the user
+    await this.prisma.job.deleteMany({
+      where: { userId: id },
+    });
+
+    // Then, return the user after jobs deletion
+    // Optionally update the user if needed
+    return await this.prisma.user.findUnique({
       where: { id },
-      data,
     });
   }
 

@@ -63,13 +63,13 @@ const FeedbackCarousel: React.FC<FeedbackCarouselProps> = ({ questions }) => {
         {questions.slice(currentIndex, currentIndex + slidesToShow).map((question, index) => (
           <Bubble key={index} width="full" m={0}>
             <Flex align={'center'} mb={3}>
-              <Heading w='88%' fontSize="3xl" mr={20}>
+              <Heading w="88%" fontSize="3xl" mr={20}>
                 {question.content}
               </Heading>
               <Spacer />
               <Box
                 // minW="20%"
-                w='12%'
+                w="12%"
                 justifyContent="center"
                 alignContent="center"
                 justifyItems="center"

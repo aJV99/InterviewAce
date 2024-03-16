@@ -16,6 +16,7 @@ import { AppDispatch } from '@/redux/store';
 import { CreateInterviewDto, Interview, InterviewType } from '@/redux/dto/interview.dto';
 import { toCapitalCase } from '@/app/utils';
 import { updateInterview, addInterview } from '@/redux/features/jobSlice';
+import { useCustomToast } from './Toast';
 
 interface InterviewModalProps {
   onClose: () => void;
@@ -36,6 +37,7 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
   const [interviewType, setInterviewType] = useState(InterviewType.GENERAL);
   const [interviewCustomType, setInterviewCustomType] = useState('');
   const [interviewContext, setInterviewContext] = useState('');
+  const { showSuccess, showError } = useCustomToast();
 
   // Set initial values for editing
   useEffect(() => {
@@ -55,20 +57,26 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
       context: interviewContext,
     };
 
-    try {
-      onClose();
-      if (isEditing && existingInterview) {
+    onClose();
+    if (isEditing && existingInterview) {
+      try {
         await dispatch(
           updateInterview({
             id: existingInterview.id,
             updateInterviewDto: interviewData,
           }),
         ).unwrap();
-      } else {
-        await dispatch(addInterview({ jobId, createInterviewDto: interviewData })).unwrap();
+        showSuccess('Interview Updated Successfully');
+      } catch (error) {
+        showError('Interview Update Failed. Please try again later');
       }
-    } catch (error) {
-      console.error('Failed to process the interview: ', error);
+    } else {
+      try {
+        await dispatch(addInterview({ jobId, createInterviewDto: interviewData })).unwrap();
+        showSuccess('Interview Created Successfully');
+      } catch (error) {
+        showError('Interview Creation Failed. Please try again later');
+      }
     }
   };
 

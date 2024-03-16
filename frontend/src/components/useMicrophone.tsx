@@ -13,6 +13,7 @@ const useMicrophone = (
   const recognitionRef = React.useRef<SpeechRecognition | null>(null);
 
   const startListening = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
@@ -61,6 +62,7 @@ const useMicrophone = (
       }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognitionRef.current.onerror = (event: any) => {
       console.error('Speech recognition error', event.error);
     };
@@ -79,6 +81,14 @@ const useMicrophone = (
     }
   };
 
+  const quit = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null; // Reset the ref after stopping
+      // nextQuestion(questionIndex);
+    }
+  };
+
   return {
     status,
     setStatus,
@@ -88,6 +98,7 @@ const useMicrophone = (
     setIsListening,
     startListening,
     stopListening,
+    quit,
   };
 };
 

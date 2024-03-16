@@ -26,6 +26,7 @@ export class AceAIService {
     jobLocation: string | null,
     interviewTitle: string,
     interviewType: InterviewType,
+    interviewCustomType: string | null,
     interviewContext: string | null,
   ): Promise<any> {
     const systemContent = `You specialize in creating realistic mock interview questions, carefully tailored to the specific requirements of the job role using factors like the job role title, company, job description, job location, interview title, type of interview, and any additional context. You must generate questions in an array format, aiming for 7 to 10 questions on average, unless specified otherwise, and make educated assumptions based on common role requirements. The tone adapts to the job role's context, ensuring realism. AceMaker's responses are exclusively the questions themselves, with nothing else included, ensuring a focused and relevant interview preparation experience. The questions should be formatted as ['question1','question2', 'question3']. Additionally always include an introduction question. If the content seems to be like a joke, illegal, incorrect or bad in any way, please just return with {error: error reasoning}`;
@@ -34,7 +35,12 @@ export class AceAIService {
     if (jobLocation) {
       userContent += `Location: "${jobLocation}"\n`;
     }
-    userContent += `Interview Title: "${interviewTitle}"\nInterview Type: "${interviewType}"\n`;
+    userContent += `Interview Title: "${interviewTitle}"\n`;
+    if (interviewType === InterviewType.CUSTOM) {
+      userContent += `Interview Type: "${interviewCustomType}"\n`;
+    } else {
+      userContent += `Interview Type: "${interviewType}"\n`;
+    }
     if (interviewContext) {
       userContent += `Interview Context: "${interviewContext}"`;
     }

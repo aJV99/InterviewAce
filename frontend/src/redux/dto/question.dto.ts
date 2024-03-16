@@ -9,4 +9,5 @@ export interface Question {
   exemplarAnswer: string | null;
   createdAt: Date;
   updatedAt: Date;
+  jobId: string;
 }

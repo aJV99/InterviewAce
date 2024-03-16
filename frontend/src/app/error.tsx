@@ -2,6 +2,12 @@
 import AnimatedButton from '@/components/AnimatedButton';
 import { Box, Center, Heading, Text, Image } from '@chakra-ui/react';
 
+export interface ErrorDto {
+  message: string;
+  error: string;
+  statusCode: number;
+}
+
 const ErrorNotFound = () => {
   return (
     <Center height="100vh" flexDirection="column" bg="gray.100">

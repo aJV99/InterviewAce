@@ -77,6 +77,7 @@ const SignUpPage = () => {
             <Text color="fg.muted">
               Already have an account?
               <Link color={'blue.400'} as={AnimatedLink} href={'/login'}>
+                {' '}
                 Login
               </Link>
             </Text>
@@ -139,7 +140,6 @@ const SignUpPage = () => {
                   </Text>
                   <Divider />
                 </HStack>
-                {/* <OAuthButtonGroup /> */}
               </Stack>
             </Stack>
           </Stack>

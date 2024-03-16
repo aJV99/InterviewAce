@@ -26,8 +26,7 @@ const ScoreIndicator: React.FC<ScoreIndicatorProps> = ({ score }) => {
           width="2px"
           height="20px"
           bgColor="black" // Pointer color
-                  // overflow="hidden"
-
+          // overflow="hidden"
         />
       </Box>
     </Box>

@@ -1,8 +1,8 @@
-import storage from './storage';
 import { persistStore, persistReducer } from 'redux-persist';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import authReducer from './features/authSlice';
 import jobReducer from './features/jobSlice';
+import storage from './storage';
 
 // import interviewReducer from './features/interviewSlice';
 // import questionReducer from './features/questionSlice';

@@ -7,7 +7,7 @@
     "plugin:jsx-a11y/recommended",
     "plugin:prettier/recommended" // Ensure this is the last configuration in the extends array.
   ],
-  "plugins": ["@typescript-eslint", "react", "jsx-a11y", "prettier"],
+  "plugins": ["@typescript-eslint", "react", "jsx-a11y", "prettier", "react-hooks"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
@@ -36,7 +36,9 @@
         "aspects": ["invalidHref", "preferButton"]
       }
     ],
-    "prettier/prettier": ["error"] // This will use Prettier rules for formatting issues as ESLint errors.
+    "prettier/prettier": ["error"], // This will use Prettier rules for formatting issues as ESLint errors.
+    "react-hooks/rules-of-hooks": "error", // Adds the rules of hooks
+    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
   },
   "ignorePatterns": [".next/", "node_modules/"]
 }

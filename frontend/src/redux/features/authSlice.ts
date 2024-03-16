@@ -1,5 +1,7 @@
 import axiosInstance from '@/app/axios'; // path to your axios.ts file
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { User, UserDto } from '../dto/user.dto';
+import axios from 'axios';
 
 export const login = async (email: string, password: string) => {
   const response = await axiosInstance.post('/auth/login', { email, password });
@@ -16,15 +18,73 @@ export const signup = async (firstName: string, lastName: string, email: string,
   return response.data;
 };
 
+export const getUser = createAsyncThunk<UserDto>('auth/getUser', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.get('/user');
+    return response.data;
+  } catch (error) {
+    return rejectWithValue(error);
+  }
+});
+
+export const updateUser = createAsyncThunk<UserDto, UserDto, { rejectValue: Error }>(
+  'auth/updateUser',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put('/user', userData);
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        // Assuming the API returns an error structure you want to forward
+        return rejectWithValue(error.response.data as Error);
+      } else {
+        return rejectWithValue(new Error('An unknown error occurred'));
+      }
+    }
+  },
+);
+
+export const updatePassword = createAsyncThunk<UserDto, { currentPassword: string; newPassword: string }>(
+  'auth/updatePassword',
+  async ({ currentPassword, newPassword }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put('/user/password', { currentPassword, newPassword });
+      return response.data;
+    } catch (error) {
+      // return rejectWithValue(error);
+      if (axios.isAxiosError(error) && error.response) {
+        // Assuming the API returns an error structure you want to forward
+        return rejectWithValue(error.response.data as Error);
+      } else {
+        return rejectWithValue(new Error('An unknown error occurred'));
+      }
+    }
+  },
+);
+
+export const deleteUser = createAsyncThunk<void>('auth/deleteUser', async (_, { rejectWithValue }) => {
+  try {
+    await axiosInstance.delete('/user');
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(error.response.data as Error);
+    } else {
+      return rejectWithValue(new Error('An unknown error occurred'));
+    }
+  }
+});
+
 export interface AuthState {
   firstName: string;
   lastName: string;
+  user: User | null;
   accessToken: string | null;
 }
 
 const initialState: AuthState = {
   firstName: '',
   lastName: '',
+  user: null,
   accessToken: null,
 };
 
@@ -52,6 +112,28 @@ const authSlice = createSlice({
     updateToken: (state, action: PayloadAction<string>) => {
       state.accessToken = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getUser.fulfilled, (state, action: PayloadAction<UserDto>) => {
+        const { firstName, lastName, ...result } = action.payload;
+        state.firstName = firstName;
+        state.lastName = lastName;
+        state.user = result;
+      })
+      .addCase(updateUser.fulfilled, (state, action: PayloadAction<UserDto>) => {
+        const { firstName, lastName, ...result } = action.payload;
+        state.firstName = firstName;
+        state.lastName = lastName;
+        state.user = result;
+      })
+      // .addCase(updatePassword.rejected, (state) => {
+
+      // })
+      .addCase(deleteUser.fulfilled, (state) => {
+        // You might want to clear the user state or navigate to a login page
+        state.user = null;
+      });
   },
 });
 

@@ -10,7 +10,9 @@ import {
   ModalCloseButton,
   Button,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
+import { toCapitalCase } from '@/app/utils';
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -20,29 +22,38 @@ interface ConfirmDeleteModalProps {
 }
 
 const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ isOpen, onClose, onDelete, itemType }) => {
+  let grammarItemType;
+  if (itemType === ('job' || 'interview')) {
+    grammarItemType = 'this ' + itemType;
+  } else {
+    grammarItemType = 'your ' + itemType;
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Delete {itemType}</ModalHeader>
+        <ModalHeader>Delete {toCapitalCase(itemType)}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Text>Are you sure you want to delete this {itemType}? This action cannot be undone.</Text>
+          <Text>Are you sure you want to delete {grammarItemType}? This action cannot be undone.</Text>
         </ModalBody>
 
         <ModalFooter>
           <Button colorScheme="gray" mr={3} onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            colorScheme="red"
-            onClick={() => {
-              onDelete();
-              onClose(); // Optionally close the modal after deletion
-            }}
-          >
-            Delete
-          </Button>
+          <Tooltip label="Last Warning!">
+            <Button
+              colorScheme="red"
+              onClick={() => {
+                onDelete();
+                onClose(); // Optionally close the modal after deletion
+              }}
+            >
+              Delete
+            </Button>
+          </Tooltip>
         </ModalFooter>
       </ModalContent>
     </Modal>

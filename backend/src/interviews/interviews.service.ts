@@ -4,7 +4,6 @@ import { PrismaService } from 'src/prisma.service';
 import { QuestionsService } from 'src/questions/questions.service';
 import { AceAIService } from 'src/aceAI/aceAI.service';
 import { JobsService } from 'src/jobs/jobs.service';
-import { Interview } from '@prisma/client';
 
 @Injectable()
 export class InterviewsService {
@@ -31,33 +30,43 @@ export class InterviewsService {
   }
 
   async create(jobId: string, createInterviewDto: InterviewDto) {
-    const interview = await this.prisma.interview.create({
+    return await this.prisma.interview.create({
       data: {
         jobId,
         ...createInterviewDto,
       },
     });
+  }
+
+  async createNew(jobId: string, createInterviewDto: InterviewDto) {
+    const interview = await this.create(jobId, createInterviewDto);
 
     const { title, company, description, location } = await this.jobsService.findOne(jobId);
 
-    let interviewType;
-    if (interview.customType) {
-      interviewType = interview.customType;
-    }
-    else {
-      interviewType = interview.type
+    let generatedContent;
+    if (process.env.DO_NOT_REQUEST === 'FALSE') {
+      // Generate questions using AI service
+      generatedContent = await this.aceAIService.generateQuestions(
+        title,
+        company,
+        description,
+        location,
+        interview.title,
+        interview.type,
+        interview.customType,
+        interview.context,
+      );
+    } else {
+      generatedContent = JSON.stringify([
+        'How you doin',
+        'Haaaave you met Ted?',
+        `${title}`,
+        `${company}`,
+        `${location}`,
+      ]);
     }
 
-    // Generate questions using AI service
-    const generatedContent = await this.aceAIService.generateQuestions(title, company, description, location, interview.title, interviewType, interview.context);
-    // const generatedContent = `[
-    //   "How you doin",
-    //   "Haaaave you met Ted?"
-    // ]`;
-
-    // const formattedContent = generatedContent.map(content => ({ content }));
     const formattedContent = JSON.parse(generatedContent);
-
 
     // Use QuestionService to create questions for this interview
     const questions = await this.questionsService.createMany(interview.id, formattedContent);
@@ -74,8 +83,12 @@ export class InterviewsService {
         jobId,
       },
       include: {
-        questions: true
-      }
+        questions: {
+          orderBy: {
+            index: 'asc',
+          },
+        },
+      },
     });
   }
 
@@ -85,8 +98,12 @@ export class InterviewsService {
         id,
       },
       include: {
-        questions: true
-      }
+        questions: {
+          orderBy: {
+            index: 'asc',
+          },
+        },
+      },
     });
   }
 
@@ -99,8 +116,12 @@ export class InterviewsService {
         ...updateInterviewDto,
       },
       include: {
-        questions: true
-      }
+        questions: {
+          orderBy: {
+            index: 'asc',
+          },
+        },
+      },
     });
   }
 
@@ -117,7 +138,7 @@ export class InterviewsService {
     const currentQuestion = interview.currentQuestion + 1;
     let newScore = interview.overallScore + score;
     if (currentQuestion === interview.questions.length) {
-      newScore = newScore / interview.questions.length
+      newScore = newScore / interview.questions.length;
     }
     return await this.prisma.interview.update({
       where: {
@@ -128,5 +149,42 @@ export class InterviewsService {
         currentQuestion: currentQuestion,
       },
     });
+  }
+
+  async retakeInterview(originalInterviewId: string, sameQuestions: boolean) {
+    // Fetch the original interview
+    const originalInterview = await this.findOne(originalInterviewId);
+
+    if (!originalInterview) {
+      throw new NotFoundException('Original interview not found');
+    }
+
+    const interviewPayload: InterviewDto = {
+      title: originalInterview.title + ' - Copy',
+      type: originalInterview.type,
+      customType: originalInterview.customType,
+      context: originalInterview.context,
+      currentQuestion: 0,
+    };
+
+    if (sameQuestions) {
+      // Create a new interview with the same details but without responses or scores
+      const newInterview = await this.create(originalInterview.jobId, interviewPayload);
+
+      const questionPayload: string[] = [];
+
+      originalInterview.questions.map((question) => {
+        questionPayload.push(question.content);
+      });
+
+      const newQuestions = await this.questionsService.createMany(newInterview.id, questionPayload);
+
+      return {
+        ...newInterview,
+        questions: newQuestions,
+      };
+    } else {
+      return await this.createNew(originalInterview.jobId, interviewPayload);
+    }
   }
 }

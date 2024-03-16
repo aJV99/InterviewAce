@@ -20,13 +20,21 @@ import {
 } from '@chakra-ui/react';
 import { DeleteIcon, EditIcon, ViewOffIcon } from '@chakra-ui/icons';
 import InterviewModal from '@/components/InterviewModal';
-import { fetchJobs, deleteInterview, startInterview, fetchInterview } from '@/redux/features/jobSlice';
+import {
+  fetchJobs,
+  deleteInterview,
+  startInterview,
+  fetchInterview,
+  retakeInterview,
+} from '@/redux/features/jobSlice';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import { toCapitalCase } from '@/app/utils';
 import Error from '@/app/error';
 import useAnimatedRouter from '@/components/useAnimatedRouter';
 import { StartInterviewDto } from '@/redux/dto/interview.dto';
 import FeedbackCarousel from '@/components/FeedbackCarousel';
+import RetakeInterviewModal from '@/components/RetakeInterviewModal';
+import { useCustomToast } from '@/components/Toast';
 
 const JobPage = ({ params }: { params: { jobid: string; interviewid: string } }) => {
   const router = useAnimatedRouter();
@@ -35,24 +43,32 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
     onOpen: onOpenInterviewModal,
     onClose: onCloseInterviewModal,
   } = useDisclosure();
+  const { showSuccess, showError } = useCustomToast();
   const { isOpen: isDeleteModalOpen, onOpen: onOpenDeleteModal, onClose: onCloseDeleteModal } = useDisclosure();
+  const { isOpen: isRetakeModalOpen, onOpen: onOpenRetakeModal, onClose: onCloseRetakeModal } = useDisclosure();
   const dispatch = useDispatch<AppDispatch>();
   const jobsState = useSelector((state: RootState) => state.jobs);
 
   useEffect(() => {
     // Check if the jobs are fetched or fetch if necessary
     if (!jobsState.fetched) {
-      dispatch(fetchJobs());
+      try {
+        dispatch(fetchJobs()).unwrap();
+      } catch (error) {
+        showError('Server Error. Please try again later');
+      }
     }
 
-    dispatch(fetchInterview(params.interviewid));
-  }, []);
-
-  // dispatch(fetchInterview(params.interviewid));
+    try {
+      dispatch(fetchInterview(params.interviewid)).unwrap();
+    } catch (error) {
+      showError('Server Error. Please try again later');
+    }
+  });
 
   // Find the job in the state (this will be re-evaluated when the state changes)
-  const job = jobsState.jobs.find((job) => job.id === params.jobid);
-  const interview = job?.interviews.find((interview) => interview.id === params.interviewid);
+  const job = jobsState.jobs[params.jobid];
+  const interview = job?.interviews[params.interviewid];
 
   if (!job || !interview) {
     throw Error;
@@ -63,20 +79,31 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
       jobId: job.id,
       interviewId: interview.id,
     };
-    dispatch(startInterview(startInterviewDto));
-    router.push('/practice');
+    try {
+      dispatch(startInterview(startInterviewDto)).unwrap();
+      router.push('/practice');
+    } catch (error) {
+      showError('Starting Interview Failed. Please try again later');
+    }
   };
 
   return (
-    // <ErrorBoundary fallback={<Error />}>
-
     <Content>
-      {/* <Bubble> */}
       <Flex p={5} borderRadius="xl" alignItems="center" justifyContent="space-between">
         <Heading size="3xl">Your Mock Interviews</Heading>
-        <Button colorScheme="teal" onClick={handleStart}>
-          Start your Mock Interview
-        </Button>
+        {interview.currentQuestion === interview.questions.length ? (
+          <Button colorScheme="teal" onClick={onOpenRetakeModal}>
+            Try this Mock Interview again
+          </Button>
+        ) : interview.currentQuestion !== 0 ? (
+          <Button colorScheme="teal" onClick={handleStart}>
+            Continue this Mock Interview
+          </Button>
+        ) : (
+          <Button colorScheme="teal" onClick={handleStart}>
+            Start your Mock Interview
+          </Button>
+        )}
 
         {/* The modal */}
         <Modal isOpen={isInterviewModalOpen} onClose={onCloseInterviewModal} size="xl">
@@ -157,16 +184,36 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
         isOpen={isDeleteModalOpen}
         onClose={onCloseDeleteModal}
         onDelete={() => {
-          if (interview?.id) {
+          if (job?.id && interview?.id) {
             // Check if job?.id is not undefined
-            router.push('/job/' + job.id);
-            dispatch(deleteInterview(interview.id));
+            try {
+              router.push('/job/' + job.id);
+              setTimeout(async () => {
+                await dispatch(deleteInterview(interview.id)).unwrap();
+                showSuccess('Interview Successfully Deleted');
+              }, 500);
+            } catch (error) {
+              showError('Interview Deletion Failed. Please try again later');
+            }
           } else {
             console.error('Interview ID is undefined');
             // Optionally, handle the undefined ID case (e.g., showing an error message)
           }
         }}
         itemType={'interview'}
+      />
+      <RetakeInterviewModal
+        isOpen={isRetakeModalOpen}
+        onClose={onCloseRetakeModal}
+        onSubmit={(sameQuestions: boolean) => {
+          try {
+            router.push('/job/' + job.id);
+            dispatch(retakeInterview({ interviewId: interview.id, sameQuestions })).unwrap();
+            showSuccess('Interview Duplicated Successfully');
+          } catch (error) {
+            showError('Interview Duplication Failed. Please try again later');
+          }
+        }}
       />
       {/* <Suspense fallback={<Loading />}> */}
       <Box

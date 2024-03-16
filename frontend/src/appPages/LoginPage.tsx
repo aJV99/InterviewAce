@@ -47,6 +47,7 @@ const Login = () => {
         }),
       );
       router.animatedRoute('/dashboard');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error(error);
       if (
@@ -74,6 +75,7 @@ const Login = () => {
             <Text color="fg.muted">
               Don&apos;t have an account?
               <Link color={'blue.400'} as={AnimatedLink} href={'/signup'}>
+                {' '}
                 Sign up
               </Link>
             </Text>

@@ -1,10 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axiosInstance from '@/app/axios'; // path to your axios.ts file
-import { CreateJobDto, Job, UpdateJobDto } from '../dto/job.dto';
+import { CreateJobDto, Job, JobResponse, UpdateJobDto } from '../dto/job.dto';
 import { CreateInterviewDto, Interview, StartInterviewDto, UpdateInterviewDto } from '../dto/interview.dto';
 import { Question } from '../dto/question.dto';
+import axios from 'axios';
 
-export const fetchJobs = createAsyncThunk<Job[], undefined>(
+export const fetchJobs = createAsyncThunk<JobResponse[], undefined>(
   'jobs/fetchJobs',
   async (_, { getState, rejectWithValue }) => {
     const { jobs, fetched } = getState() as JobState; // Adjust RootState if the path is different
@@ -21,10 +22,10 @@ export const fetchJobs = createAsyncThunk<Job[], undefined>(
   },
 );
 
-export const fetchJobDetails = createAsyncThunk<Job, string>(
+export const fetchJobDetails = createAsyncThunk<JobResponse, string>(
   'jobs/fetchJobDetails',
   async (id: string, { getState, rejectWithValue }) => {
-    const existingJob = (getState() as JobState).jobs.find((job) => job.id === id);
+    const existingJob = (getState() as JobState).jobs[id];
 
     if (existingJob && existingJob.interviews) {
       // If job details are already available, return them directly
@@ -40,7 +41,7 @@ export const fetchJobDetails = createAsyncThunk<Job, string>(
   },
 );
 
-export const createJob = createAsyncThunk<Job, CreateJobDto>(
+export const createJob = createAsyncThunk<JobResponse, CreateJobDto>(
   'jobs/addJob',
   async (createJobDto: CreateJobDto, { rejectWithValue }) => {
     try {
@@ -60,7 +61,7 @@ export const startInterview = createAsyncThunk<StartInterviewDto, StartInterview
 );
 
 // Thunk for updating a job
-export const editJob = createAsyncThunk<Job, { id: string; updateJobDto: UpdateJobDto }>(
+export const editJob = createAsyncThunk<JobResponse, { id: string; updateJobDto: UpdateJobDto }>(
   'jobs/updateJob',
   async ({ id, updateJobDto }: { id: string; updateJobDto: UpdateJobDto }, { rejectWithValue }) => {
     try {
@@ -73,7 +74,7 @@ export const editJob = createAsyncThunk<Job, { id: string; updateJobDto: UpdateJ
 );
 
 // Thunk for deleting a job
-export const deleteJob = createAsyncThunk<Job, string>(
+export const deleteJob = createAsyncThunk<JobResponse, string>(
   'jobs/deleteJob',
   async (id: string, { rejectWithValue }) => {
     try {
@@ -119,6 +120,18 @@ export const addInterview = createAsyncThunk<Interview, { jobId: string; createI
   ) => {
     try {
       const response = await axiosInstance.post(`/interviews/${jobId}`, createInterviewDto);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+export const retakeInterview = createAsyncThunk<Interview, { interviewId: string; sameQuestions: boolean }>(
+  'jobs/retakeInterview',
+  async ({ interviewId, sameQuestions }: { interviewId: string; sameQuestions: boolean }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(`/interviews/retake/${interviewId}`, { sameQuestions });
       return response.data;
     } catch (error) {
       return rejectWithValue(error);
@@ -194,7 +207,7 @@ export const updateQuestion = createAsyncThunk<Question, { questionId: string; c
 );
 
 // Thunk for deleting a question
-export const deleteQuestion = createAsyncThunk<string, string>(
+export const deleteQuestion = createAsyncThunk<Question, string>(
   'jobs/deleteQuestion',
   async (questionId: string, { rejectWithValue }) => {
     try {
@@ -226,220 +239,237 @@ export const answerQuestion = createAsyncThunk<
   },
 );
 
+export const deleteData = createAsyncThunk<void>('jobs/deleteData', async (_, { rejectWithValue }) => {
+  try {
+    await axiosInstance.delete('/user/data');
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(error.response.data as Error);
+    } else {
+      return rejectWithValue(new Error('An unknown error occurred'));
+    }
+  }
+});
+
 // Define the state structure for jobs
 export interface JobState {
-  jobs: Job[];
+  jobs: { [key: string]: Job }; // Change from array to dictionary
   fetched: boolean;
   creatingInterview: boolean;
   loadingInterview: string | null;
-  currentInterview: {
-    jobId: string | null;
-    interviewId: string | null;
-  };
+  currentInterview: StartInterviewDto;
 }
 
 const initialState: JobState = {
-  jobs: [],
+  jobs: {},
   fetched: false,
   creatingInterview: false,
   loadingInterview: null,
   currentInterview: {
-    jobId: 'b856fc93-8880-4f9b-a049-5eb96d07e33b',
-    interviewId: '6a3a8b5f-251f-45f9-bb96-31513061ceb0',
+    jobId: '',
+    interviewId: '',
   },
 };
+
+function convertJobResponseToJob(jobResponse: JobResponse): Job {
+  const interviewsDict: { [key: string]: Interview } = jobResponse.interviews.reduce(
+    (acc, interview) => {
+      acc[interview.id] = interview;
+      return acc;
+    },
+    {} as { [key: string]: Interview },
+  );
+
+  return { ...jobResponse, interviews: interviewsDict };
+}
 
 const jobSlice = createSlice({
   name: 'jobs',
   initialState,
   reducers: {
     reset: () => initialState,
-    // setJobs: (state, action: PayloadAction<JobState['jobs']>) => {
-    //   state.jobs = action.payload;
-    // },
-    // addJob: (state, action: PayloadAction<JobState['jobs'][0]>) => {
-    //   state.jobs.push(action.payload);
-    // },
-    // updateJob: (state, action: PayloadAction<JobState['jobs'][0]>) => {
-    //   const index = state.jobs.findIndex((job) => job.id === action.payload.id);
-    //   if (index !== -1) {
-    //     state.jobs[index] = action.payload;
-    //   }
-    // },
-    // removeJob: (state, action: PayloadAction<string>) => {
-    //   state.jobs = state.jobs.filter((job) => job.id !== action.payload);
-    // },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchJobs.fulfilled, (state, action) => {
-        state.jobs = action.payload;
+      .addCase(fetchJobs.fulfilled, (state, action: PayloadAction<JobResponse[]>) => {
+        const jobsDict: { [key: string]: Job } = action.payload.reduce(
+          (acc, jobResponse) => {
+            const job = convertJobResponseToJob(jobResponse);
+            acc[job.id] = job;
+            return acc;
+          },
+          {} as { [key: string]: Job },
+        );
+        state.jobs = jobsDict;
         state.fetched = true;
       })
       .addCase(fetchJobDetails.fulfilled, (state, action) => {
-        const index = state.jobs.findIndex((job) => job.id === action.payload.id);
-        if (index !== -1) {
-          state.jobs[index] = action.payload; // Update existing job
-        } else {
-          state.jobs.push(action.payload); // Add new job if not present
-        }
+        const job = convertJobResponseToJob(action.payload);
+        // Update or add the job in the dictionary
+        state.jobs[job.id] = job;
       })
-      .addCase(createJob.fulfilled, (state, action) => {
-        state.jobs.push(action.payload);
+      .addCase(createJob.fulfilled, (state, action: PayloadAction<JobResponse>) => {
+        // Assuming action.payload might include interviews as an array and needs conversion
+        const job = convertJobResponseToJob(action.payload); // Convert to Job format with interviews as a dictionary
+        state.jobs[job.id] = job;
       })
-      .addCase(editJob.fulfilled, (state, action) => {
-        const index = state.jobs.findIndex((job) => job.id === action.payload.id);
-        if (index !== -1) {
-          state.jobs[index] = action.payload;
-        }
+      .addCase(editJob.fulfilled, (state, action: PayloadAction<JobResponse>) => {
+        // Convert to Job format if necessary, especially if interviews need conversion
+        const updatedJob = convertJobResponseToJob(action.payload);
+        state.jobs[updatedJob.id] = updatedJob;
       })
-      .addCase(deleteJob.fulfilled, (state, action) => {
-        const { id } = action.payload;
-        state.jobs = state.jobs.filter((job) => job.id !== id);
+      .addCase(deleteJob.fulfilled, (state, action: PayloadAction<{ id: string }>) => {
+        delete state.jobs[action.payload.id];
       })
-      // .addCase(fetchInterviews.fulfilled, (state, action: PayloadAction<Interview[]>) => {
-      //   if (action.payload.length > 0) {
-      //       const jobId = action.payload[0].jobId; // Assuming each interview object has a jobId property
-      //       const index = state.jobs.findIndex((job) => job.id === jobId);
-      //       if (index !== -1) {
-      //           state.jobs[index].interviews = action.payload; // Directly set the array of interviews
-      //       }
-      //   }
-      // })
       .addCase(fetchInterview.fulfilled, (state, action: PayloadAction<Interview>) => {
-        // const jobId = action.payload.jobId; // Assuming each interview object has a jobId property
-        // const index = state.jobs.findIndex((job) => job.id === jobId);
-        // if (index !== -1) {
-        //     state.jobs[index].interviews = action.payload; // Directly set the array of interviews
-        // }
-
-        const interview = action.payload; // Now correctly accessing the interview from the payload
-        const jobIndex = state.jobs.findIndex((job) =>
-          job.interviews.some((interviewItem) => interviewItem.id === interview.id),
-        );
-        if (jobIndex !== -1) {
-          const interviewIndex = state.jobs[jobIndex].interviews.findIndex(
-            (interviewItem) => interviewItem.id === interview.id,
-          );
-          if (interviewIndex !== -1) {
-            state.jobs[jobIndex].interviews[interviewIndex] = interview;
-          }
+        const interview = action.payload; // Interview from the payload
+        const job = state.jobs[interview.jobId];
+        if (!job.interviews) {
+          // Initialize interviews as a dictionary if it doesn't exist
+          job.interviews = {};
         }
+        // Update the interview within the job's interviews dictionary
+        job.interviews[interview.id] = interview;
       })
       .addCase(addInterview.pending, (state) => {
         state.creatingInterview = true;
       })
       .addCase(addInterview.fulfilled, (state, action: PayloadAction<Interview>) => {
-        const interview = action.payload;
-        const index = state.jobs.findIndex((job) => job.id === interview.jobId);
-        if (index !== -1) {
-          if (!state.jobs[index].interviews) {
-            state.jobs[index].interviews = []; // Ensure interviews array exists
-          }
-          state.jobs[index].interviews.push(interview);
+        const interview = action.payload; // Interview from the payload
+        const job = state.jobs[interview.jobId];
+        if (!job.interviews) {
+          // Initialize interviews as a dictionary if it doesn't exist
+          job.interviews = {};
         }
+        // Update the interview within the job's interviews dictionary
+        job.interviews[interview.id] = interview;
+        state.creatingInterview = false;
+      })
+      .addCase(retakeInterview.pending, (state) => {
+        state.creatingInterview = true;
+      })
+      .addCase(retakeInterview.fulfilled, (state, action: PayloadAction<Interview>) => {
+        const interview = action.payload; // Interview from the payload
+        const job = state.jobs[interview.jobId];
+        if (!job.interviews) {
+          // Initialize interviews as a dictionary if it doesn't exist
+          job.interviews = {};
+        }
+        // Update the interview within the job's interviews dictionary
+        job.interviews[interview.id] = interview;
         state.creatingInterview = false;
       })
       .addCase(startInterview.fulfilled, (state, action) => {
-        state.currentInterview.jobId = action.payload.jobId;
-        state.currentInterview.interviewId = action.payload.interviewId;
+        state.currentInterview = {
+          jobId: action.payload.jobId,
+          interviewId: action.payload.interviewId,
+        };
+      })
+      .addCase(updateInterview.pending, (state, action) => {
+        state.loadingInterview = action.meta.arg.id;
       })
       .addCase(updateInterview.fulfilled, (state, action: PayloadAction<Interview>) => {
-        const interview = action.payload; // Now correctly accessing the interview from the payload
-        const jobIndex = state.jobs.findIndex((job) =>
-          job.interviews.some((interviewItem) => interviewItem.id === interview.id),
-        );
-        if (jobIndex !== -1) {
-          const interviewIndex = state.jobs[jobIndex].interviews.findIndex(
-            (interviewItem) => interviewItem.id === interview.id,
-          );
-          if (interviewIndex !== -1) {
-            state.jobs[jobIndex].interviews[interviewIndex] = interview;
-          }
+        const interview = action.payload; // Interview from the payload
+        const job = state.jobs[interview.jobId];
+        if (!job.interviews) {
+          // Initialize interviews as a dictionary if it doesn't exist
+          job.interviews = {};
         }
+        // Update the interview within the job's interviews dictionary
+        job.interviews[interview.id] = interview;
+        state.loadingInterview = null;
       })
       .addCase(deleteInterview.fulfilled, (state, action) => {
-        const interview = action.payload; // Now correctly accessing the interview from the payload
-        const jobIndex = state.jobs.findIndex((job) =>
-          job.interviews.some((interviewItem) => interviewItem.id === interview.id),
-        );
-        if (jobIndex !== -1) {
-          // Ensure the job was found before attempting to update
-          state.jobs[jobIndex].interviews = state.jobs[jobIndex].interviews.filter(
-            (interviewVar) => interviewVar.id !== interview.id,
-          );
-        }
+        const interview = action.payload; // Interview from the payload
+        const job = state.jobs[interview.jobId];
+        delete job.interviews[interview.id];
       })
-      .addCase(fetchQuestions.fulfilled, (state, action) => {
-        const questions = action.payload;
-        const interviewIndex = state.jobs.findIndex((job) =>
-          job.interviews.some((interview) => interview.id === questions[0].interviewId),
-        );
-        if (interviewIndex !== -1) {
-          const job = state.jobs[interviewIndex];
-          const interview = job.interviews.find((interview) => interview.id === questions[0].interviewId);
-          if (interview) {
-            interview.questions = questions;
+      .addCase(fetchQuestions.fulfilled, (state, action: PayloadAction<Question[]>) => {
+        // Assuming the payload contains at least one question, which includes both interviewId and jobId
+        if (action.payload.length > 0) {
+          const firstQuestion = action.payload[0];
+          const jobId = firstQuestion.jobId;
+          const interviewId = firstQuestion.interviewId;
+
+          // Directly access the job and the interview to update its questions
+          if (state.jobs[jobId] && state.jobs[jobId].interviews[interviewId]) {
+            state.jobs[jobId].interviews[interviewId].questions = action.payload;
           }
         }
       })
       // Handle adding a question
-      .addCase(addQuestion.fulfilled, (state, action) => {
+      .addCase(addQuestion.fulfilled, (state, action: PayloadAction<Question>) => {
         const question = action.payload;
-        // Logic to find and update the specific question with the answer
-        state.jobs.forEach((job) => {
-          job.interviews.forEach((interview) => {
-            const questionIndex = interview.questions.findIndex((question) => question.id === question.id);
-            if (questionIndex !== -1) {
-              interview.questions.push(question);
-            }
-          });
-        });
-        // Similar logic to fetchQuestions for finding the interview and adding the question
+        const jobId = question.jobId;
+        const interviewId = question.interviewId;
+
+        // Directly access the job and the interview to update the questions list
+        if (state.jobs[jobId] && state.jobs[jobId].interviews[interviewId]) {
+          // Ensure the questions list exists
+          if (!state.jobs[jobId].interviews[interviewId].questions) {
+            state.jobs[jobId].interviews[interviewId].questions = [];
+          }
+          // Add the new question
+          state.jobs[jobId].interviews[interviewId].questions.push(question);
+        }
       })
       // Handle updating a question
-      .addCase(updateQuestion.fulfilled, (state, action) => {
+      .addCase(updateQuestion.fulfilled, (state, action: PayloadAction<Question>) => {
         const updatedQuestion = action.payload;
-        // Logic to find and update the specific question with the answer
-        state.jobs.forEach((job) => {
-          job.interviews.forEach((interview) => {
+        const jobId = updatedQuestion.jobId;
+        const interviewId = updatedQuestion.interviewId;
+
+        // Directly access the specific job and interview
+        if (state.jobs[jobId] && state.jobs[jobId].interviews[interviewId]) {
+          const interview = state.jobs[jobId].interviews[interviewId];
+          // Check if the questions array exists and contains the question to be updated
+          if (interview.questions) {
             const questionIndex = interview.questions.findIndex((question) => question.id === updatedQuestion.id);
             if (questionIndex !== -1) {
+              // Update the specific question within the interview
               interview.questions[questionIndex] = updatedQuestion;
             }
-          });
-        });
+          }
+        }
       })
       // Handle deleting a question
-      .addCase(deleteQuestion.fulfilled, (state, action) => {
-        const questionId = action.payload; // Assuming this is the ID of the question to delete
+      .addCase(deleteQuestion.fulfilled, (state, action: PayloadAction<Question>) => {
+        const { id: questionId, jobId, interviewId } = action.payload; // Destructure to get questionId, jobId, and interviewId directly
 
-        state.jobs.forEach((job) => {
-          job.interviews.forEach((interview) => {
-            // Correctly filter out the question by its ID within each interview
+        // Directly access the job and the interview
+        if (state.jobs[jobId] && state.jobs[jobId].interviews[interviewId]) {
+          const interview = state.jobs[jobId].interviews[interviewId];
+          // Filter out the question by its ID within the interview
+          if (interview.questions) {
             interview.questions = interview.questions.filter((question) => question.id !== questionId);
-          });
-        });
+          }
+        }
       })
       // Handle answering a question
       .addCase(answerQuestion.pending, (state, action) => {
         state.loadingInterview = action.meta.arg.interviewId;
       })
       .addCase(answerQuestion.fulfilled, (state, action) => {
-        const answerQuestion = action.payload;
-        // Logic to find and update the specific question with the answer
-        state.jobs.forEach((job) => {
-          job.interviews.forEach((interview) => {
-            const questionIndex = interview.questions.findIndex((question) => question.id === answerQuestion.id);
+        const updatedQuestion = action.payload;
+        const jobId = updatedQuestion.jobId;
+        const interviewId = updatedQuestion.interviewId;
+
+        // Directly access the specific job and interview
+        if (state.jobs[jobId] && state.jobs[jobId].interviews[interviewId]) {
+          const interview = state.jobs[jobId].interviews[interviewId];
+          // Check if the questions array exists and contains the question to be updated
+          if (interview.questions) {
+            const questionIndex = interview.questions.findIndex((question) => question.id === updatedQuestion.id);
             if (questionIndex !== -1) {
-              interview.questions[questionIndex] = answerQuestion;
+              // Update the specific question within the interview
+              interview.questions[questionIndex] = updatedQuestion;
             }
-            if (questionIndex + 1 == interview.questions.length) {
-              fetchInterview(interview.id);
-            }
-          });
-        });
+          }
+        }
         state.loadingInterview = null;
+      })
+      .addCase(deleteData.fulfilled, (state) => {
+        state.jobs = {};
       });
   },
 });

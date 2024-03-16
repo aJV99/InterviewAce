@@ -25,10 +25,11 @@ import {
   Text,
   Th,
   Thead,
+  Tooltip,
   Tr,
   useDisclosure,
 } from '@chakra-ui/react';
-import { answerQuestion, fetchJobs } from '@/redux/features/jobSlice';
+import { answerQuestion, fetchJobs, updateInterview } from '@/redux/features/jobSlice';
 import { AppDispatch, RootState } from '@/redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
@@ -48,11 +49,11 @@ import useAnimatedRouter from '@/components/useAnimatedRouter';
 const PracticePage: React.FC = () => {
   const [interviewStatus, setInterviewStatus] = useState<string>('Not Started');
   const [testsPassed, setTestsPassed] = useState<boolean>(true);
-  const [questionIndex, setQuestionIndex] = useState(0);
   const { isOpen: isCountdownOpen, onOpen: onOpenCountdown, onClose: onCloseCountdown } = useDisclosure();
   const { isOpen: isTranscriptionTestOpen, onOpen: onOpenTranscriptionTest } = useDisclosure();
   const { isOpen: isExpandOpen, onOpen: onOpenExpand, onClose: onCloseExpand } = useDisclosure();
   const [expandText, setExpandText] = useState<string[]>(['', '']);
+  const [isLoading, setIsLoading] = useState(false);
   const [countdownText, setCountdownText] = useState<string>('3');
   const [playTickSound] = useSound('/sounds/tick.mp3');
   const [playAnswerSound] = useSound('/sounds/answer.mp3');
@@ -70,12 +71,14 @@ const PracticePage: React.FC = () => {
   }, [dispatch, jobsState, onOpenTranscriptionTest]);
 
   // Find the job in the state (this will be re-evaluated when the state changes)
-  const job = jobsState.jobs.find((job) => job.id === currentInterview.jobId);
-  const interview = job?.interviews.find((interview) => interview.id === currentInterview.interviewId);
+  const job = jobsState.jobs[currentInterview.jobId];
+  const interview = job?.interviews[currentInterview.interviewId];
 
   if (!job || !interview) {
     throw Error;
   }
+
+  const [questionIndex, setQuestionIndex] = useState(interview.currentQuestion);
 
   const questions = interview.questions;
   const startRecording = () => {
@@ -104,6 +107,15 @@ const PracticePage: React.FC = () => {
   };
 
   const leave = () => {
+    quit();
+    dispatch(
+      updateInterview({
+        id: interview.id,
+        updateInterviewDto: {
+          currentQuestion: questionIndex - 1,
+        },
+      }),
+    );
     if (jobsState.loadingInterview === interview.id) {
       router.push(`/job/${job.id}`);
     } else {
@@ -133,6 +145,7 @@ const PracticePage: React.FC = () => {
     setIsListening,
     startListening,
     stopListening,
+    quit,
   } = useMicrophone(handleResult, testsPassed, 'This is a microphone test.', setTestsPassedTrue);
 
   const handleSpeakerResult = () => {
@@ -201,7 +214,13 @@ const PracticePage: React.FC = () => {
         {/* Top section - Quit button and Microphone status */}
         <Flex justifyContent="space-between" alignItems="center" mb={8}>
           <Box textAlign="left" width="25vw">
-            <Button onClick={leave} size="sm" leftIcon={<ChevronLeftIcon />} colorScheme="teal">
+            <Button
+              onClick={leave}
+              size="sm"
+              leftIcon={<ChevronLeftIcon />}
+              colorScheme="teal"
+              isDisabled={isSpeaking}
+            >
               Quit
             </Button>
           </Box>
@@ -210,8 +229,8 @@ const PracticePage: React.FC = () => {
               {interview.title}
             </Heading>
             <Text fontSize="md">
-              {job.title} - {interview.customType ? 
-              `${interview.customType}` : toCapitalCase(interview.type)} Interview - {job.company}
+              {job.title} - {interview.customType ? `${interview.customType}` : toCapitalCase(interview.type)}{' '}
+              Interview - {job.company}
             </Text>
           </Box>
           <Box textAlign="right" alignItems="right" width="25vw">
@@ -224,9 +243,11 @@ const PracticePage: React.FC = () => {
           {interviewStatus === 'Not Started' && testsPassed && (
             <>
               <Flex alignItems="center" justifyContent="center" mt="10" mb="20">
-                <Button colorScheme="teal" onClick={() => startInterview()} disabled={isSpeaking} size="lg">
-                  Start Mock Interview
-                </Button>
+                <Tooltip textAlign="center" label="Be sure to enunciate your words so Ace can hear you!">
+                  <Button colorScheme="teal" onClick={() => startInterview()} isDisabled={isSpeaking} size="lg">
+                    Start Mock Interview
+                  </Button>
+                </Tooltip>
               </Flex>
               <Grid templateColumns="repeat(2, 1fr)" gap={20}>
                 <GridItem maxW="100%" h="10">
@@ -341,9 +362,26 @@ const PracticePage: React.FC = () => {
                   </Text>
                   <Timer />
                 </Flex>
-                <Button size="lg" onClick={stopListening} disabled={!isListening} mt={4}>
-                  Submit Answer
-                </Button>
+                <Tooltip
+                  textAlign="center"
+                  label="Take a beat before submitting so Ace can note down what you said"
+                >
+                  <Button
+                    size="lg"
+                    onClick={() => {
+                      setIsLoading(true);
+                      setTimeout(() => {
+                        stopListening(); // This assumes stopListening is available in this scope, e.g., from your custom hook
+                        setIsLoading(false);
+                      }, 3500); // Delay in milliseconds
+                    }}
+                    disabled={!isListening}
+                    isLoading={isLoading}
+                    mt={4}
+                  >
+                    Submit Answer
+                  </Button>
+                </Tooltip>
               </>
             </Flex>
           </>

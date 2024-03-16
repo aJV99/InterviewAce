@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { LoginDto } from './dto/login.dto';
+import { LoginDtoEmail, LoginDtoId } from './dto/login.dto';
 import { JwtPayload } from './dto/jwt-payload.interface';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -13,8 +13,18 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(loginDto: LoginDto): Promise<any> {
+  async validateUserByEmail(loginDto: LoginDtoEmail): Promise<any> {
     const user = await this.userService.findOneByEmail(loginDto.email);
+    if (user && (await bcrypt.compare(loginDto.password, user.password))) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...result } = user;
+      return result;
+    }
+    return null;
+  }
+
+  async validateUserById(loginDto: LoginDtoId): Promise<any> {
+    const user = await this.userService.get(loginDto.id);
     if (user && (await bcrypt.compare(loginDto.password, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;

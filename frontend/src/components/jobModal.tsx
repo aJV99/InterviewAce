@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { Job } from '@/redux/dto/job.dto';
 import { editJob, createJob } from '@/redux/features/jobSlice';
+import { useCustomToast } from './Toast';
 
 interface JobModalProps {
   onClose: () => void;
@@ -24,7 +25,7 @@ interface JobModalProps {
 
 export default function JobModal({ onClose, isEditing = false, existingJob }: JobModalProps) {
   const dispatch = useDispatch<AppDispatch>();
-
+  const { showSuccess, showError } = useCustomToast();
   const [jobTitle, setJobTitle] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [jobDescription, setJobDescription] = useState('');
@@ -51,9 +52,19 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
     try {
       onClose();
       if (isEditing && existingJob) {
-        await dispatch(editJob({ id: existingJob.id, updateJobDto: jobData })).unwrap();
+        try {
+          await dispatch(editJob({ id: existingJob.id, updateJobDto: jobData })).unwrap();
+          showSuccess('Job Updated Successfully');
+        } catch (error) {
+          showError('Job Update Failed. Please try again later');
+        }
       } else {
-        await dispatch(createJob(jobData)).unwrap();
+        try {
+          await dispatch(createJob(jobData)).unwrap();
+          showSuccess('Job Created Successfully');
+        } catch (error) {
+          showError('Job Creation Failed. Please try again later');
+        }
       }
     } catch (error) {
       console.error('Failed to process the job: ', error);

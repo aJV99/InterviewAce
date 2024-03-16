@@ -2,7 +2,6 @@ import { Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } fro
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { JwtAuthGuard } from './jwt.guard';
-// import { RefreshGuard } from './refresh.guard';
 
 interface CookieOptions {
   httpOnly: boolean;
@@ -51,7 +50,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Req() req: any, @Res() res: any) {
-    const user = await this.authService.validateUser(req.body);
+    const user = await this.authService.validateUserByEmail(req.body);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }

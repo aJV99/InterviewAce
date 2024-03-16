@@ -1,5 +1,7 @@
 import { Interview } from './interview.dto';
 
+type ExcludeInterviews<T> = Omit<T, 'interviews'>;
+
 export interface Job {
   id: string;
   title: string;
@@ -8,6 +10,10 @@ export interface Job {
   location: string | null;
   createdAt: Date;
   updatedAt: Date;
+  interviews: { [key: string]: Interview }; // Expecting a dictionary here
+}
+
+export interface JobResponse extends ExcludeInterviews<Job> {
   interviews: Interview[];
 }
 
