@@ -13,8 +13,5 @@
     "start": "npm run start:fe & npm run start:be"
   },
   "keywords": [],
-  "license": "ISC",
-  "dependencies": {
-    "heroku": "^8.10.0"
-  }
+  "license": "ISC"
 }
