@@ -345,6 +345,9 @@ const jobSlice = createSlice({
         job.interviews[interview.id] = interview;
         state.creatingInterview = false;
       })
+      .addCase(addInterview.rejected, (state) => {
+        state.creatingInterview = false;
+      })
       .addCase(retakeInterview.pending, (state) => {
         state.creatingInterview = true;
       })
@@ -357,6 +360,9 @@ const jobSlice = createSlice({
         }
         // Update the interview within the job's interviews dictionary
         job.interviews[interview.id] = interview;
+        state.creatingInterview = false;
+      })
+      .addCase(retakeInterview.rejected, (state) => {
         state.creatingInterview = false;
       })
       .addCase(startInterview.fulfilled, (state, action) => {
@@ -377,6 +383,9 @@ const jobSlice = createSlice({
         }
         // Update the interview within the job's interviews dictionary
         job.interviews[interview.id] = interview;
+        state.loadingInterview = null;
+      })
+      .addCase(updateInterview.rejected, (state) => {
         state.loadingInterview = null;
       })
       .addCase(deleteInterview.fulfilled, (state, action) => {
@@ -466,6 +475,9 @@ const jobSlice = createSlice({
             }
           }
         }
+        state.loadingInterview = null;
+      })
+      .addCase(answerQuestion.rejected, (state) => {
         state.loadingInterview = null;
       })
       .addCase(deleteData.fulfilled, (state) => {
