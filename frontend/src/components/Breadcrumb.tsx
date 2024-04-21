@@ -20,10 +20,7 @@ const DynamicBreadcrumb = () => {
   let job = false;
   let interview = false;
 
-  // useEffect(() => {
-  console.log('pathname: ', pathname);
   if (pathSegments.length >= 3) {
-    console.log('pathSegments: ', pathSegments[1]);
     if (pathSegments[1] == 'job') {
       job = true;
       jobState = jobsState.jobs[pathSegments[2]];
@@ -40,7 +37,6 @@ const DynamicBreadcrumb = () => {
       dashboard = true;
     }
   }
-  // }, [])
 
   return (
     <Breadcrumb spacing="8px" separator={<ChevronRightIcon color="gray.500" />}>

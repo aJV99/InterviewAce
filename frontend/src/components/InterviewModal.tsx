@@ -9,6 +9,7 @@ import {
   useColorModeValue,
   Textarea,
   Select,
+  FormErrorMessage,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -17,6 +18,7 @@ import { CreateInterviewDto, Interview, InterviewType } from '@/redux/dto/interv
 import { toCapitalCase } from '@/app/utils';
 import { updateInterview, addInterview } from '@/redux/features/jobSlice';
 import { useCustomToast } from '@/components/Toast';
+import { ErrorDto } from '@/app/error';
 
 interface InterviewModalProps {
   onClose: () => void;
@@ -38,6 +40,10 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
   const [interviewCustomType, setInterviewCustomType] = useState('');
   const [interviewContext, setInterviewContext] = useState('');
   const { showSuccess, showError } = useCustomToast();
+  const [validationErrors, setValidationErrors] = useState({
+    title: '',
+    customType: '',
+  });
 
   // Set initial values for editing
   useEffect(() => {
@@ -73,11 +79,33 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
     } else {
       try {
         await dispatch(addInterview({ jobId, createInterviewDto: interviewData })).unwrap();
-        showSuccess('Interview Created Successfully');
-      } catch (error) {
-        showError('Interview Creation Failed. Please try again later');
+        showSuccess('Interview created.');
+      } catch (error: unknown) {
+        const typedError = error as ErrorDto;
+        const errorMessage = typedError.response.data.message
+          ? 'Interview creation failed. Reasoning: ' + typedError.response.data.message
+          : 'Please try again later.';
+        showError('An error occurred.', errorMessage);
       }
     }
+  };
+
+  const validateTitle = () => {
+    if (!interviewTitle.trim()) {
+      setValidationErrors((errors) => ({ ...errors, title: 'Interview title is required.' }));
+      return false;
+    }
+    setValidationErrors((errors) => ({ ...errors, title: '' }));
+    return true;
+  };
+
+  const validateCustomType = () => {
+    if (!interviewCustomType.trim()) {
+      setValidationErrors((errors) => ({ ...errors, customType: 'Custom type is required.' }));
+      return false;
+    }
+    setValidationErrors((errors) => ({ ...errors, customType: '' }));
+    return true;
   };
 
   return (
@@ -87,14 +115,16 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
           <Heading fontSize={'4xl'} textAlign={'center'}>
             {isEditing ? 'Edit Interview' : 'Add a New Interview'}
           </Heading>
-          <FormControl id="title" isRequired>
+          <FormControl id="title" isRequired isInvalid={!!validationErrors.title}>
             <FormLabel>Interview Title</FormLabel>
             <Input
               placeholder="e.g.: Final Round, Supervisor Salary Call"
               type="text"
               value={interviewTitle}
               onChange={(e) => setInterviewTitle(e.target.value)}
+              onBlur={validateTitle}
             />
+            {validationErrors.title && <FormErrorMessage>{validationErrors.title}</FormErrorMessage>}
           </FormControl>
           <FormControl id="type" isRequired>
             <FormLabel>Interview Type</FormLabel>
@@ -108,14 +138,16 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
             </Select>
           </FormControl>
           {interviewType === InterviewType.CUSTOM && (
-            <FormControl id="customType" isRequired>
+            <FormControl id="customType" isRequired isInvalid={!!validationErrors.customType}>
               <FormLabel>Custom Interview Type</FormLabel>
               <Input
                 placeholder="e.g.: Case Study Assessment, Knowledge Review"
                 type="text"
                 value={interviewCustomType}
                 onChange={(e) => setInterviewCustomType(e.target.value)}
+                onBlur={validateCustomType}
               />
+              {validationErrors.customType && <FormErrorMessage>{validationErrors.customType}</FormErrorMessage>}
             </FormControl>
           )}
           <FormControl id="context">
@@ -126,7 +158,14 @@ const InterviewModal: React.FC<InterviewModalProps> = ({
               onChange={(e) => setInterviewContext(e.target.value)}
             />
           </FormControl>
-          <Button colorScheme="blue" mt={2} onClick={handleSubmit}>
+          <Button
+            colorScheme="blue"
+            mt={2}
+            onClick={handleSubmit}
+            isDisabled={
+              interviewTitle === '' || (interviewType === InterviewType.CUSTOM && interviewCustomType === '')
+            }
+          >
             {isEditing ? 'Update Interview' : 'Add New Interview'}
           </Button>
         </Stack>

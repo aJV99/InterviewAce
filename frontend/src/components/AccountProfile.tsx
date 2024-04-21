@@ -1,4 +1,4 @@
-import { PlusSquareIcon, SmallCloseIcon } from '@chakra-ui/icons';
+import { CheckIcon, CloseIcon, SmallCloseIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import {
   Box,
   HStack,
@@ -12,12 +12,12 @@ import {
   InputLeftAddon,
   Input,
   InputRightElement,
-  Icon,
   useDisclosure,
   Flex,
   Divider,
+  FormErrorMessage,
 } from '@chakra-ui/react';
-import { FiUser, FiLock, FiEdit2, FiMail, FiLink, FiSave } from 'react-icons/fi';
+import { FiUser, FiLock, FiEdit2, FiMail, FiSave } from 'react-icons/fi';
 import CustomAvatar from '@/components/CustomAvatar';
 import Bubble from '@/components/Bubble';
 import { useEffect, useState } from 'react';
@@ -32,6 +32,7 @@ import { ErrorDto } from '@/app/error';
 const AccountProfile: React.FC = () => {
   const [profileTab, setProfileTab] = useState<boolean>(true);
   const [editable, setEditable] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const {
     isOpen: isDeleteAccountOpen,
@@ -42,24 +43,29 @@ const AccountProfile: React.FC = () => {
   const auth = useSelector((state: RootState) => state.auth);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [linkedIn, setLinkedIn] = useState('');
+  // const [linkedIn, setLinkedIn] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [inputErrors, setInputErrors] = useState({
+    email: false,
     currentPassword: false,
     newPassword: false,
     confirmNewPassword: false,
   });
+  const [hasLowercase, setHasLowercase] = useState(false);
+  const [hasUppercase, setHasUppercase] = useState(false);
+  const [hasNumber, setHasNumber] = useState(false);
+  const [hasSymbol, setHasSymbol] = useState(false);
+  const [hasValidLength, setHasValidLength] = useState(false);
   const { showSuccess, showError } = useCustomToast();
 
   useEffect(() => {
     if (auth.user) {
-      setName(auth.firstName + ' ' + auth.lastName); // Adjust according to your user object structure
-      setEmail(auth.user.email); // Adjust according to your user object structure
-      // Assume you have LinkedIn or some connected account info in your user object
-      setLinkedIn(auth.user.linkedInId || '');
+      setName(auth.firstName + ' ' + auth.lastName);
+      setEmail(auth.user.email);
+      // setLinkedIn(auth.user.linkedInId || '');
     } else {
       try {
         dispatch(getUser()).unwrap();
@@ -71,16 +77,42 @@ const AccountProfile: React.FC = () => {
   }, [auth.user]);
 
   const handleSave = () => {
-    const [firstName, ...lastName] = name.split(' ');
+    let firstName;
+    let lastName = '';
+    let middleNameList;
+
+    if (name === '') {
+      // If no name is given, revert to the authenticated user's name
+      firstName = auth.firstName;
+      lastName = auth.lastName;
+      setName(auth.firstName + ' ' + auth.lastName);
+    } else {
+      const names = name.split(' ');
+      if (names.length === 1) {
+        // If only one word is given, update first name and keep last name as before
+        firstName = names[0];
+        lastName = auth.lastName; // Retain the original last name if only one name is input
+      } else {
+        // More than one name means first name and possibly middle/last names
+        [firstName, ...middleNameList] = names;
+        lastName = middleNameList.join(' '); // Join the rest as the last name
+      }
+    }
+
+    // Exit function if there are email input errors
+    if (inputErrors['email'] === true) return;
+
+    // Try to update the user and handle possible errors
     try {
       dispatch(
         updateUser({
           firstName,
-          lastName: lastName.join(' '), // Join back in case there are middle names
+          lastName,
           email,
-          linkedInId: linkedIn,
+          // linkedInId: linkedIn,
         }),
       ).unwrap();
+
       setEditable(false); // Turn off edit mode
       showSuccess('Profile Updated Successfully');
     } catch (error) {
@@ -88,52 +120,49 @@ const AccountProfile: React.FC = () => {
     }
   };
 
-  const handleChangePassword = async () => {
-    setPasswordError('');
+  const handlePasswordChange = (password: string) => {
+    setNewPassword(password);
+    setHasLowercase(/[a-z]/.test(password));
+    setHasUppercase(/[A-Z]/.test(password));
+    setHasNumber(/\d/.test(password));
+    setHasSymbol(/[^A-Za-z0-9]/.test(password));
+    setHasValidLength(password.length >= 8);
+    validatePassword();
+  };
+
+  const validateEmail = (emailParam: string) => {
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailParam);
     setInputErrors({
-      currentPassword: false,
-      newPassword: false,
-      confirmNewPassword: false,
+      ...inputErrors,
+      email: !valid,
     });
-    showSuccess('Password successfully changed');
-    if (currentPassword === newPassword) {
-      setPasswordError("Your new password can't be the same as your old password");
-      setInputErrors({
-        currentPassword: true,
-        newPassword: true,
-        confirmNewPassword: false,
-      });
-      return;
-    }
-    if (newPassword !== confirmNewPassword) {
-      setPasswordError('The new passwords do not match');
-      setInputErrors({
-        currentPassword: false,
-        newPassword: true,
-        confirmNewPassword: true,
-      });
+    return valid;
+  };
+
+  const validatePassword = () => {
+    const isValid = hasLowercase && hasUppercase && hasNumber && hasSymbol && hasValidLength;
+    setInputErrors({
+      ...inputErrors,
+      newPassword: !isValid,
+      confirmNewPassword: newPassword === confirmNewPassword,
+    });
+    return isValid;
+  };
+
+  const handleChangePassword = async () => {
+    if (!validatePassword() || newPassword !== confirmNewPassword) {
+      setPasswordError(
+        newPassword !== confirmNewPassword ? 'The new passwords do not match' : 'Invalid new password',
+      );
       return;
     }
 
-    // Dispatch action to update password here
-    // This is a placeholder, you'll need to adjust based on your actual implementation
     try {
       await dispatch(updatePassword({ currentPassword, newPassword })).unwrap();
       showSuccess('Password successfully changed');
-      return;
     } catch (error: unknown) {
       const typedError = error as ErrorDto;
-      if (typedError.statusCode === 401) {
-        setPasswordError('The current password is incorrect');
-        setInputErrors({
-          currentPassword: true,
-          newPassword: false,
-          confirmNewPassword: false,
-        });
-        return;
-      } else {
-        showError('Password Change Failed. Please try again later');
-      }
+      showError(`Password Change Failed: ${typedError.message}`);
     }
   };
 
@@ -141,7 +170,6 @@ const AccountProfile: React.FC = () => {
     <Bubble p={8} boxShadow="md" borderRadius="lg">
       <HStack spacing={10}>
         <Box alignSelf="start" w={64}>
-          {/* Add this Box to align VStack to start */}
           <VStack alignItems="flex-start" spacing={4}>
             <Button
               w="full"
@@ -183,6 +211,7 @@ const AccountProfile: React.FC = () => {
                       colorScheme="teal"
                       onClick={handleSave}
                       mr={2}
+                      isDisabled={name === '' || inputErrors.email}
                     />
                     <IconButton
                       aria-label="cancel"
@@ -190,7 +219,17 @@ const AccountProfile: React.FC = () => {
                       size="sm"
                       variant="solid"
                       colorScheme="red"
-                      onClick={() => setEditable(false)}
+                      onClick={() => {
+                        setName(auth.firstName + ' ' + auth.lastName);
+                        if (auth.user) {
+                          setEmail(auth.user.email);
+                        }
+                        setInputErrors({
+                          ...inputErrors,
+                          email: false,
+                        });
+                        setEditable(false);
+                      }}
                     />
                   </Flex>
                 ) : (
@@ -217,7 +256,7 @@ const AccountProfile: React.FC = () => {
                     </Text>
                   </VStack>
                 </HStack>
-                <FormControl id="email">
+                <FormControl isInvalid={inputErrors.email} id="email">
                   <FormLabel>Email address</FormLabel>
                   <InputGroup>
                     <InputLeftAddon>
@@ -228,11 +267,16 @@ const AccountProfile: React.FC = () => {
                       placeholder="example@gmail.com"
                       value={email}
                       isDisabled={!editable}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        validateEmail(e.target.value);
+                      }}
+                      isInvalid={inputErrors.email}
                     />
                   </InputGroup>
+                  <FormErrorMessage>Inputted email is invalid</FormErrorMessage>
                 </FormControl>
-                <FormControl id="connected-accounts">
+                {/* <FormControl id="connected-accounts">
                   <FormLabel>Connected accounts</FormLabel>
                   <InputGroup>
                     <InputLeftAddon>
@@ -245,7 +289,7 @@ const AccountProfile: React.FC = () => {
                       </InputRightElement>
                     )}
                   </InputGroup>
-                </FormControl>
+                </FormControl> */}
                 <Divider />
                 <Text color="gray.500" fontSize="sm">
                   {`Found your dream job? No longer need InterviewAce? :(`}
@@ -265,33 +309,71 @@ const AccountProfile: React.FC = () => {
               <VStack alignItems="flex-start" spacing={4}>
                 <FormControl id="current-password">
                   <FormLabel>Current password</FormLabel>
-                  <Input
-                    type="password"
-                    placeholder="Enter current password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    isInvalid={inputErrors['currentPassword']}
-                  />
+                  <InputGroup>
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter current password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      isInvalid={inputErrors['currentPassword']}
+                    />
+                    <InputRightElement h={'full'}>
+                      <Button variant={'ghost'} onClick={() => setShowPassword(!showPassword)}>
+                        {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
                 </FormControl>
-                <FormControl id="new-password">
+                <FormControl id="new-password" isInvalid={inputErrors['newPassword']}>
                   <FormLabel>New password</FormLabel>
-                  <Input
-                    type="password"
-                    placeholder="Enter new password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    isInvalid={inputErrors['newPassword']}
-                  />
+                  <InputGroup>
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter new password"
+                      value={newPassword}
+                      onChange={(e) => handlePasswordChange(e.target.value)}
+                    />
+                    <InputRightElement h={'full'}>
+                      <Button variant={'ghost'} onClick={() => setShowPassword(!showPassword)}>
+                        {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                  <Box mt="2">
+                    <Text fontSize="xs" color={hasValidLength ? 'green.500' : 'red.500'}>
+                      {hasValidLength ? <CheckIcon /> : <CloseIcon />} 8 or more characters
+                    </Text>
+                    <Text fontSize="xs" color={hasLowercase ? 'green.500' : 'red.500'}>
+                      {hasLowercase ? <CheckIcon /> : <CloseIcon />} Lowercase letter (a-z)
+                    </Text>
+                    <Text fontSize="xs" color={hasUppercase ? 'green.500' : 'red.500'}>
+                      {hasUppercase ? <CheckIcon /> : <CloseIcon />} Uppercase letter (A-Z)
+                    </Text>
+                    <Text fontSize="xs" color={hasNumber ? 'green.500' : 'red.500'}>
+                      {hasNumber ? <CheckIcon /> : <CloseIcon />} A number (0-9)
+                    </Text>
+                    <Text fontSize="xs" color={hasSymbol ? 'green.500' : 'red.500'}>
+                      {hasSymbol ? <CheckIcon /> : <CloseIcon />} A symbol (!@#$...)
+                    </Text>
+                  </Box>
                 </FormControl>
+
                 <FormControl id="confirm-new-password">
                   <FormLabel>Confirm new password</FormLabel>
-                  <Input
-                    type="password"
-                    placeholder="Confirm new password"
-                    value={confirmNewPassword}
-                    onChange={(e) => setConfirmNewPassword(e.target.value)}
-                    isInvalid={inputErrors['confirmNewPassword']}
-                  />
+                  <InputGroup>
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Confirm new password"
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      isInvalid={confirmNewPassword !== newPassword}
+                    />
+                    <InputRightElement h={'full'}>
+                      <Button variant={'ghost'} onClick={() => setShowPassword(!showPassword)}>
+                        {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
                 </FormControl>
                 {passwordError && (
                   <Text fontSize="sm" fontWeight="bold" color="red.500">
@@ -317,7 +399,6 @@ const AccountProfile: React.FC = () => {
         isOpen={isDeleteAccountOpen}
         onClose={onCloseDeleteAccount}
         onDelete={() => {
-          // Check if job?.id is not undefined
           try {
             dispatch(deleteUser()).unwrap();
             showSuccess('Account Deleted Successfully');
@@ -331,7 +412,6 @@ const AccountProfile: React.FC = () => {
         isOpen={isDeleteDataOpen}
         onClose={onCloseDeleteData}
         onDelete={() => {
-          // Check if job?.id is not undefined
           try {
             dispatch(deleteData()).unwrap();
             showSuccess('Data Deleted Successfully');

@@ -12,10 +12,12 @@ import {
   Heading,
   useColorModeValue,
   Textarea,
+  FormErrorMessage,
 } from '@chakra-ui/react';
 import { Job } from '@/redux/dto/job.dto';
 import { editJob, createJob } from '@/redux/features/jobSlice';
 import { useCustomToast } from '@/components/Toast';
+import { ErrorDto } from '@/app/error';
 
 interface JobModalProps {
   onClose: () => void;
@@ -30,6 +32,11 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
   const [companyName, setCompanyName] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [jobLocation, setJobLocation] = useState('');
+  const [validationErrors, setValidationErrors] = useState({
+    title: '',
+    company: '',
+    description: '',
+  });
 
   // Set initial values for editing
   useEffect(() => {
@@ -42,6 +49,16 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
   }, [isEditing, existingJob]);
 
   const handleSubmit = async () => {
+    // Validate all fields before attempting to submit
+    const isTitleValid = validateTitle();
+    const isCompanyValid = validateCompany();
+    const isDescriptionValid = validateDescription();
+
+    // Check if there are any validation errors
+    if (!isTitleValid || !isCompanyValid || !isDescriptionValid) {
+      return; // Prevent submission if any validations fail
+    }
+
     const jobData = {
       title: jobTitle,
       company: companyName,
@@ -52,23 +69,46 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
     try {
       onClose();
       if (isEditing && existingJob) {
-        try {
-          await dispatch(editJob({ id: existingJob.id, updateJobDto: jobData })).unwrap();
-          showSuccess('Job Updated Successfully');
-        } catch (error) {
-          showError('Job Update Failed. Please try again later');
-        }
+        await dispatch(editJob({ id: existingJob.id, updateJobDto: jobData })).unwrap();
+        showSuccess('Job Updated Successfully');
       } else {
-        try {
-          await dispatch(createJob(jobData)).unwrap();
-          showSuccess('Job Created Successfully');
-        } catch (error) {
-          showError('Job Creation Failed. Please try again later');
-        }
+        await dispatch(createJob(jobData)).unwrap();
+        showSuccess('Job Created Successfully');
       }
-    } catch (error) {
-      console.error('Failed to process the job: ', error);
+    } catch (error: unknown) {
+      const typedError = error as ErrorDto;
+      const errorMessage = typedError.response.data.message
+        ? 'Job creation failed. Reasoning: ' + typedError.response.data.message
+        : 'Please try again later.';
+      showError('An error occurred.', errorMessage);
     }
+  };
+
+  const validateTitle = () => {
+    if (!jobTitle.trim()) {
+      setValidationErrors((errors) => ({ ...errors, title: 'Job title is required.' }));
+      return false;
+    }
+    setValidationErrors((errors) => ({ ...errors, title: '' }));
+    return true;
+  };
+
+  const validateCompany = () => {
+    if (!companyName.trim()) {
+      setValidationErrors((errors) => ({ ...errors, company: 'Company name is required.' }));
+      return false;
+    }
+    setValidationErrors((errors) => ({ ...errors, company: '' }));
+    return true;
+  };
+
+  const validateDescription = () => {
+    if (!jobDescription.trim()) {
+      setValidationErrors((errors) => ({ ...errors, description: 'Job description is required.' }));
+      return false;
+    }
+    setValidationErrors((errors) => ({ ...errors, description: '' }));
+    return true;
   };
 
   return (
@@ -78,33 +118,42 @@ export default function JobModal({ onClose, isEditing = false, existingJob }: Jo
           <Heading fontSize={'4xl'} textAlign={'center'}>
             Add a new job
           </Heading>
-          <FormControl id="title" isRequired>
+          <FormControl id="title" isRequired isInvalid={!!validationErrors.title}>
             <FormLabel>What&apos;s the job title of the role you are applying to?</FormLabel>
             <Input
               type="text"
               placeholder="e.g.: Technology Consultant, Accountant"
               value={jobTitle}
               onChange={(e) => setJobTitle(e.target.value)}
+              onBlur={validateTitle}
             />
+            {validationErrors.title && <FormErrorMessage>{validationErrors.title}</FormErrorMessage>}
           </FormControl>
-          <FormControl id="company" isRequired>
+
+          <FormControl id="company" isRequired isInvalid={!!validationErrors.company}>
             <FormLabel>What&apos;s the name of the company you are applying to?</FormLabel>
             <Input
               type="text"
               placeholder="e.g.: IBM, Goldman Sachs"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
+              onBlur={validateCompany}
             />
+            {validationErrors.company && <FormErrorMessage>{validationErrors.company}</FormErrorMessage>}
           </FormControl>
-          <FormControl id="description" isRequired>
+
+          <FormControl id="description" isRequired isInvalid={!!validationErrors.description}>
             <FormLabel>What&apos;s the job description for the role you are applying to?</FormLabel>
             <Textarea
               placeholder="e.g.: In this role, I'm required to..."
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
+              onBlur={validateDescription}
             />
+            {validationErrors.description && <FormErrorMessage>{validationErrors.description}</FormErrorMessage>}
           </FormControl>
-          <FormControl id="location" isRequired>
+
+          <FormControl id="location">
             <FormLabel>What&apos;s the location of the company you are applying to?</FormLabel>
             <Input
               type="text"

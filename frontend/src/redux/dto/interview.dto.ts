@@ -19,6 +19,7 @@ export interface Interview {
   questions: Question[];
   currentQuestion: number;
   overallScore: number | null;
+  loading: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

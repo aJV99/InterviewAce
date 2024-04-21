@@ -1,6 +1,7 @@
 export interface Question {
   id: string;
   interviewId: string;
+  index: number;
   content: string;
   userResponse: string | null;
   strengths: JSON | null;

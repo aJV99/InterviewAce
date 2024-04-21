@@ -1,4 +1,3 @@
-// ConfirmDeleteModal.tsx
 import React from 'react';
 import {
   Modal,
@@ -18,7 +17,7 @@ interface ConfirmDeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDelete: () => void;
-  itemType: string; // e.g., 'job' or 'interview'
+  itemType: string;
 }
 
 const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ isOpen, onClose, onDelete, itemType }) => {
@@ -48,7 +47,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ isOpen, onClose
               colorScheme="red"
               onClick={() => {
                 onDelete();
-                onClose(); // Optionally close the modal after deletion
+                onClose();
               }}
             >
               Delete

@@ -1,4 +1,3 @@
-// useCustomToast.ts
 import { useToast, UseToastOptions } from '@chakra-ui/react';
 
 type ToastVariant = 'success' | 'error' | 'info' | 'warning';
@@ -6,13 +5,13 @@ type ToastVariant = 'success' | 'error' | 'info' | 'warning';
 export const useCustomToast = () => {
   const toast = useToast();
 
-  const showToast = (variant: ToastVariant, description?: string, options?: UseToastOptions) => {
+  const showToast = (variant: ToastVariant, title?: string, description?: string, options?: UseToastOptions) => {
     // Default options for all toasts
     const defaultOptions: UseToastOptions = {
-      //   title,
+      title,
       description,
       status: variant,
-      duration: 5000,
+      duration: 9000,
       isClosable: true,
       position: 'top-right',
       containerStyle: {
@@ -26,12 +25,16 @@ export const useCustomToast = () => {
   };
 
   return {
-    showSuccess: (description?: string, options?: UseToastOptions) => showToast('success', description, options),
+    showSuccess: (title?: string, description?: string, options?: UseToastOptions) =>
+      showToast('success', title, description, options),
 
-    showError: (description?: string, options?: UseToastOptions) => showToast('error', description, options),
+    showError: (title?: string, description?: string, options?: UseToastOptions) =>
+      showToast('error', title, description, options),
 
-    showInfo: (description?: string, options?: UseToastOptions) => showToast('info', description, options),
+    showInfo: (title?: string, description?: string, options?: UseToastOptions) =>
+      showToast('info', title, description, options),
 
-    showWarning: (description?: string, options?: UseToastOptions) => showToast('warning', description, options),
+    showWarning: (title?: string, description?: string, options?: UseToastOptions) =>
+      showToast('warning', title, description, options),
   };
 };

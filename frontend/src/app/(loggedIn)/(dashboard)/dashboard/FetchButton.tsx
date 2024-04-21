@@ -3,7 +3,7 @@ import { Button, Box, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import instance from '@/app/axios';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/store'; // Replace with path to your store
+import { RootState } from '@/redux/store';
 
 const FetchButton: React.FC = () => {
   const [data, setData] = useState<string | null>(null);
@@ -18,9 +18,6 @@ const FetchButton: React.FC = () => {
     }
 
     setLoading(true);
-
-    // const csrfToken = getCookie('csrftoken');  // Replace 'csrfTokenName' with the actual cookie name where CSRF token is stored.
-    // axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
 
     try {
       const response = await instance.get('/user');

@@ -1,10 +1,19 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { JobDto, UpdateJobDto } from './dto/job.dto';
 import { PrismaService } from 'src/prisma.service';
+import { AceAIService } from 'src/aceAI/aceAI.service';
 
 @Injectable()
 export class JobsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly aceAIService: AceAIService,
+  ) {}
 
   async checkJobOwnership(jobId: string, userId: string): Promise<void> {
     const job = await this.prisma.job.findUnique({ where: { id: jobId } });
@@ -17,23 +26,31 @@ export class JobsService {
   }
 
   async create(createJobDto: JobDto, userId: string) {
-    return await this.prisma.job.create({
-      data: {
-        ...createJobDto,
-        userId,
-      },
-      include: {
-        interviews: {
-          include: {
-            questions: {
-              orderBy: {
-                index: 'asc',
+    const validity = await this.aceAIService.checkJobValidity(createJobDto);
+    if (validity.validity) {
+      return await this.prisma.job.create({
+        data: {
+          ...createJobDto,
+          userId,
+        },
+        include: {
+          interviews: {
+            orderBy: {
+              createdAt: 'asc',
+            },
+            include: {
+              questions: {
+                orderBy: {
+                  index: 'asc',
+                },
               },
             },
           },
         },
-      },
-    });
+      });
+    } else {
+      throw new UnprocessableEntityException(validity.error);
+    }
   }
 
   async findAll(userId: string) {
@@ -41,8 +58,14 @@ export class JobsService {
       where: {
         userId,
       },
+      orderBy: {
+        createdAt: 'asc',
+      },
       include: {
         interviews: {
+          orderBy: {
+            createdAt: 'asc',
+          },
           include: {
             questions: {
               orderBy: {
@@ -60,8 +83,14 @@ export class JobsService {
       where: {
         id: id,
       },
+      orderBy: {
+        createdAt: 'asc',
+      },
       include: {
         interviews: {
+          orderBy: {
+            createdAt: 'asc',
+          },
           include: {
             questions: {
               orderBy: {
@@ -84,6 +113,9 @@ export class JobsService {
       },
       include: {
         interviews: {
+          orderBy: {
+            createdAt: 'asc',
+          },
           include: {
             questions: {
               orderBy: {

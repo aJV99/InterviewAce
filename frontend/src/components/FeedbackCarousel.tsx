@@ -39,7 +39,6 @@ const FeedbackCarousel: React.FC<FeedbackCarouselProps> = ({ questions }) => {
     setCurrentIndex((prevIndex) => (prevIndex - 1 + questions.length) % questions.length);
   }, [questions.length]);
 
-  // Add useEffect hook to listen for keydown events
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'ArrowRight') {
@@ -68,7 +67,6 @@ const FeedbackCarousel: React.FC<FeedbackCarouselProps> = ({ questions }) => {
               </Heading>
               <Spacer />
               <Box
-                // minW="20%"
                 w="12%"
                 justifyContent="center"
                 alignContent="center"
@@ -93,9 +91,7 @@ const FeedbackCarousel: React.FC<FeedbackCarouselProps> = ({ questions }) => {
             <Text fontStyle="italic" mb="3" borderLeft="1px" borderLeftColor="black" fontSize="md" paddingLeft={4}>
               {question.userResponse}
             </Text>
-            {/* <Grid> */}
             <Table variant="simple" mb="5">
-              {/* Optional: <TableCaption>Imperial to metric conversion factors</TableCaption> */}
               <Thead>
                 <Tr>
                   <Th w="50%">Strengths</Th>
@@ -146,13 +142,11 @@ const FeedbackCarousel: React.FC<FeedbackCarouselProps> = ({ questions }) => {
                   return rows;
                 })()}
               </Tbody>
-              {/* Optional: <Tfoot>... */}
             </Table>
             <Heading fontSize="lg" mb="2" fontWeight="700">
               An example of an exemplary response:
             </Heading>
 
-            {/* Text Content */}
             <Text fontStyle="italic" borderLeft="1px" borderLeftColor="black" fontSize="md" paddingLeft={4}>
               {question.exemplarAnswer}
             </Text>

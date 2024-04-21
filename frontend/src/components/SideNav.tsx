@@ -26,7 +26,6 @@ import useAnimatedRouter from '@/components/useAnimatedRouter';
 import { FaInfo } from 'react-icons/fa6';
 import { useCustomToast } from '@/components/Toast';
 
-// Define the link items for the side navigation
 interface LinkItemProps {
   name: string;
   icon: typeof FiHome;
@@ -39,9 +38,6 @@ const LinkItems: Array<LinkItemProps> = [
   { name: 'Resource Repository', icon: FiFileText, href: '#' },
   { name: 'Your Stats', icon: FiTrendingUp, href: '#' },
   { name: 'Settings', icon: FiSettings, href: '/settings' },
-
-  // { name: 'History', icon: FiClock, href: '/dashboard' },
-  // { name: 'Favorites', icon: FiStar, href: '/dashboard' },
 ];
 
 interface SideNavProps {
@@ -58,22 +54,19 @@ const SideNav: React.FC<SideNavProps> = ({ children }) => {
     try {
       // Send request to logout the user on the server-side
       await instance.post('/auth/logout');
-      // Clear the token from Redux state
       dispatch(resetJobs()); // Reset jobs state
-      dispatch(clearToken());
+      dispatch(clearToken()); // Clear the token from Redux state
       setTimeout(() => {
         router.push('/login');
       }, 0);
     } catch (error) {
       showError('Logout Failed');
-      // Handle the error as required, e.g., show a notification to the user
     }
   };
 
   return (
     <ChakraProvider theme={extendTheme({ config: { useSystemColorMode: true, initialColorMode: 'light' } })}>
       <Flex height="100vh" overflowY="hidden">
-        {/* Sidebar */}
         <VStack
           w="280px"
           flexShrink={0}
@@ -123,7 +116,6 @@ const SideNav: React.FC<SideNavProps> = ({ children }) => {
           </Flex>
         </VStack>
 
-        {/* Main Content */}
         <Box flex="1" overflowY="auto">
           {children}
         </Box>

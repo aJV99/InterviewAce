@@ -41,7 +41,7 @@ const RetakeInterviewModal: React.FC<RetakeInterviewModalProps> = ({ isOpen, onC
                 colorScheme="green"
                 onClick={() => {
                   onSubmit(true);
-                  onClose(); // Optionally close the modal after deletion
+                  onClose();
                 }}
               >
                 Same Questions
@@ -53,7 +53,7 @@ const RetakeInterviewModal: React.FC<RetakeInterviewModalProps> = ({ isOpen, onC
               colorScheme="blue"
               onClick={() => {
                 onSubmit(false);
-                onClose(); // Optionally close the modal after deletion
+                onClose();
               }}
             >
               New Questions

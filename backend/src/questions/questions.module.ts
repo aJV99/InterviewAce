@@ -9,11 +9,7 @@ import { InterviewsModule } from 'src/interviews/interviews.module';
 import { AceAIModule } from 'src/aceAI/aceAI.module';
 
 @Module({
-  imports: [
-    HttpModule,
-    forwardRef(() => InterviewsModule),
-    AceAIModule, // Use forwardRef here
-  ],
+  imports: [HttpModule, forwardRef(() => InterviewsModule), AceAIModule],
   controllers: [QuestionsController],
   providers: [QuestionsService, PrismaService, JobsService, AceAIService],
   exports: [QuestionsService],

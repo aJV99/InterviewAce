@@ -6,10 +6,9 @@ const LoadingScreen = () => {
   const [isAnimating, setIsAnimating] = useState(true);
 
   useEffect(() => {
-    // You might want to adjust timing based on your animation
     const timer = setTimeout(() => {
       setIsAnimating(false);
-    }, 30000); // Duration of your wipe animation
+    }, 30000); // Duration of the animation
 
     return () => clearTimeout(timer);
   }, []);

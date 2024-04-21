@@ -48,7 +48,7 @@ import useAnimatedRouter from '@/components/useAnimatedRouter';
 
 const PracticePage: React.FC = () => {
   const [interviewStatus, setInterviewStatus] = useState<string>('Not Started');
-  const [testsPassed, setTestsPassed] = useState<boolean>(true);
+  const [testsPassed, setTestsPassed] = useState<boolean>(false);
   const { isOpen: isCountdownOpen, onOpen: onOpenCountdown, onClose: onCloseCountdown } = useDisclosure();
   const { isOpen: isTranscriptionTestOpen, onOpen: onOpenTranscriptionTest } = useDisclosure();
   const { isOpen: isExpandOpen, onOpen: onOpenExpand, onClose: onCloseExpand } = useDisclosure();
@@ -63,14 +63,12 @@ const PracticePage: React.FC = () => {
   const router = useAnimatedRouter();
 
   useEffect(() => {
-    // Check if the jobs are fetched or fetch if necessary
     if (!jobsState.fetched) {
       dispatch(fetchJobs());
     }
     onOpenTranscriptionTest();
   }, [dispatch, jobsState, onOpenTranscriptionTest]);
 
-  // Find the job in the state (this will be re-evaluated when the state changes)
   const job = jobsState.jobs[currentInterview.jobId];
   const interview = job?.interviews[currentInterview.interviewId];
 
@@ -106,32 +104,35 @@ const PracticePage: React.FC = () => {
     }, 1000);
   };
 
-  const leave = () => {
+  const leave = (complete: boolean) => {
     quit();
-    dispatch(
-      updateInterview({
-        id: interview.id,
-        updateInterviewDto: {
-          currentQuestion: questionIndex - 1,
-        },
-      }),
-    );
-    if (jobsState.loadingInterview === interview.id) {
-      router.push(`/job/${job.id}`);
-    } else {
+    if (!complete) {
+      dispatch(
+        updateInterview({
+          id: interview.id,
+          updateInterviewDto: {
+            currentQuestion: questionIndex - 1 >= 0 ? questionIndex - 1 : 0,
+          },
+        }),
+      );
       router.push(`/interview/${job.id}/${interview.id}`);
+    } else {
+      router.push(`/job/${job.id}`);
     }
   };
 
-  const handleResult = () => {
-    dispatch(
-      answerQuestion({
-        questionId: questions[questionIndex - 1].id,
-        response: transcript,
-        interviewId: interview.id,
-      }),
-    );
-    nextQuestion(questionIndex);
+  const handleResult = (whatUserSaid: string) => {
+    if (interviewStatus !== 'Not Started') {
+      dispatch(
+        answerQuestion({
+          questionId: questions[questionIndex - 1].id,
+          response: whatUserSaid,
+          interviewId: interview.id,
+        }),
+      );
+      nextQuestion(questionIndex);
+      setIsLoading(false);
+    }
   };
 
   const setTestsPassedTrue = () => setTestsPassed(true);
@@ -152,16 +153,10 @@ const PracticePage: React.FC = () => {
     if (testsPassed) {
       setQuestionIndex((prevIndex) => {
         const updatedIndex = prevIndex + 1;
-
-        // if (updatedIndex === questions.length + 1) {
-
-        // } else {
-        //   startRecording(); // This call can be conditional based on further logic
-        // }
         if (updatedIndex !== questions.length + 1) {
-          startRecording(); // This call can be conditional based on further logic
+          startRecording();
         }
-        return updatedIndex; // This updates the state
+        return updatedIndex;
       });
     } else {
       setStatus('CHECK!');
@@ -173,8 +168,6 @@ const PracticePage: React.FC = () => {
   const nextQuestion = useCallback(
     (index: number) => {
       setSpokenText('');
-      console.log('nextQuestion ' + index);
-      // Assuming questions is an array of question objects available in the component's scope
       if (index < questions.length) {
         handleSpeak(questions[index].content);
       } else {
@@ -215,7 +208,13 @@ const PracticePage: React.FC = () => {
         <Flex justifyContent="space-between" alignItems="center" mb={8}>
           <Box textAlign="left" width="25vw">
             <Button
-              onClick={leave}
+              onClick={() => {
+                if (interviewStatus === 'Complete') {
+                  leave(true);
+                } else {
+                  leave(false);
+                }
+              }}
               size="sm"
               leftIcon={<ChevronLeftIcon />}
               colorScheme="teal"
@@ -346,7 +345,7 @@ const PracticePage: React.FC = () => {
         )}
 
         {/* Bottom section for isListening elements */}
-        {testsPassed && isListening && (
+        {testsPassed && isListening && interviewStatus !== 'Not Started' && (
           <>
             <Spacer />
 
@@ -370,10 +369,7 @@ const PracticePage: React.FC = () => {
                     size="lg"
                     onClick={() => {
                       setIsLoading(true);
-                      setTimeout(() => {
-                        stopListening(); // This assumes stopListening is available in this scope, e.g., from your custom hook
-                        setIsLoading(false);
-                      }, 3500); // Delay in milliseconds
+                      stopListening();
                     }}
                     disabled={!isListening}
                     isLoading={isLoading}
@@ -393,8 +389,15 @@ const PracticePage: React.FC = () => {
 
             <Flex direction="column" alignItems="center" mb={4}>
               <>
-                <Button size="lg" onClick={leave} disabled={!isListening} mt={4}>
-                  Return to Interview Page
+                <Button
+                  size="lg"
+                  onClick={() => {
+                    leave(true);
+                  }}
+                  isDisabled={isSpeaking}
+                  mt={4}
+                >
+                  End Interview
                 </Button>
               </>
             </Flex>

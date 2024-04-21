@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Define the component with TypeScript
 const RecordingAnimation: React.FC = () => {
   return (
     <div className="boxContainer">

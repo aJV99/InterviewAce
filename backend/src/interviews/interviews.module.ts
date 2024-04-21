@@ -9,12 +9,9 @@ import { GPTService } from 'src/aceAI/gpt.service';
 import { QuestionsModule } from 'src/questions/questions.module';
 
 @Module({
-  imports: [
-    HttpModule,
-    forwardRef(() => QuestionsModule), // Ensure QuestionsModule is imported with forwardRef if needed
-  ],
+  imports: [HttpModule, forwardRef(() => QuestionsModule)],
   controllers: [InterviewsController],
   providers: [InterviewsService, PrismaService, AceAIService, JobsService, GPTService],
-  exports: [InterviewsService], // Ensure InterviewsService is exported
+  exports: [InterviewsService],
 })
 export class InterviewsModule {}

@@ -98,13 +98,10 @@ const SetupModal: React.FC<SetupModalProps> = ({ transcript, status, isListening
                   <ButtonGroup>
                     <Button
                       colorScheme="blue"
-                      onClick={
-                        // onNext()
-                        () => {
-                          onNext();
-                          setCurrentStep(2);
-                        }
-                      }
+                      onClick={() => {
+                        onNext();
+                        setCurrentStep(2);
+                      }}
                     >
                       Yes
                     </Button>

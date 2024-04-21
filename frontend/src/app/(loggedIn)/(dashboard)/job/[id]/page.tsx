@@ -18,6 +18,7 @@ import {
   IconButton,
   Text,
   VStack,
+  Tooltip,
 } from '@chakra-ui/react';
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import InterviewCards from '@/components/InterviewCards';
@@ -26,6 +27,7 @@ import { fetchJobs, deleteJob } from '@/redux/features/jobSlice';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import useAnimatedRouter from '@/components/useAnimatedRouter';
 import { useCustomToast } from '@/components/Toast';
+import { FiRefreshCw } from 'react-icons/fi';
 
 const JobPage = ({ params }: { params: { id: string } }) => {
   const router = useAnimatedRouter();
@@ -41,7 +43,6 @@ const JobPage = ({ params }: { params: { id: string } }) => {
   const { showSuccess, showError } = useCustomToast();
 
   useEffect(() => {
-    // Check if the jobs are fetched or fetch if necessary
     if (!jobsState.fetched) {
       try {
         dispatch(fetchJobs()).unwrap();
@@ -51,7 +52,6 @@ const JobPage = ({ params }: { params: { id: string } }) => {
     }
   }, [dispatch, jobsState, showError]);
 
-  // Find the job in the state (this will be re-evaluated when the state changes)
   const job = jobsState.jobs[params.id];
 
   if (!job) {
@@ -60,17 +60,33 @@ const JobPage = ({ params }: { params: { id: string } }) => {
 
   return (
     <Content>
-      {/* <Bubble> */}
       <Flex p={5} borderRadius="xl" alignItems="center" justifyContent="space-between">
         <Heading size="3xl">Your Mock Interviews</Heading>
-        <Button
-          isLoading={jobsState.creatingInterview}
-          loadingText="Creating your interview and jobs"
-          colorScheme="teal"
-          onClick={onOpenInterviewModal}
-        >
-          Add a Interview
-        </Button>
+        <Box>
+          <Tooltip label="Refresh">
+            <IconButton
+              aria-label="Sync"
+              icon={<FiRefreshCw />}
+              onClick={() => {
+                try {
+                  dispatch(fetchJobs()).unwrap();
+                } catch (error) {
+                  showError('Server Error. Please try again later');
+                }
+              }}
+              size="md"
+              mr={3}
+            />
+          </Tooltip>
+          <Button
+            isLoading={jobsState.creatingInterview}
+            loadingText="Creating your interview and jobs"
+            colorScheme="teal"
+            onClick={onOpenInterviewModal}
+          >
+            Add an Interview
+          </Button>
+        </Box>
 
         {/* The modal */}
         <Modal isOpen={isJobModalOpen} onClose={onCloseJobModal} size="xl">
@@ -90,7 +106,7 @@ const JobPage = ({ params }: { params: { id: string } }) => {
         </Modal>
       </Flex>
       <Flex
-        alignItems="stretch" // To ensure the Edit button can be centered across the full height
+        alignItems="stretch"
         justifyContent="space-between"
         p={5}
         mb={3}
@@ -104,15 +120,21 @@ const JobPage = ({ params }: { params: { id: string } }) => {
           <Flex>
             <Box flex="1" textAlign="center">
               <Text fontWeight="bold">Role: </Text>
-              <Text>{job?.title}</Text>
+              <Text fontSize="lg">{job?.title}</Text>
             </Box>
             <Box flex="1" textAlign="center">
               <Text fontWeight="bold">Company: </Text>
-              <Text>{job?.company}</Text>
+              <Text fontSize="lg">{job?.company}</Text>
             </Box>
             <Box flex="1" textAlign="center">
               <Text fontWeight="bold">Location: </Text>
-              <Text>{job?.location}</Text>
+              {job?.location ? (
+                <Text fontSize="lg">{job?.location}</Text>
+              ) : (
+                <Text fontSize="lg" color="gray" fontStyle={'italic'}>
+                  N/A
+                </Text>
+              )}
             </Box>
           </Flex>
           {/* Bottom Row: Job Description */}
@@ -149,7 +171,6 @@ const JobPage = ({ params }: { params: { id: string } }) => {
         onClose={onCloseDeleteModal}
         onDelete={async () => {
           if (job?.id) {
-            // Check if job?.id is not undefined
             try {
               router.push('/dashboard');
               await dispatch(deleteJob(job.id)).unwrap();
@@ -157,9 +178,6 @@ const JobPage = ({ params }: { params: { id: string } }) => {
             } catch (error) {
               showError('Job Deletion Failed. Please try again later');
             }
-          } else {
-            console.error('Job ID is undefined');
-            // Optionally, handle the undefined ID case (e.g., showing an error message)
           }
         }}
         itemType={'job'}

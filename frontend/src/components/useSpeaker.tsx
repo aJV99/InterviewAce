@@ -11,7 +11,6 @@ const useSpeaker = (handleResult: () => void) => {
 
   const handleSpeak = (text: string) => {
     const punctuationMap = findPunctuationMarks(text);
-    console.log(punctuationMap);
 
     if (isSpeaking) {
       window.speechSynthesis.cancel();
@@ -28,8 +27,8 @@ const useSpeaker = (handleResult: () => void) => {
     }
 
     // Set properties for the speech synthesis
-    utterance.rate = 1; // Adjust as needed
-    utterance.pitch = 1; // Adjust as needed
+    utterance.rate = 1;
+    utterance.pitch = 1;
 
     utterance.onstart = () => {
       setIsSpeaking(true);
@@ -38,11 +37,6 @@ const useSpeaker = (handleResult: () => void) => {
     utterance.onend = () => {
       setIsSpeaking(false);
       handleResult();
-      // if (testsPassed) {
-      // startRecording();
-      // } else {
-      // setStatus("CHECK!");
-      // }
     };
 
     utterance.onboundary = (event) => {

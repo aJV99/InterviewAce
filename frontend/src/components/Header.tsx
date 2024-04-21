@@ -12,7 +12,6 @@ import {
 import JobModal from '@/components/JobModal';
 
 const Header: React.FC = () => {
-  // Hooks to manage modal state
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -22,7 +21,6 @@ const Header: React.FC = () => {
         Add a Job
       </Button>
 
-      {/* The modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
         <ModalContent>

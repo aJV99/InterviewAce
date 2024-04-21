@@ -1,7 +1,7 @@
 'use client';
 import React, { ReactNode } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
-import store, { persistor } from '@/redux/store'; // adjust this import to your file structure
+import store, { persistor } from '@/redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 
 interface ProvidersProps {

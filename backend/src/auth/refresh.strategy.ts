@@ -1,5 +1,3 @@
-// auth/refresh.strategy.ts
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
@@ -30,9 +28,6 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'refresh') {
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not found');
     }
-
-    // Optional: You can add more logic here to check if the refreshToken is still valid
-    // For instance, you could check if the user is still active, if the refreshToken was revoked, etc.
 
     const user = await this.userService.findOneByEmail(payload.email);
     if (!user) {

@@ -41,12 +41,6 @@ export class QuestionsController {
     return await this.questionsService.findAll(interviewId);
   }
 
-  // @Get(':id')
-  // async findOne(@Param('id') id: string, @Req() req: RequestWithAuth) {
-  //   await this.questionsService.checkQuestionOwnership(id, req.user.id);
-  //   return await this.questionsService.findOne(id);
-  // }
-
   @Put(':id')
   async update(@Param('id') id: string, @Body('content') content: string, @Req() req: RequestWithAuth) {
     await this.questionsService.checkQuestionOwnership(id, req.user.id);
@@ -57,7 +51,13 @@ export class QuestionsController {
   async answer(@Param('id') id: string, @Body('response') response: string, @Req() req: RequestWithAuth) {
     await this.questionsService.checkQuestionOwnership(id, req.user.id);
     const resp = await this.questionsService.answer(id, response);
-    await this.interviewsService.updateScore(resp.score, resp.interviewId);
+    const interview = await this.interviewsService.findOne(resp.interviewId);
+    await this.interviewsService.update(resp.interviewId, { currentQuestion: resp.index });
+    if (interview.questions.length === resp.index + 1) {
+      this.interviewsService.feedback(resp.interviewId);
+    } else {
+      await this.interviewsService.update(resp.interviewId, { currentQuestion: resp.index });
+    }
     return resp;
   }
 

@@ -25,18 +25,20 @@ import {
   PopoverContent,
   useDisclosure,
   Spacer,
+  FormErrorMessage,
 } from '@chakra-ui/react';
 import { Interview } from '@/redux/dto/interview.dto';
 import AnimatedButton from '@/components/AnimatedButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
 import { useRef, useState } from 'react';
-import { deleteInterview, retakeInterview, updateInterview } from '@/redux/features/jobSlice';
+import { deleteInterview, emptyLoading, retakeInterview, updateInterview } from '@/redux/features/jobSlice';
 import { EditIcon, DeleteIcon, CopyIcon } from '@chakra-ui/icons';
 import { FaEllipsisVertical } from 'react-icons/fa6';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import RetakeInterviewModal from '@/components/RetakeInterviewModal';
 import { useCustomToast } from '@/components/Toast';
+import { getColorByScore, toCapitalCase } from '@/app/utils';
 
 const InterviewCards: React.FC<{ cards: Interview[] | undefined }> = ({ cards }) => {
   const jobLoading = useSelector((state: RootState) => state.jobs.loadingInterview);
@@ -69,23 +71,6 @@ const InterviewCards: React.FC<{ cards: Interview[] | undefined }> = ({ cards })
     onOpenRetakeModal();
   };
 
-  // interface TextInputProps {
-  //   label: string;
-  //   id: string;
-  //   defaultValue: string;
-  // }
-
-  // const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>((props, ref) => {
-  //   const { label, id, ...inputProps } = props;
-  //   // Omit or handle the size prop here if necessary
-  //   return (
-  //     <FormControl>
-  //       <FormLabel htmlFor={id}>{label}</FormLabel>
-  //       <Input ref={ref} id={id} {...inputProps} />
-  //     </FormControl>
-  //   );
-  // });
-
   // Assume we are correctly typing FormProps based on expected props
   interface FormProps {
     firstFieldRef: React.RefObject<HTMLInputElement>;
@@ -115,9 +100,10 @@ const InterviewCards: React.FC<{ cards: Interview[] | undefined }> = ({ cards })
 
     return (
       <Stack spacing={4}>
-        <FormControl>
+        <FormControl isInvalid={inputValue === ''}>
           <FormLabel htmlFor="interview-title">Interview Title</FormLabel>
           <Input ref={firstFieldRef} id="interview-title" value={inputValue} onChange={handleInputChange} />
+          <FormErrorMessage>Interview title is required</FormErrorMessage>
         </FormControl>
         <ButtonGroup display="flex" justifyContent="flex-end">
           <Button variant="outline" onClick={onCancel}>
@@ -126,7 +112,7 @@ const InterviewCards: React.FC<{ cards: Interview[] | undefined }> = ({ cards })
           <Button
             colorScheme="teal"
             onClick={handleSave}
-            isDisabled={inputValue === defaultValue} // Corrected the logic here
+            isDisabled={inputValue === defaultValue || inputValue === ''} // Corrected the logic here
           >
             Save
           </Button>
@@ -137,78 +123,97 @@ const InterviewCards: React.FC<{ cards: Interview[] | undefined }> = ({ cards })
 
   return (
     <SimpleGrid spacing={4} templateColumns="repeat(auto-fill, minmax(250px, 1fr))">
-      {cards?.map((card) => (
-        <Box
-          key={card.id}
-          boxShadow="md"
-          borderRadius="xl"
-          p={4}
-          display="flex"
-          flexDirection="column"
-          height="100%"
-          backgroundColor={'#fff'}
-        >
-          <Flex direction="row" justify="space-between">
-            <Popover
-              returnFocusOnClose={false}
-              isOpen={openPopovers[card.id] || false}
-              onClose={() => handleClosePopover(card.id)}
-              placement="bottom-start"
-              closeOnBlur={false}
-            >
-              <VStack spacing={2} align="stretch" flexGrow={1}>
-                <PopoverTrigger key={card.title}>
-                  <Heading size="md" noOfLines={2} minHeight={'0em'}>
-                    {card.title}
-                  </Heading>
-                </PopoverTrigger>
-
-                <Heading size="sm" noOfLines={2}>
-                  {card.customType ? `Other - ${card.customType}` : card.type}
-                </Heading>
-                <Text noOfLines={1}>
-                  {card.questions.length === card.currentQuestion ? `${card.overallScore}%` : 'No attempt yet'}
-                </Text>
-              </VStack>
-              <Menu placement="bottom">
-                <MenuButton as={IconButton} aria-label="Options" icon={<FaEllipsisVertical />} size="sm" />
-                <MenuList>
-                  <MenuItem icon={<EditIcon />} onClick={() => handleTogglePopover(card.id)}>
-                    Rename Interview
-                  </MenuItem>
-                  <MenuItem icon={<CopyIcon />} onClick={() => handleOpenRetakeModal(card.id)}>
-                    Duplicate Interview
-                  </MenuItem>
-                  <MenuItem icon={<DeleteIcon />} onClick={() => handleOpenDeleteModal(card.id)}>
-                    Delete Interview
-                  </MenuItem>
-                </MenuList>
-              </Menu>
-              <PopoverContent p={5}>
-                <FocusLock persistentFocus={false}>
-                  <PopoverArrow />
-                  <PopoverCloseButton />
-                  <Form
-                    firstFieldRef={firstFieldRef}
-                    onCancel={() => handleClosePopover(card.id)}
-                    defaultValue={card.title}
-                    interviewId={card.id}
-                  />
-                </FocusLock>
-              </PopoverContent>
-            </Popover>
-          </Flex>
-          <br />
-          <Spacer />
-          <AnimatedButton
-            colorScheme="blue"
-            destination={'/interview/' + card.jobId + '/' + card.id}
-            isDisabled={jobLoading === card.id ? true : false}
+      {cards?.map((card) => {
+        if (card.currentQuestion === card.questions.length && card.id === jobLoading) {
+          dispatch(emptyLoading(card.id));
+        }
+        return (
+          <Box
+            key={card.id}
+            boxShadow="md"
+            borderRadius="xl"
+            p={4}
+            display="flex"
+            flexDirection="column"
+            height="100%"
+            backgroundColor={'#fff'}
           >
-            Get Practicing
-          </AnimatedButton>
-        </Box>
-      ))}
+            <Flex direction="row" justify="space-between">
+              <Popover
+                returnFocusOnClose={false}
+                isOpen={openPopovers[card.id] || false}
+                onClose={() => handleClosePopover(card.id)}
+                placement="bottom-start"
+                closeOnBlur={false}
+              >
+                <VStack spacing={2} align="stretch" flexGrow={1}>
+                  <PopoverTrigger key={card.title}>
+                    <Heading size="md" noOfLines={2} minHeight={'0em'}>
+                      {card.title}
+                    </Heading>
+                  </PopoverTrigger>
+
+                  <Heading size="sm" noOfLines={2}>
+                    {card.customType ? `Other - ${card.customType}` : toCapitalCase(card.type)}
+                  </Heading>
+                  <Text
+                    noOfLines={1}
+                    color={
+                      card.currentQuestion >= card.questions.length && card.overallScore
+                        ? getColorByScore(card.overallScore) || 'black'
+                        : 'black'
+                    }
+                  >
+                    {card.currentQuestion >= card.questions.length
+                      ? `${card?.overallScore}%`
+                      : card.currentQuestion !== 0
+                        ? 'Incomplete attempt'
+                        : 'No attempt yet'}
+                  </Text>
+                </VStack>
+                <Menu placement="bottom">
+                  <MenuButton as={IconButton} aria-label="Options" icon={<FaEllipsisVertical />} size="sm" />
+                  <MenuList>
+                    {!(card.currentQuestion === card.questions.length && card.id === jobLoading) && (
+                      <MenuItem icon={<EditIcon />} onClick={() => handleTogglePopover(card.id)}>
+                        Rename Interview
+                      </MenuItem>
+                    )}
+                    <MenuItem icon={<CopyIcon />} onClick={() => handleOpenRetakeModal(card.id)}>
+                      Duplicate Interview
+                    </MenuItem>
+                    <MenuItem icon={<DeleteIcon />} onClick={() => handleOpenDeleteModal(card.id)}>
+                      Delete Interview
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+                <PopoverContent p={5}>
+                  <FocusLock persistentFocus={false}>
+                    <PopoverArrow />
+                    <PopoverCloseButton />
+                    <Form
+                      firstFieldRef={firstFieldRef}
+                      onCancel={() => handleClosePopover(card.id)}
+                      defaultValue={card.title}
+                      interviewId={card.id}
+                    />
+                  </FocusLock>
+                </PopoverContent>
+              </Popover>
+            </Flex>
+            <br />
+            <Spacer />
+            <AnimatedButton
+              colorScheme="blue"
+              destination={'/interview/' + card.jobId + '/' + card.id}
+              isLoading={jobLoading === card.id ? true : false}
+              loadingText="Generating Feedback"
+            >
+              Get Practicing
+            </AnimatedButton>
+          </Box>
+        );
+      })}
       <ConfirmDeleteModal
         key={selectedItem + 'delete'}
         isOpen={isDeleteModalOpen}
@@ -222,9 +227,6 @@ const InterviewCards: React.FC<{ cards: Interview[] | undefined }> = ({ cards })
             } catch (error) {
               showError('Interview Deletion Failed. Please try again later');
             }
-          } else {
-            console.error('Interview ID is undefined');
-            // Optionally, handle the undefined ID case (e.g., showing an error message)
           }
         }}
         itemType={'interview'}

@@ -1,4 +1,3 @@
-// MobileAccessBlocker.tsx
 'use client';
 import { useEffect, useState } from 'react';
 import { Box, Center, Heading, Text, Image, Button } from '@chakra-ui/react';
@@ -21,7 +20,7 @@ const MobileAccessBlocker = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   if (!isMobile) {
-    return children; // or your actual app component if you're using this component at the app's root
+    return children;
   }
 
   return (
@@ -49,7 +48,7 @@ const MobileAccessBlocker = ({ children }: { children: React.ReactNode }) => {
           color="white"
           variant="solid"
           marginTop="4"
-          onClick={() => router.push('/')} // Adjust the route as needed
+          onClick={() => router.push('/')}
         >
           Go to Home
         </Button>

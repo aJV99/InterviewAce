@@ -1,4 +1,4 @@
-import axiosInstance from '@/app/axios'; // path to your axios.ts file
+import axiosInstance from '@/app/axios';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User, UserDto } from '@/redux/dto/user.dto';
 import axios from 'axios';
@@ -15,6 +15,16 @@ export const signup = async (firstName: string, lastName: string, email: string,
     email,
     password,
   });
+  return response.data;
+};
+
+export const forgot = async (email: string) => {
+  const response = await axiosInstance.post('/auth/forgot', { email });
+  return response.data;
+};
+
+export const reset = async (email: string, token: string, password: string) => {
+  const response = await axiosInstance.post('/auth/reset', { email, token, password });
   return response.data;
 };
 
@@ -35,7 +45,6 @@ export const updateUser = createAsyncThunk<UserDto, UserDto, { rejectValue: Erro
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        // Assuming the API returns an error structure you want to forward
         return rejectWithValue(error.response.data as Error);
       } else {
         return rejectWithValue(new Error('An unknown error occurred'));
@@ -51,9 +60,7 @@ export const updatePassword = createAsyncThunk<UserDto, { currentPassword: strin
       const response = await axiosInstance.put('/user/password', { currentPassword, newPassword });
       return response.data;
     } catch (error) {
-      // return rejectWithValue(error);
       if (axios.isAxiosError(error) && error.response) {
-        // Assuming the API returns an error structure you want to forward
         return rejectWithValue(error.response.data as Error);
       } else {
         return rejectWithValue(new Error('An unknown error occurred'));
@@ -127,11 +134,7 @@ const authSlice = createSlice({
         state.lastName = lastName;
         state.user = result;
       })
-      // .addCase(updatePassword.rejected, (state) => {
-
-      // })
       .addCase(deleteUser.fulfilled, (state) => {
-        // You might want to clear the user state or navigate to a login page
         state.user = null;
       });
   },

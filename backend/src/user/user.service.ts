@@ -26,6 +26,15 @@ export class UserService {
     return await this.prisma.user.findUnique({ where: { id } });
   }
 
+  async findOneByResetToken(email: string, resetToken: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: {
+        email,
+        resetToken,
+      },
+    });
+  }
+
   async update(id: string, data: Partial<User>): Promise<User | null> {
     if (data.password) {
       const { password, ...rest } = data;
@@ -52,7 +61,6 @@ export class UserService {
     });
 
     // Then, return the user after jobs deletion
-    // Optionally update the user if needed
     return await this.prisma.user.findUnique({
       where: { id },
     });

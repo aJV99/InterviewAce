@@ -33,11 +33,6 @@ export class InterviewsController {
     return await this.interviewsService.retakeInterview(interviewId, sameQuestions);
   }
 
-  // @Get(':jobId')
-  // async findAll(@Param('jobId') jobId: string) {
-  //   return await this.interviewsService.findAll(jobId);
-  // }
-
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: RequestWithAuth) {
     await this.interviewsService.checkInterviewOwnership(id, req.user.id);

@@ -16,7 +16,6 @@ import {
 export default function Home() {
   return (
     <Container maxW={'7xl'} height="100vh" display="flex" flexDirection="column" justifyContent="center">
-      {/* Adjusted Container */}
       <Stack
         align={'center'}
         spacing={{ base: 8, md: 10 }}

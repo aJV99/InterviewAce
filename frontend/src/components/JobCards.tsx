@@ -25,6 +25,7 @@ import {
   FormControl,
   FormLabel,
   Spacer,
+  FormErrorMessage,
 } from '@chakra-ui/react';
 import { JobState, deleteJob, editJob } from '@/redux/features/jobSlice';
 import AnimatedButton from '@/components/AnimatedButton';
@@ -59,23 +60,6 @@ const JobCards: React.FC<{ cards: JobState }> = ({ cards }) => {
     onOpenDeleteModal();
   };
 
-  // interface TextInputProps {
-  //   label: string;
-  //   id: string;
-  //   defaultValue: string;
-  // }
-
-  // const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>((props, ref) => {
-  //   const { label, id, ...inputProps } = props;
-  //   // Omit or handle the size prop here if necessary
-  //   return (
-  //     <FormControl>
-  //       <FormLabel htmlFor={id}>{label}</FormLabel>
-  //       <Input ref={ref} id={id} {...inputProps} />
-  //     </FormControl>
-  //   );
-  // });
-
   // Assume we are correctly typing FormProps based on expected props
   interface FormProps {
     firstFieldRef: React.RefObject<HTMLInputElement>;
@@ -105,9 +89,10 @@ const JobCards: React.FC<{ cards: JobState }> = ({ cards }) => {
 
     return (
       <Stack spacing={4}>
-        <FormControl>
+        <FormControl isInvalid={inputValue === ''}>
           <FormLabel htmlFor="job-title">Job Title</FormLabel>
           <Input ref={firstFieldRef} id="job-title" value={inputValue} onChange={handleInputChange} />
+          <FormErrorMessage>Job title is required</FormErrorMessage>
         </FormControl>
         <ButtonGroup display="flex" justifyContent="flex-end">
           <Button variant="outline" onClick={onCancel}>
@@ -116,7 +101,7 @@ const JobCards: React.FC<{ cards: JobState }> = ({ cards }) => {
           <Button
             colorScheme="teal"
             onClick={handleSave}
-            isDisabled={inputValue === defaultValue} // Corrected the logic here
+            isDisabled={inputValue === defaultValue || inputValue === ''} // Corrected the logic here
           >
             Save
           </Button>
@@ -211,9 +196,6 @@ const JobCards: React.FC<{ cards: JobState }> = ({ cards }) => {
             } catch (error) {
               showError('Job Deletion Failed. Please try again later');
             }
-          } else {
-            console.error('Job ID is undefined');
-            // Optionally, handle the undefined ID case (e.g., showing an error message)
           }
         }}
         itemType={'job'}

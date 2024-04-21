@@ -1,7 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 
-// Define a type for the extended router to include the animatedRoute function
+// Defined a type for the extended router to include the animatedRoute function
 type ExtendedRouter = ReturnType<typeof useRouter> & {
   animatedRoute: (url: string) => void;
 };
@@ -9,7 +9,7 @@ type ExtendedRouter = ReturnType<typeof useRouter> & {
 export default function useAnimatedRouter(): ExtendedRouter {
   const router = useRouter();
 
-  // Implement the animatedRoute function
+  // Implemented the animatedRoute function
   const animatedRoute = (url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const extendedDocument = document as any; // Assume startViewTransition is part of this "any" type

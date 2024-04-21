@@ -28,17 +28,14 @@ async function bootstrap() {
       try {
         // Verify access token
         jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
-        console.log('JWT Verified');
         next();
       } catch (error) {
         if (error instanceof jwt.TokenExpiredError) {
           // If the JWT is expired, check the refresh token
-          console.log('JWT Expired, Checking Refresh');
           const refreshToken = req.cookies && req.cookies.Refresh;
           if (!refreshToken) {
             return next(new UnauthorizedException('Token expired.'));
           }
-          console.log('JWT Expired, Refresh Verified');
           try {
             const newAccessToken = await authService.createAccessTokenFromRefreshToken(refreshToken);
             if (newAccessToken) {

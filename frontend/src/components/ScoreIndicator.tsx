@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react';
 
 interface ScoreIndicatorProps {
-  score: number; // Expect a score out of 100
+  score: number;
 }
 
 const ScoreIndicator: React.FC<ScoreIndicatorProps> = ({ score }) => {
@@ -17,16 +17,13 @@ const ScoreIndicator: React.FC<ScoreIndicatorProps> = ({ score }) => {
         position="relative"
         overflow="hidden"
       >
-        {/* Pointer */}
         <Box
           position="absolute"
-          // bottom="-10px" // Half outside the box to appear as a pointer on the bottom
           left={`${pointerPosition}%`}
-          transform="translateX(-50%)" // Ensure it's centered based on the percentage
+          transform="translateX(-50%)"
           width="2px"
           height="20px"
-          bgColor="black" // Pointer color
-          // overflow="hidden"
+          bgColor="black"
         />
       </Box>
     </Box>

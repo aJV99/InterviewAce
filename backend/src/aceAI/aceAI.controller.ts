@@ -31,7 +31,7 @@ export class AceAIController {
       return response;
     } catch (error) {
       throw new HttpException(
-        // 'Failed to get a response from GPT-3.5 API',
+        // 'Failed to get a response from GPT API',
         error,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );

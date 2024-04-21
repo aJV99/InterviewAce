@@ -10,7 +10,7 @@ export interface Job {
   location: string | null;
   createdAt: Date;
   updatedAt: Date;
-  interviews: { [key: string]: Interview }; // Expecting a dictionary here
+  interviews: { [key: string]: Interview };
 }
 
 export interface JobResponse extends ExcludeInterviews<Job> {

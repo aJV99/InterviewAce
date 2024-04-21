@@ -11,7 +11,7 @@ import { useCustomToast } from '@/components/Toast';
 const SettingsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { showError } = useCustomToast();
-  const jobs = useSelector((state: RootState) => state.jobs); // Make sure this points to the jobs array within the JobState.
+  const jobs = useSelector((state: RootState) => state.jobs);
 
   if (!jobs.fetched) {
     try {

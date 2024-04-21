@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import axiosInstance from '@/app/axios'; // path to your axios.ts file
+import axiosInstance from '@/app/axios';
 import { CreateJobDto, Job, JobResponse, UpdateJobDto } from '@/redux/dto/job.dto';
 import { CreateInterviewDto, Interview, StartInterviewDto, UpdateInterviewDto } from '@/redux/dto/interview.dto';
 import { Question } from '@/redux/dto/question.dto';
@@ -8,7 +8,7 @@ import axios from 'axios';
 export const fetchJobs = createAsyncThunk<JobResponse[], undefined>(
   'jobs/fetchJobs',
   async (_, { getState, rejectWithValue }) => {
-    const { jobs, fetched } = getState() as JobState; // Adjust RootState if the path is different
+    const { jobs, fetched } = getState() as JobState;
     if (fetched) {
       return jobs;
     } else {
@@ -55,12 +55,15 @@ export const createJob = createAsyncThunk<JobResponse, CreateJobDto>(
 
 export const startInterview = createAsyncThunk<StartInterviewDto, StartInterviewDto>(
   'jobs/startInterview',
-  async (startInterviewDto: StartInterviewDto) => {
+  (startInterviewDto: StartInterviewDto) => {
     return startInterviewDto;
   },
 );
 
-// Thunk for updating a job
+export const emptyLoading = createAsyncThunk<string, string>('jobs/emptyLoading', (interviewId: string) => {
+  return interviewId;
+});
+
 export const editJob = createAsyncThunk<JobResponse, { id: string; updateJobDto: UpdateJobDto }>(
   'jobs/updateJob',
   async ({ id, updateJobDto }: { id: string; updateJobDto: UpdateJobDto }, { rejectWithValue }) => {
@@ -73,7 +76,6 @@ export const editJob = createAsyncThunk<JobResponse, { id: string; updateJobDto:
   },
 );
 
-// Thunk for deleting a job
 export const deleteJob = createAsyncThunk<JobResponse, string>(
   'jobs/deleteJob',
   async (id: string, { rejectWithValue }) => {
@@ -85,19 +87,6 @@ export const deleteJob = createAsyncThunk<JobResponse, string>(
     }
   },
 );
-
-// Thunk for fetching interview details
-// export const fetchInterviews = createAsyncThunk<Interview[], string>(
-//   'jobs/fetchInterviews',
-//   async (jobId: string, { rejectWithValue }) => {
-//     try {
-//       const response = await axiosInstance.get(`/interviews/${jobId}`);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error);
-//     }
-//   },
-// );
 
 export const fetchInterview = createAsyncThunk<Interview, string>(
   'jobs/fetchInterview',
@@ -111,7 +100,6 @@ export const fetchInterview = createAsyncThunk<Interview, string>(
   },
 );
 
-// Thunk for adding an interview
 export const addInterview = createAsyncThunk<Interview, { jobId: string; createInterviewDto: CreateInterviewDto }>(
   'jobs/addInterview',
   async (
@@ -154,7 +142,6 @@ export const updateInterview = createAsyncThunk<Interview, { id: string; updateI
   },
 );
 
-// Thunk for deleting an interview
 export const deleteInterview = createAsyncThunk<Interview, string>(
   'jobs/deleteInterview',
   async (id: string, { rejectWithValue }) => {
@@ -167,7 +154,6 @@ export const deleteInterview = createAsyncThunk<Interview, string>(
   },
 );
 
-// Thunk for fetching questions for a specific interview
 export const fetchQuestions = createAsyncThunk<Question[], string>(
   'jobs/fetchQuestions',
   async (interviewId: string, { rejectWithValue }) => {
@@ -180,7 +166,6 @@ export const fetchQuestions = createAsyncThunk<Question[], string>(
   },
 );
 
-// Thunk for adding a question
 export const addQuestion = createAsyncThunk<Question, { interviewId: string; content: string }>(
   'jobs/addQuestion',
   async ({ interviewId, content }: { interviewId: string; content: string }, { rejectWithValue }) => {
@@ -193,7 +178,6 @@ export const addQuestion = createAsyncThunk<Question, { interviewId: string; con
   },
 );
 
-// Thunk for updating a question
 export const updateQuestion = createAsyncThunk<Question, { questionId: string; content: string }>(
   'jobs/updateQuestion',
   async ({ questionId, content }: { questionId: string; content: string }, { rejectWithValue }) => {
@@ -206,7 +190,6 @@ export const updateQuestion = createAsyncThunk<Question, { questionId: string; c
   },
 );
 
-// Thunk for deleting a question
 export const deleteQuestion = createAsyncThunk<Question, string>(
   'jobs/deleteQuestion',
   async (questionId: string, { rejectWithValue }) => {
@@ -219,17 +202,12 @@ export const deleteQuestion = createAsyncThunk<Question, string>(
   },
 );
 
-// Thunk for answering a question
 export const answerQuestion = createAsyncThunk<
   Question,
   { questionId: string; response: string; interviewId: string }
 >(
   'jobs/answerQuestion',
-  async (
-    { questionId, response }: { questionId: string; response: string },
-    // { questionId, response, interviewId }: { questionId: string; response: string; interviewId: string },
-    { rejectWithValue },
-  ) => {
+  async ({ questionId, response }: { questionId: string; response: string }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.put(`/questions/answer/${questionId}`, { response });
       return res.data;
@@ -253,7 +231,7 @@ export const deleteData = createAsyncThunk<void>('jobs/deleteData', async (_, { 
 
 // Define the state structure for jobs
 export interface JobState {
-  jobs: { [key: string]: Job }; // Change from array to dictionary
+  jobs: { [key: string]: Job };
   fetched: boolean;
   creatingInterview: boolean;
   loadingInterview: string | null;
@@ -264,7 +242,7 @@ const initialState: JobState = {
   jobs: {},
   fetched: false,
   creatingInterview: false,
-  loadingInterview: null,
+  loadingInterview: 'hello',
   currentInterview: {
     jobId: '',
     interviewId: '',
@@ -305,24 +283,21 @@ const jobSlice = createSlice({
       })
       .addCase(fetchJobDetails.fulfilled, (state, action) => {
         const job = convertJobResponseToJob(action.payload);
-        // Update or add the job in the dictionary
         state.jobs[job.id] = job;
       })
       .addCase(createJob.fulfilled, (state, action: PayloadAction<JobResponse>) => {
-        // Assuming action.payload might include interviews as an array and needs conversion
         const job = convertJobResponseToJob(action.payload); // Convert to Job format with interviews as a dictionary
         state.jobs[job.id] = job;
       })
       .addCase(editJob.fulfilled, (state, action: PayloadAction<JobResponse>) => {
-        // Convert to Job format if necessary, especially if interviews need conversion
-        const updatedJob = convertJobResponseToJob(action.payload);
+        const updatedJob = convertJobResponseToJob(action.payload); // Convert to Job format with interviews as a dictionary
         state.jobs[updatedJob.id] = updatedJob;
       })
       .addCase(deleteJob.fulfilled, (state, action: PayloadAction<{ id: string }>) => {
         delete state.jobs[action.payload.id];
       })
       .addCase(fetchInterview.fulfilled, (state, action: PayloadAction<Interview>) => {
-        const interview = action.payload; // Interview from the payload
+        const interview = action.payload;
         const job = state.jobs[interview.jobId];
         if (!job.interviews) {
           // Initialize interviews as a dictionary if it doesn't exist
@@ -335,7 +310,7 @@ const jobSlice = createSlice({
         state.creatingInterview = true;
       })
       .addCase(addInterview.fulfilled, (state, action: PayloadAction<Interview>) => {
-        const interview = action.payload; // Interview from the payload
+        const interview = action.payload;
         const job = state.jobs[interview.jobId];
         if (!job.interviews) {
           // Initialize interviews as a dictionary if it doesn't exist
@@ -352,7 +327,7 @@ const jobSlice = createSlice({
         state.creatingInterview = true;
       })
       .addCase(retakeInterview.fulfilled, (state, action: PayloadAction<Interview>) => {
-        const interview = action.payload; // Interview from the payload
+        const interview = action.payload;
         const job = state.jobs[interview.jobId];
         if (!job.interviews) {
           // Initialize interviews as a dictionary if it doesn't exist
@@ -371,11 +346,16 @@ const jobSlice = createSlice({
           interviewId: action.payload.interviewId,
         };
       })
+      .addCase(emptyLoading.fulfilled, (state, action) => {
+        if (action.payload === state.loadingInterview) {
+          state.loadingInterview = null;
+        }
+      })
       .addCase(updateInterview.pending, (state, action) => {
         state.loadingInterview = action.meta.arg.id;
       })
       .addCase(updateInterview.fulfilled, (state, action: PayloadAction<Interview>) => {
-        const interview = action.payload; // Interview from the payload
+        const interview = action.payload;
         const job = state.jobs[interview.jobId];
         if (!job.interviews) {
           // Initialize interviews as a dictionary if it doesn't exist
@@ -389,7 +369,7 @@ const jobSlice = createSlice({
         state.loadingInterview = null;
       })
       .addCase(deleteInterview.fulfilled, (state, action) => {
-        const interview = action.payload; // Interview from the payload
+        const interview = action.payload;
         const job = state.jobs[interview.jobId];
         delete job.interviews[interview.id];
       })
@@ -406,7 +386,6 @@ const jobSlice = createSlice({
           }
         }
       })
-      // Handle adding a question
       .addCase(addQuestion.fulfilled, (state, action: PayloadAction<Question>) => {
         const question = action.payload;
         const jobId = question.jobId;
@@ -422,7 +401,6 @@ const jobSlice = createSlice({
           state.jobs[jobId].interviews[interviewId].questions.push(question);
         }
       })
-      // Handle updating a question
       .addCase(updateQuestion.fulfilled, (state, action: PayloadAction<Question>) => {
         const updatedQuestion = action.payload;
         const jobId = updatedQuestion.jobId;
@@ -441,7 +419,6 @@ const jobSlice = createSlice({
           }
         }
       })
-      // Handle deleting a question
       .addCase(deleteQuestion.fulfilled, (state, action: PayloadAction<Question>) => {
         const { id: questionId, jobId, interviewId } = action.payload; // Destructure to get questionId, jobId, and interviewId directly
 
@@ -453,10 +430,6 @@ const jobSlice = createSlice({
             interview.questions = interview.questions.filter((question) => question.id !== questionId);
           }
         }
-      })
-      // Handle answering a question
-      .addCase(answerQuestion.pending, (state, action) => {
-        state.loadingInterview = action.meta.arg.interviewId;
       })
       .addCase(answerQuestion.fulfilled, (state, action) => {
         const updatedQuestion = action.payload;
@@ -474,11 +447,10 @@ const jobSlice = createSlice({
               interview.questions[questionIndex] = updatedQuestion;
             }
           }
+          if (updatedQuestion.index + 1 === interview.questions.length) {
+            state.loadingInterview = interviewId;
+          }
         }
-        state.loadingInterview = null;
-      })
-      .addCase(answerQuestion.rejected, (state) => {
-        state.loadingInterview = null;
       })
       .addCase(deleteData.fulfilled, (state) => {
         state.jobs = {};
@@ -486,6 +458,5 @@ const jobSlice = createSlice({
   },
 });
 
-// export const { setJobs, addJob, updateJob, removeJob, reset: resetJobs } = jobSlice.actions;
 export const { reset: resetJobs } = jobSlice.actions;
 export default jobSlice.reducer;

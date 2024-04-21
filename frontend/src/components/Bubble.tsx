@@ -1,11 +1,6 @@
 import * as React from 'react';
 import { Box, BoxProps } from '@chakra-ui/react';
 
-// interface BubbleProps {
-//   children: React.ReactNode;
-//   width?: string;
-// }
-
 const Bubble: React.FC<BoxProps> = ({ children, ...rest }) => {
   return (
     <Box

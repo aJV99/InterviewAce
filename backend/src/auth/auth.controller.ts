@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { JwtAuthGuard } from './jwt.guard';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/login.dto';
 
 interface CookieOptions {
   httpOnly: boolean;
@@ -63,15 +64,23 @@ export class AuthController {
     res.send(token);
   }
 
-  @Get('test')
-  async test(@Req() req: any, @Res() res: any) {
-    res.send('Test');
+  @Post('forgot')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    await this.authService.createPasswordResetToken(forgotPasswordDto.email);
+    return {
+      message: 'If an account with that email exists, a password reset link has been sent.',
+    };
   }
 
-  // @UseGuards(RefreshGuard)
-  // @Post('refresh')
-  // async refreshToken(@Req() req: any, @Res() res: any) {
-  //   const oldRefreshToken = req.cookies.Refresh;
-  //   // Extract user from oldRefreshToken and generate new tokens.
-  // }
+  @Post('reset')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    await this.authService.resetPassword(
+      resetPasswordDto.email,
+      resetPasswordDto.token,
+      resetPasswordDto.password,
+    );
+    return {
+      message: 'Your password has been successfully reset.',
+    };
+  }
 }

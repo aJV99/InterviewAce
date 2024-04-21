@@ -30,6 +30,7 @@ export class UserController {
     if (!user) {
       throw new InternalServerErrorException('Retrieving the User Failed');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, password, ...result } = user;
     return result;
   }
@@ -40,6 +41,7 @@ export class UserController {
     if (!user) {
       throw new InternalServerErrorException('Updating the User Failed');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, password, ...result } = user;
     return result;
   }
@@ -57,6 +59,7 @@ export class UserController {
     if (!user) {
       throw new InternalServerErrorException('Updating the User Failed');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, password, ...result } = user;
     return result;
   }
@@ -67,6 +70,7 @@ export class UserController {
     if (!user) {
       throw new InternalServerErrorException('Updating the User Failed');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, password, ...result } = user;
     return result;
   }

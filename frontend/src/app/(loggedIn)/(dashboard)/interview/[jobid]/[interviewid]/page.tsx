@@ -1,7 +1,7 @@
 'use client';
 import { Content } from '@/components/ContentContainer';
 import WithAuth from '@/redux/features/authHoc';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AppDispatch, RootState } from '@/redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -17,6 +17,7 @@ import {
   IconButton,
   Text,
   VStack,
+  Tooltip,
 } from '@chakra-ui/react';
 import { DeleteIcon, EditIcon, ViewOffIcon } from '@chakra-ui/icons';
 import InterviewModal from '@/components/InterviewModal';
@@ -28,13 +29,14 @@ import {
   retakeInterview,
 } from '@/redux/features/jobSlice';
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
-import { toCapitalCase } from '@/app/utils';
+import { getColorByScore, toCapitalCase } from '@/app/utils';
 import Error from '@/app/error';
 import useAnimatedRouter from '@/components/useAnimatedRouter';
 import { StartInterviewDto } from '@/redux/dto/interview.dto';
 import FeedbackCarousel from '@/components/FeedbackCarousel';
 import RetakeInterviewModal from '@/components/RetakeInterviewModal';
 import { useCustomToast } from '@/components/Toast';
+import { FiRefreshCw } from 'react-icons/fi';
 
 const JobPage = ({ params }: { params: { jobid: string; interviewid: string } }) => {
   const router = useAnimatedRouter();
@@ -46,11 +48,12 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
   const { showSuccess, showError } = useCustomToast();
   const { isOpen: isDeleteModalOpen, onOpen: onOpenDeleteModal, onClose: onCloseDeleteModal } = useDisclosure();
   const { isOpen: isRetakeModalOpen, onOpen: onOpenRetakeModal, onClose: onCloseRetakeModal } = useDisclosure();
+  const [loaded, setLoaded] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
   const jobsState = useSelector((state: RootState) => state.jobs);
+  const jobLoading = useSelector((state: RootState) => state.jobs.loadingInterview);
 
   useEffect(() => {
-    // Check if the jobs are fetched or fetch if necessary
     if (!jobsState.fetched) {
       try {
         dispatch(fetchJobs()).unwrap();
@@ -59,14 +62,44 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
       }
     }
 
-    try {
-      dispatch(fetchInterview(params.interviewid)).unwrap();
-    } catch (error) {
-      showError('Server Error. Please try again later');
+    if (!loaded) {
+      try {
+        dispatch(fetchInterview(params.interviewid)).unwrap();
+        setLoaded(true);
+      } catch (error) {
+        showError('Server Error. Please try again later');
+      }
     }
-  });
+  }, [loaded, dispatch, params.interviewid, showError, jobsState.fetched]);
 
-  // Find the job in the state (this will be re-evaluated when the state changes)
+  useEffect(() => {
+    let intervalId: number | undefined;
+
+    const invokeFetchJobs = () => {
+      dispatch(fetchJobs())
+        .unwrap()
+        .catch(() => {
+          showError('Server Error. Please try again later');
+        });
+    };
+
+    if (jobLoading) {
+      // Immediately invoke fetchJobs before setting the interval
+      invokeFetchJobs();
+
+      // Set the interval
+      intervalId = window.setInterval(() => {
+        invokeFetchJobs();
+      }, 15000); // 15000 milliseconds = 15 seconds
+    }
+
+    return () => {
+      if (intervalId !== undefined) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [jobLoading, dispatch, showError]);
+
   const job = jobsState.jobs[params.jobid];
   const interview = job?.interviews[params.interviewid];
 
@@ -91,21 +124,36 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
     <Content>
       <Flex p={5} borderRadius="xl" alignItems="center" justifyContent="space-between">
         <Heading size="3xl">Your Mock Interviews</Heading>
-        {interview.currentQuestion === interview.questions.length ? (
-          <Button colorScheme="teal" onClick={onOpenRetakeModal}>
-            Try this Mock Interview again
-          </Button>
-        ) : interview.currentQuestion !== 0 ? (
-          <Button colorScheme="teal" onClick={handleStart}>
-            Continue this Mock Interview
-          </Button>
-        ) : (
-          <Button colorScheme="teal" onClick={handleStart}>
-            Start your Mock Interview
-          </Button>
-        )}
-
-        {/* The modal */}
+        <Box>
+          <Tooltip label="Refresh">
+            <IconButton
+              aria-label="Sync"
+              icon={<FiRefreshCw />}
+              onClick={() => {
+                try {
+                  dispatch(fetchJobs()).unwrap();
+                } catch (error) {
+                  showError('Server Error. Please try again later');
+                }
+              }}
+              size="md"
+              mr={3}
+            />
+          </Tooltip>
+          {interview.currentQuestion >= interview.questions.length ? (
+            <Button colorScheme="teal" onClick={onOpenRetakeModal}>
+              Try this Mock Interview again
+            </Button>
+          ) : interview.currentQuestion !== 0 ? (
+            <Button colorScheme="teal" onClick={handleStart}>
+              Continue this Mock Interview
+            </Button>
+          ) : (
+            <Button colorScheme="teal" onClick={handleStart}>
+              Start your Mock Interview
+            </Button>
+          )}
+        </Box>
         <Modal isOpen={isInterviewModalOpen} onClose={onCloseInterviewModal} size="xl">
           <ModalOverlay />
           <ModalContent>
@@ -120,7 +168,7 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
         </Modal>
       </Flex>
       <Flex
-        alignItems="stretch" // To ensure the Edit button can be centered across the full height
+        alignItems="stretch"
         justifyContent="space-between"
         p={5}
         mb={3}
@@ -128,9 +176,7 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
         boxShadow="md"
         borderRadius="xl"
       >
-        {/* Left side: Role, Company, Location, and Job Description */}
         <Flex direction="column" flex="1">
-          {/* Top Row: Role, Company, Location */}
           <Flex>
             <Box flex="1" textAlign="center">
               <Text fontWeight="bold">Interview Title: </Text>
@@ -144,18 +190,32 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
             </Box>
             <Box flex="1" textAlign="center">
               <Text fontWeight="bold">Overall Score: </Text>
-              <Text fontSize="lg">
-                {interview?.questions.length === interview.currentQuestion
+              <Text
+                fontSize="lg"
+                color={
+                  interview.currentQuestion >= interview.questions.length && interview.overallScore
+                    ? getColorByScore(interview.overallScore) || 'black'
+                    : 'black'
+                }
+              >
+                {interview.currentQuestion >= interview.questions.length
                   ? `${interview?.overallScore}%`
-                  : 'No attempt yet'}
+                  : interview.currentQuestion !== 0
+                    ? 'Incomplete attempt'
+                    : 'No attempt yet'}
               </Text>
             </Box>
           </Flex>
-          {/* Bottom Row: Job Description */}
           <Box textAlign="center" mt={3}>
             <Text noOfLines={[1, 2, 3]}>
               <Text fontWeight="bold">Interview Context: </Text>
-              {interview?.context}
+              {interview?.context ? (
+                <Text>{interview?.context}</Text>
+              ) : (
+                <Text color="gray" fontStyle={'italic'}>
+                  N/A
+                </Text>
+              )}
             </Text>
           </Box>
         </Flex>
@@ -185,19 +245,15 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
         onClose={onCloseDeleteModal}
         onDelete={() => {
           if (job?.id && interview?.id) {
-            // Check if job?.id is not undefined
             try {
               router.push('/job/' + job.id);
               setTimeout(async () => {
                 await dispatch(deleteInterview(interview.id)).unwrap();
-                showSuccess('Interview Successfully Deleted');
+                showSuccess('Interview Deleted');
               }, 500);
             } catch (error) {
-              showError('Interview Deletion Failed. Please try again later');
+              showError('An Error Occurred', 'Interview Deletion Failed. Please try again later');
             }
-          } else {
-            console.error('Interview ID is undefined');
-            // Optionally, handle the undefined ID case (e.g., showing an error message)
           }
         }}
         itemType={'interview'}
@@ -215,9 +271,8 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
           }
         }}
       />
-      {/* <Suspense fallback={<Loading />}> */}
       <Box
-        alignItems="stretch" // To ensure the Edit button can be centered across the full height
+        alignItems="stretch"
         justifyContent="space-between"
         p={5}
         mb={3}
@@ -226,7 +281,7 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
         borderRadius="xl"
       >
         <Heading size="xl">Your Feedback</Heading>
-        {interview.currentQuestion === interview.questions.length ? (
+        {interview.currentQuestion >= interview.questions.length ? (
           <Box my={3}>
             <FeedbackCarousel questions={interview.questions} />
           </Box>
@@ -239,10 +294,7 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
           </Box>
         )}
       </Box>
-      {/* </Suspense> */}
-      {/* </Bubble> */}
     </Content>
-    // </ErrorBoundary>
   );
 };
 
