@@ -103,3 +103,34 @@ function hexToRgb(hex: string | any[]) {
 function rgbToHex(red: number, green: number, blue: number) {
   return '#' + ((1 << 24) + (red << 16) + (green << 8) + blue).toString(16).slice(1).toUpperCase();
 }
+
+export function getBrowserName() {
+  const userAgent = navigator.userAgent;
+
+  // Check for Safari
+  if (userAgent.includes('Safari') && !userAgent.includes('Chrome') && !userAgent.includes('Edge')) {
+    return 'Safari';
+  }
+
+  // Check for Chrome
+  if (userAgent.includes('Chrome') && !userAgent.includes('Edge')) {
+    return 'Chrome';
+  }
+
+  // Check for Firefox
+  if (userAgent.includes('Firefox')) {
+    return 'Firefox';
+  }
+
+  // Check for Edge
+  if (userAgent.includes('Edg')) {
+    return 'Edge';
+  }
+
+  // Check for Internet Explorer
+  if (userAgent.includes('Trident')) {
+    return 'IE';
+  }
+
+  return 'Unknown';
+}

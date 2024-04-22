@@ -1,3 +1,4 @@
+import { getBrowserName } from '@/app/utils';
 import { useState, useRef, useEffect } from 'react';
 
 const useMicrophone = (
@@ -13,6 +14,15 @@ const useMicrophone = (
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const currentTranscript = useRef<string>(''); // Use ref to track the current transcript
 
+  const normalizeTranscript = (transcript: string) => {
+    // Example: Capitalize the first letter and add a period at the end.
+    if (transcript.charAt(0) === ' ') {
+      return ' ' + transcript.charAt(1).toUpperCase() + transcript.slice(2).toLowerCase() + '.';
+    } else {
+      return transcript.charAt(0).toUpperCase() + transcript.slice(1).toLowerCase() + '.';
+    }
+  };
+
   useEffect(() => {
     currentTranscript.current = transcript; // Update ref whenever transcript changes
   }, [transcript]);
@@ -23,7 +33,7 @@ const useMicrophone = (
 
     if (!SpeechRecognition) {
       alert(
-        'Your browser does not support the Web Speech API. Please use the latest versions of any of the following browsers: Google Chrome, Microsoft Edge, Mozilla Firefox',
+        'Your browser does not support the Web Speech API. Please use the latest versions of any of the following browsers: Google Chrome, Microsoft Edge, Safari, Opera.',
       );
       return;
     }
@@ -35,8 +45,18 @@ const useMicrophone = (
     recognitionRef.current.maxAlternatives = 1;
 
     recognitionRef.current.onresult = (event) => {
+      const browserName = getBrowserName();
       const transcriptResult = Array.from(event.results)
-        .map((result) => result[0].transcript)
+        .map((result) => {
+          console.log(result[0].transcript);
+          // Check if the browser is Edge; if so, return the original transcript without normalization
+          if (browserName === 'Edge') {
+            return result[0].transcript;
+          } else {
+            // For other browsers, apply normalization
+            return normalizeTranscript(result[0].transcript);
+          }
+        })
         .join(' ');
       setTranscript(transcriptResult);
       if (!testsPassed && transcriptResult === micPhrase) {

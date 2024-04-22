@@ -23,7 +23,7 @@ export default function Home() {
         direction={{ base: 'column', md: 'row' }}
       >
         <Stack flex={1} spacing={{ base: 5, md: 10 }}>
-          <Image src="/Logo.png" alt="InterviewAce Logo" w={'95%'} align={'left'} />
+          <Image src="/Logo.png" alt="InterviewAce Logo" w={'95%'} h={'95%'} align={'left'} />
           <Heading lineHeight={1.1} fontWeight={600} fontSize={{ base: '2xl', sm: '3xl', lg: '5xl' }}>
             <Text as={'span'} position={'relative'}>
               {`Don't just prepare`},
