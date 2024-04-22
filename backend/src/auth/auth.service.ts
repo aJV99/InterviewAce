@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { LoginDtoEmail, LoginDtoId } from './dto/login.dto';
+import { BugReportDto, LoginDtoEmail, LoginDtoId } from './dto/login.dto';
 import { JwtPayload } from './dto/jwt-payload.interface';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -58,17 +58,7 @@ export class AuthService {
     return this.jwtService.sign(payload, { expiresIn: '7d' });
   }
 
-  async createPasswordResetToken(email: string): Promise<void> {
-    const user = await this.userService.findOneByEmail(email);
-
-    const resetToken = this.generateToken();
-    const resetExpires = new Date(Date.now() + 15 * 60 * 1000); // 1 hour from now
-
-    await this.userService.update(user.id, {
-      resetToken,
-      resetExpires,
-    });
-
+  async sendEmail(email: string, subject: string, text: string, html: string): Promise<void> {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -81,30 +71,77 @@ export class AuthService {
       {
         from: process.env.MAIL_USER,
         to: email,
-        subject: 'Password Reset Request - InterviewAce',
-        text: `Hi ${user.firstName}\n
-        You are receiving this because you (or someone else) have requested the reset of the password for your account.\n
-        If this was you, please copy the below token and paste the code into the portal to complete the process within one hour of receiving it:\n
-        ${resetToken}\n
-        If you did not request this, please ignore this email and your password will remain unchanged.\n
-        Enjoy your interview prep,
-        Ace\n
-        InterviewAce`,
-        html: `<p>Hi ${user.firstName},</p>
-      <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
-      <p>If this was you, please copy the below token and paste the code into the portal to complete the process within one hour of receiving it:</p>
-      <p><strong>${resetToken}</strong></p>
-      <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
-      <p>Enjoy your interview prep,</p>
-      <p>Ace</p>
-      <p><img style="height: 80px;" src="https://www.interviewace.co.uk/Logo.png" alt="InterviewAce Logo" /></p>`,
+        subject,
+        text,
+        html,
       },
       (err) => {
         if (err) {
-          throw new InternalServerErrorException('Code was unable to send');
+          throw new InternalServerErrorException('Email was unable to send');
         }
       },
     );
+  }
+
+  async createPasswordResetToken(email: string): Promise<void> {
+    const user = await this.userService.findOneByEmail(email);
+
+    const resetToken = this.generateToken();
+    const resetExpires = new Date(Date.now() + 15 * 60 * 1000); // 1 hour from now
+
+    await this.userService.update(user.id, {
+      resetToken,
+      resetExpires,
+    });
+
+    const subject = 'Password Reset Request - InterviewAce';
+
+    const text = `Hi ${user.firstName},\n
+    You are receiving this because you (or someone else) have requested the reset of the password for your account.\n
+    If this was you, please copy the below token and paste the code into the portal to complete the process within one hour of receiving it:\n
+    ${resetToken}\n
+    If you did not request this, please ignore this email and your password will remain unchanged.\n
+    Enjoy your interview prep,
+    Ace\n
+    InterviewAce`;
+
+    const html = `<p>Hi ${user.firstName},</p>
+    <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
+    <p>If this was you, please copy the below token and paste the code into the portal to complete the process within one hour of receiving it:</p>
+    <p><strong>${resetToken}</strong></p>
+    <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
+    <p>Enjoy your interview prep,</p>
+    <p>Ace</p>
+    <img style="height: 80px;" src="https://www.interviewace.co.uk/Logo.png" alt="InterviewAce Logo" />`;
+
+    await this.sendEmail(email, subject, text, html);
+  }
+
+  async reportBug(bugReportDto: BugReportDto): Promise<void> {
+    const { title, description, email } = bugReportDto;
+    const subject = 'Bug Reported - InterviewAce';
+
+    const text = `Hi Admin,\n
+    The following bug has been reported by the user with email ${email}.\n
+    Bug Report Title:
+    ${title}\n
+    Bug Report Description:
+    ${description}\n
+    Better get on fixing it,
+    Ace\n
+    InterviewAce`;
+
+    const html = `<p>Hi Admin,</p>
+    <p>The following bug has been reported by the user with email <a href="mailto:${email}">${email}</a>.</p>
+    <p><strong>Bug Report Title:</strong></p>
+    <p>${title}</p>
+    <p><strong>Bug Report Description:</strong></p>
+    <p>${description}</p>
+    <p>Better get on fixing it,</p>
+    <p>Ace</p>
+    <img style="height: 80px;" src="https://www.interviewace.co.uk/Logo.png" alt="InterviewAce Logo" />`;
+
+    await this.sendEmail(process.env.MAIL_USER, subject, text, html);
   }
 
   async resetPassword(email: string, token: string, newPassword: string): Promise<void> {

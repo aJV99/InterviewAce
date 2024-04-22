@@ -17,3 +17,9 @@ export class ResetPasswordDto {
   token: string;
   password: string;
 }
+
+export class BugReportDto {
+  title: string;
+  description: string;
+  email: string;
+}

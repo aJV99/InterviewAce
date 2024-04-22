@@ -164,11 +164,13 @@ const InterviewCards: React.FC<{ cards: Interview[] | undefined }> = ({ cards })
                         : 'black'
                     }
                   >
-                    {card.currentQuestion >= card.questions.length
-                      ? `${card?.overallScore}%`
-                      : card.currentQuestion !== 0
-                        ? 'Incomplete attempt'
-                        : 'No attempt yet'}
+                    {jobLoading === card.id
+                      ? 'Interview Finished'
+                      : card.currentQuestion >= card.questions.length
+                        ? `${card?.overallScore}%`
+                        : card.currentQuestion !== 0
+                          ? 'Incomplete attempt'
+                          : 'No attempt yet'}
                   </Text>
                 </VStack>
                 <Menu placement="bottom">

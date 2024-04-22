@@ -28,6 +28,11 @@ export const reset = async (email: string, token: string, password: string) => {
   return response.data;
 };
 
+export const reportBug = async (title: string, description: string, email: string) => {
+  const response = await axiosInstance.post('/auth/bug', { title, description, email });
+  return response.data;
+};
+
 export const getUser = createAsyncThunk<UserDto>('auth/getUser', async (_, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.get('/user');

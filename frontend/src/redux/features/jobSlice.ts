@@ -242,7 +242,7 @@ const initialState: JobState = {
   jobs: {},
   fetched: false,
   creatingInterview: false,
-  loadingInterview: 'hello',
+  loadingInterview: '',
   currentInterview: {
     jobId: '',
     interviewId: '',

@@ -2,7 +2,7 @@ import { Body, Controller, Post, Req, Res, UnauthorizedException, UseGuards } fr
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
 import { JwtAuthGuard } from './jwt.guard';
-import { ForgotPasswordDto, ResetPasswordDto } from './dto/login.dto';
+import { BugReportDto, ForgotPasswordDto, ResetPasswordDto } from './dto/login.dto';
 
 interface CookieOptions {
   httpOnly: boolean;
@@ -81,6 +81,14 @@ export class AuthController {
     );
     return {
       message: 'Your password has been successfully reset.',
+    };
+  }
+
+  @Post('bug')
+  async bugReport(@Body() bugReportDto: BugReportDto) {
+    await this.authService.reportBug(bugReportDto);
+    return {
+      message: 'A bug report has been sent to the admin.',
     };
   }
 }
