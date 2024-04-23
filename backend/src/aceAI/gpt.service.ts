@@ -31,7 +31,6 @@ export class GPTService {
       ],
       model: 'gpt-4-1106-preview',
       response_format: responseFormat,
-      max_tokens: 50,
     };
 
     const { data } = await firstValueFrom(
