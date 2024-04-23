@@ -1,10 +1,13 @@
 'use client';
 import SignUpPage from '@/appPages/SignupPage';
+import MobileAccessBlocker from '@/components/MobileAccessBlocker';
 
 const SignUp = () => {
   return (
     <>
-      <SignUpPage />
+      <MobileAccessBlocker>
+        <SignUpPage />
+      </MobileAccessBlocker>
     </>
   );
 };
