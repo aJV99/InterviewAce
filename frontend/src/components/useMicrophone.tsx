@@ -60,15 +60,12 @@ const useMicrophone = (
       setTranscript(transcriptResult);
       if (!testsPassed && transcriptResult === micPhrase) {
         setStatus('SUCCESS!');
+        stopListening(); // Stop listening right here
         setTimeout(() => {
           setTestsPassedTrue();
-          stopListening(); // Stop listening right here
         }, 2000);
       } else if (!testsPassed) {
         setStatus('ERROR!');
-        setTimeout(() => {
-          stopListening(); // Stop listening right here
-        }, 1000);
       }
     };
 
