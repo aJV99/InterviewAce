@@ -41,6 +41,7 @@ const JobPage = ({ params }: { params: { id: string } }) => {
   const dispatch = useDispatch<AppDispatch>();
   const jobsState = useSelector((state: RootState) => state.jobs);
   const { showSuccess, showError } = useCustomToast();
+  const jobLoading = useSelector((state: RootState) => state.jobs.loadingInterview);
 
   useEffect(() => {
     if (!jobsState.fetched) {
@@ -51,6 +52,31 @@ const JobPage = ({ params }: { params: { id: string } }) => {
       }
     }
   }, [dispatch, jobsState, showError]);
+
+  useEffect(() => {
+    let intervalId: number | undefined;
+
+    const invokeFetchJobs = () => {
+      dispatch(fetchJobs())
+        .unwrap()
+        .catch(() => {
+          showError('Server Error. Please try again later');
+        });
+    };
+
+    if (jobLoading) {
+      // Set the interval to call invokeFetchJobs every 15 seconds
+      intervalId = window.setInterval(() => {
+        invokeFetchJobs();
+      }, 10000); // 10000 milliseconds = 10 seconds
+    }
+
+    return () => {
+      if (intervalId !== undefined) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [jobLoading, dispatch, showError]);
 
   const job = jobsState.jobs[params.id];
 

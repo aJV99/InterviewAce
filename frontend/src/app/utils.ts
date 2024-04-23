@@ -108,12 +108,12 @@ export function getBrowserName() {
   const userAgent = navigator.userAgent;
 
   // Check for Safari
-  if (userAgent.includes('Safari') && !userAgent.includes('Chrome') && !userAgent.includes('Edge')) {
+  if (userAgent.includes('Safari') && !userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
     return 'Safari';
   }
 
   // Check for Chrome
-  if (userAgent.includes('Chrome') && !userAgent.includes('Edge')) {
+  if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
     return 'Chrome';
   }
 

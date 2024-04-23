@@ -28,7 +28,6 @@ import {
   FormErrorMessage,
 } from '@chakra-ui/react';
 import { Interview } from '@/redux/dto/interview.dto';
-import AnimatedButton from '@/components/AnimatedButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
 import { useRef, useState } from 'react';
@@ -39,6 +38,7 @@ import ConfirmDeleteModal from '@/components/ConfirmDeleteModal';
 import RetakeInterviewModal from '@/components/RetakeInterviewModal';
 import { useCustomToast } from '@/components/Toast';
 import { getColorByScore, toCapitalCase } from '@/app/utils';
+import GeneratingFeedbackButton from './GeneratingFeedbackButton';
 
 const InterviewCards: React.FC<{ cards: Interview[] | undefined }> = ({ cards }) => {
   const jobLoading = useSelector((state: RootState) => state.jobs.loadingInterview);
@@ -205,14 +205,20 @@ const InterviewCards: React.FC<{ cards: Interview[] | undefined }> = ({ cards })
             </Flex>
             <br />
             <Spacer />
-            <AnimatedButton
+            {/* <AnimatedButton
               colorScheme="blue"
               destination={'/interview/' + card.jobId + '/' + card.id}
               isLoading={jobLoading === card.id ? true : false}
-              loadingText="Generating Feedback"
+              loadingText={`Generating Feedback`}
             >
               Get Practicing
-            </AnimatedButton>
+            </AnimatedButton> */}
+            <GeneratingFeedbackButton
+              jobLoading={jobLoading}
+              cardId={card.id}
+              jobId={card.jobId}
+              questions={card.questions}
+            />
           </Box>
         );
       })}

@@ -48,7 +48,6 @@ const useMicrophone = (
       const browserName = getBrowserName();
       const transcriptResult = Array.from(event.results)
         .map((result) => {
-          console.log(result[0].transcript);
           // Check if the browser is Edge; if so, return the original transcript without normalization
           if (browserName === 'Edge') {
             return result[0].transcript;
@@ -65,6 +64,11 @@ const useMicrophone = (
           setTestsPassedTrue();
           stopListening(); // Stop listening right here
         }, 2000);
+      } else if (!testsPassed) {
+        setStatus('ERROR!');
+        setTimeout(() => {
+          stopListening(); // Stop listening right here
+        }, 1000);
       }
     };
 

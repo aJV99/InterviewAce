@@ -51,7 +51,6 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
   const [loaded, setLoaded] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
   const jobsState = useSelector((state: RootState) => state.jobs);
-  const jobLoading = useSelector((state: RootState) => state.jobs.loadingInterview);
 
   useEffect(() => {
     if (!jobsState.fetched) {
@@ -71,34 +70,6 @@ const JobPage = ({ params }: { params: { jobid: string; interviewid: string } })
       }
     }
   }, [loaded, dispatch, params.interviewid, showError, jobsState.fetched]);
-
-  useEffect(() => {
-    let intervalId: number | undefined;
-
-    const invokeFetchJobs = () => {
-      dispatch(fetchJobs())
-        .unwrap()
-        .catch(() => {
-          showError('Server Error. Please try again later');
-        });
-    };
-
-    if (jobLoading) {
-      // Immediately invoke fetchJobs before setting the interval
-      invokeFetchJobs();
-
-      // Set the interval
-      intervalId = window.setInterval(() => {
-        invokeFetchJobs();
-      }, 15000); // 15000 milliseconds = 15 seconds
-    }
-
-    return () => {
-      if (intervalId !== undefined) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [jobLoading, dispatch, showError]);
 
   const job = jobsState.jobs[params.jobid];
   const interview = job?.interviews[params.interviewid];
