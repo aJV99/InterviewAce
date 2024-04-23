@@ -67,7 +67,11 @@ const SetupModal: React.FC<SetupModalProps> = ({ transcript, status, isListening
           </Box>
           {currentStep === 1 && (
             <>
-              <Text mb={2}>Please start the speaker test to ensure your audio output is working correctly.</Text>
+              <Text mb={2}>
+                {
+                  'Please start the speaker test to ensure your audio output is working correctly. (Ignore if it repeats Test first, your system is just preparing)'
+                }
+              </Text>
               {status == 'CHECK!' && (
                 <>
                   <Text fontWeight="bold">{`Did you hear this phrase: "${testsSteps[0].phrase}"`}</Text>

@@ -18,17 +18,17 @@ const useSpeaker = (handleResult: () => void) => {
   const selectVoice = () => {
     if (voiceTest.checked) {
       if (voiceTest.enGBWorks) {
-        return voices.find(voice => voice.lang.startsWith('en-GB'));
+        return voices.find((voice) => voice.lang.startsWith('en-GB'));
       } else {
-        return voices.find(voice => voice.lang.startsWith('en-US'));
+        return voices.find((voice) => voice.lang.startsWith('en-US'));
       }
     }
     return null;
   };
 
   const testVoiceBoundary = (voiceLang: string) => {
-    const testUtterance = new SpeechSynthesisUtterance("");
-    const testVoice = voices.find(voice => voice.lang.startsWith(voiceLang));
+    const testUtterance = new SpeechSynthesisUtterance('Test');
+    const testVoice = voices.find((voice) => voice.lang.startsWith(voiceLang));
 
     if (testVoice) {
       testUtterance.voice = testVoice;
@@ -56,6 +56,7 @@ const useSpeaker = (handleResult: () => void) => {
     if (!voiceTest.checked && voices.length > 0) {
       testVoiceBoundary('en-GB');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voices]);
 
   const handleSpeak = (text: string) => {
