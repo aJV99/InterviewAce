@@ -52,7 +52,6 @@ export class QuestionsController {
     await this.questionsService.checkQuestionOwnership(id, req.user.id);
     const resp = await this.questionsService.answer(id, response);
     const interview = await this.interviewsService.findOne(resp.interviewId);
-    await this.interviewsService.update(resp.interviewId, { currentQuestion: resp.index });
     if (interview.questions.length === resp.index + 1) {
       this.interviewsService.feedback(resp.interviewId);
     } else {

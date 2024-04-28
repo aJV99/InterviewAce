@@ -33,7 +33,7 @@ const useMicrophone = (
 
     if (!SpeechRecognition) {
       alert(
-        'Your browser does not support the Web Speech API. Please use the latest versions of any of the following browsers: Google Chrome, Microsoft Edge, Safari, Opera.',
+        'Your browser does not support the Speech Recognition API. Please use the latest versions of any of the following browsers: Google Chrome, Microsoft Edge, Safari.',
       );
       return;
     }

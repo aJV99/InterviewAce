@@ -9,10 +9,10 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from '../auth/auth.service';
 import { UserService } from './user.service';
-import { RequestWithAuth } from 'src/dto/request.dto';
-import { JwtAuthGuard } from 'src/auth/jwt.guard';
+import { RequestWithAuth } from '../dto/request.dto';
+import { JwtAuthGuard } from '../auth/jwt.guard';
 import { User } from '@prisma/client';
 import { Password } from './dto/password.dto';
 

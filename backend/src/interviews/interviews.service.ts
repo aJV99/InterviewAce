@@ -50,27 +50,17 @@ export class InterviewsService {
     const { title, company, description, location } = await this.jobsService.findOne(jobId);
 
     let generatedContent;
-    if (process.env.DO_NOT_REQUEST === 'FALSE') {
-      // Generate questions using AI service
-      generatedContent = await this.aceAIService.generateQuestions(
-        title,
-        company,
-        description,
-        location,
-        createInterviewDto.title,
-        createInterviewDto.type,
-        createInterviewDto.customType,
-        createInterviewDto.context,
-      );
-    } else {
-      generatedContent = JSON.stringify([
-        'How you doin',
-        'Haaaave you met Ted?',
-        `${title}`,
-        `${company}`,
-        `${location}`,
-      ]);
-    }
+    // Generate questions using AI service
+    generatedContent = await this.aceAIService.generateQuestions(
+      title,
+      company,
+      description,
+      location,
+      createInterviewDto.title,
+      createInterviewDto.type,
+      createInterviewDto.customType,
+      createInterviewDto.context,
+    );
 
     const formattedContent = JSON.parse(generatedContent);
 
@@ -156,38 +146,14 @@ export class InterviewsService {
 
     for (const question of interview.questions) {
       let feedback;
-      if (process.env.DO_NOT_REQUEST === 'FALSE') {
-        // Real API call for feedback
-        feedback = await this.aceAIService.giveFeedback(
-          job.title,
-          job.company,
-          interview.type,
-          question.content,
-          question.userResponse === '' ? 'No response given.' : question.userResponse,
-          criteria,
-        );
-      } else {
-        // Hardcoded feedback for example
-        feedback = {
-          strengths: {
-            Uniqueness:
-              'The context of creating a personal project for a significant other is unique and could stand out in an interview setting.',
-          },
-          improvements: {
-            Relevance:
-              'The response does not directly address the question about implementing an innovative feature in a mobile app, which is critical for the position of a Technology Consultant at IBM iX.',
-            'Depth and Detail':
-              'There is a lack of depth and detail about the actual implementation process and the innovative features introduced, which is necessary to showcase technical competence.',
-            'Clarity and Structure':
-              "The response lacks clarity and structure. There is no clear narrative or sequence of events. The use of filler words ('OK', 'yeah', 'like') diminishes the professional tone of the response.",
-            'Alignment with Job Requirements':
-              'The answer fails to demonstrate any relevant skills or experiences that align with the role of a Technology Consultant, such as strategic thinking, technical skills, or a customer-centric approach.',
-          },
-          score: 20,
-          exemplar:
-            "In my previous role as a mobile developer, we were tasked to enhance user engagement for our e-commerce platform's mobile app. We reviewed user feedback and noticed that users wanted a more personalized shopping experience. My approach involved proposing a feature that used machine learning to provide personalized recommendations to users. I led a cross-functional team to design the feature's algorithm by analyzing user behavior data. We then developed a minimum viable product that we continuously refined based on user testing. Through this iterative process, we successfully increased app usage by 30% within the first quarter of implementation. This project was in line with my role as a Technology Consultant, where I was able to showcase my skills in app development, data analysis, and delivering user-centric solutions.",
-        };
-      }
+      feedback = await this.aceAIService.giveFeedback(
+        job.title,
+        job.company,
+        interview.type,
+        question.content,
+        question.userResponse === '' ? 'No response given.' : question.userResponse,
+        criteria,
+      );
 
       const { score: questionScore, exemplar: exemplarAnswer, ...restOfFeedback } = feedback;
 

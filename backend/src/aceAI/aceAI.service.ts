@@ -10,16 +10,6 @@ export class AceAIService {
   private readonly logger = new Logger(AceAIService.name);
   constructor(private readonly gptService: GPTService) {}
 
-  // Refactored to use sendRequest
-  async getGptResponse(): Promise<JSON> {
-    const systemContent =
-      'You are an interview response evaluator. Reply in JSON. Specify parts of the response which could be replaced. Your response should look like {"feedback": "...", "suggestions": [["replace this","with this"],["replace this","with this"]]}';
-    const userContent =
-      'Question: Tell me about a time you faced a challenge at work and how you handled it.' +
-      'Answer: Once at my previous job, I was given a project with a tight deadline. I quickly organized a team, delegated tasks, and ensured open communication. We worked extra hours and managed to complete the project on time, receiving appreciation from our superiors.';
-    return this.gptService.sendRequest(systemContent, userContent);
-  }
-
   async checkJobValidity(jobDto: JobDto): Promise<JobValidityResponse> {
     const { title, company, description, location } = jobDto;
     const systemContent =

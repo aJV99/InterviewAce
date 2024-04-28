@@ -105,7 +105,7 @@ const SignUpPage = () => {
     return errorMsg === '';
   };
 
-  const handleLogin = async () => {
+  const handleSignup = async () => {
     // Validate all fields before attempting to sign up
     const validFirstName = handleValidation('firstName', firstName);
     const validLastName = handleValidation('lastName', lastName);
@@ -259,7 +259,7 @@ const SignUpPage = () => {
                     !hasSymbol ||
                     !hasValidLength
                   }
-                  onClick={handleLogin}
+                  onClick={handleSignup}
                 >
                   Sign up
                 </Button>
