@@ -14,10 +14,8 @@
     "setup": "npm run install & npm run build",
     "dev:fe": "cd frontend && npm run dev",
     "dev:be": "cd backend && npm run dev",
-    "dev": "npm run dev:fe & npm run dev:be",
     "start:fe": "cd frontend && npm run start",
-    "start:be": "cd backend && npm run start",
-    "start": "npm run start:fe & npm run start:be"
+    "start:be": "cd backend && npm run start"
   },
   "keywords": [],
   "license": "ISC"
