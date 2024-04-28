@@ -26,7 +26,7 @@ const MobileAccessBlocker = ({ children }: { children: React.ReactNode }) => {
   return (
     <Center height="100vh" flexDirection="column" bg="gray.100">
       <Box py={10} px={6} textAlign="center">
-        <Image src="/Logo.png" alt="Logo" width="30%" margin="auto" display="block" />
+        <Image src="/Logo.png" alt="Logo" width="50%" margin="auto" display="block" />
         <Heading
           as="h2"
           size="2xl"
@@ -37,10 +37,10 @@ const MobileAccessBlocker = ({ children }: { children: React.ReactNode }) => {
           Mobile Access Restricted
         </Heading>
         <Text fontSize="18px" mt={3} mb={2}>
-          Oops! Not Available on Mobile
+          Oops! This application is not currently available on Mobile
         </Text>
         <Text color={'gray.500'} mb={6}>
-          {`We're sorry, but this part of our website is not accessible on mobile devices.`}
+          {`We're sorry, but our application is not accessible on mobile devices. If you would like to use InterviewAce, please visit the site on a Desktop computer using Google Chrome or Microsoft Edge.`}
         </Text>
         <Button
           colorScheme="teal"

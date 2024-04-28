@@ -49,9 +49,7 @@ export class InterviewsService {
   async createNew(jobId: string, createInterviewDto: InterviewDto) {
     const { title, company, description, location } = await this.jobsService.findOne(jobId);
 
-    let generatedContent;
-    // Generate questions using AI service
-    generatedContent = await this.aceAIService.generateQuestions(
+    const generatedContent = await this.aceAIService.generateQuestions(
       title,
       company,
       description,
@@ -145,8 +143,7 @@ export class InterviewsService {
     let score = 0;
 
     for (const question of interview.questions) {
-      let feedback;
-      feedback = await this.aceAIService.giveFeedback(
+      const feedback = await this.aceAIService.giveFeedback(
         job.title,
         job.company,
         interview.type,

@@ -117,7 +117,7 @@ describe('AuthController', () => {
   });
 
   describe('resetPassword', () => {
-    it('should reset a user\'s password successfully', async () => {
+    it("should reset a user's password successfully", async () => {
       const resetPasswordDto = { email: 'test@example.com', token: 'some-token', password: 'newpassword' };
       authService.resetPassword.mockResolvedValue(undefined);
 
@@ -131,7 +131,11 @@ describe('AuthController', () => {
 
   describe('bugReport', () => {
     it('should handle a bug report submission', async () => {
-      const bugReportDto = { title: 'something went wrong', description: 'something went horribly wrong', email: 'test.user@email.com' };
+      const bugReportDto = {
+        title: 'something went wrong',
+        description: 'something went horribly wrong',
+        email: 'test.user@email.com',
+      };
       authService.reportBug.mockResolvedValue(undefined);
 
       const result = await controller.bugReport(bugReportDto);

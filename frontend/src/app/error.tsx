@@ -17,7 +17,7 @@ const ErrorNotFound = () => {
   return (
     <Center height="100vh" flexDirection="column" bg="gray.100">
       <Box py={10} px={6} textAlign="center">
-        <Image src="/Logo.png" alt="InterviewAce Logo" width="30%" margin="auto" display="block" />
+        <Image src="/Logo.png" alt="InterviewAce Logo" width="50%" margin="auto" display="block" />
         <Heading
           as="h2"
           size="2xl"
