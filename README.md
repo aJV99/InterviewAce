@@ -24,18 +24,24 @@ InterviewAce leverages speech recognition and a fine-tuned GPT model to provide 
 To start using InterviewAce, follow these commands:
 
 ```bash
-# Install the necessary packages
-npm run install
+# Create a PostgreSQL database on your local machine
+# Put the Postgres connection string in the .env file within the backend directory
+DATABASE_URL = "*connection string here*" 
 
-# Start the frontend
+# Run the setup command in the terminal from the root terminal
+npm run setup
+
+# Run the frontend  
 npm run start:fe
 
-# Start the backend
+# Start the backend on another terminal allowing them to run concurrently
 npm run start:be
-
-# Start both frontend and backend
-npm start
 ```
+
+You can now access the application on [localhost:3000](http://localhost:3000/).
+
+Alternatively, you can visit the deployed version of the application [here](https://www.interviewace.co.uk/).
+
 ## Sole Contributor
 
 Abbas Alibhai
