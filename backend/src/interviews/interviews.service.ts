@@ -178,7 +178,7 @@ export class InterviewsService {
       },
       data: {
         overallScore: finalScore,
-        currentQuestion: interview.currentQuestion + 1,
+        currentQuestion: interview.questions.length,
       },
     });
   }
