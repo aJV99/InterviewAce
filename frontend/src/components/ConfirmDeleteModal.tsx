@@ -22,7 +22,7 @@ interface ConfirmDeleteModalProps {
 
 const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ isOpen, onClose, onDelete, itemType }) => {
   let grammarItemType;
-  if (itemType === ('job' || 'interview')) {
+  if (itemType === 'job' || itemType === 'interview') {
     grammarItemType = 'this ' + itemType;
   } else {
     grammarItemType = 'your ' + itemType;

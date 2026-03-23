@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint --fix",
-    "format": "npx prettier . --write"
+    "format": "prettier . --write"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",

@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Flex, keyframes, Tooltip } from '@chakra-ui/react';
+import { Box, Flex, Tooltip } from '@chakra-ui/react';
+import { keyframes } from '@emotion/react';
 import React from 'react';
 
 export default function StatusIndicator() {
